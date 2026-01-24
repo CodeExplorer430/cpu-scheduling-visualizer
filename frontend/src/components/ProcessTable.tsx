@@ -74,7 +74,7 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
         <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap">
           Processes
         </h3>
-        <div className="flex flex-nowrap gap-2 overflow-x-auto pb-1 sm:pb-0 w-full md:w-auto justify-start sm:justify-end">
+        <div className="flex flex-nowrap gap-2 overflow-x-auto pb-1 sm:pb-0 w-full md:w-auto justify-start">
           <button
             onClick={handleRandomize}
             className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors whitespace-nowrap"
