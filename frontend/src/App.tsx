@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { runFCFS, runSJF, runSRTF, runRR, Process, SimulationResult, Algorithm } from '@cpu-vis/shared';
-import { ProcessTable } from './components/ProcessTable';
-import { Gantt } from './components/GanttChart/Gantt';
+import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { Process } from '@cpu-vis/shared';
+import { Playground } from './pages/Playground';
+import { Compare } from './pages/Compare';
 
 const initialProcesses: Process[] = [
   { pid: 'P1', arrival: 0, burst: 4 },
@@ -10,155 +11,71 @@ const initialProcesses: Process[] = [
   { pid: 'P4', arrival: 5, burst: 2 },
 ];
 
-function App() {
-  const [processes, setProcesses] = useState<Process[]>(initialProcesses);
-  const [selectedAlgorithm, setSelectedAlgorithm] = useState<Algorithm>('FCFS');
-  const [quantum, setQuantum] = useState<number>(2);
-  const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
-
-  const handleRunSimulation = () => {
-    let result: SimulationResult;
-    
-    switch (selectedAlgorithm) {
-      case 'FCFS':
-        result = runFCFS(processes);
-        break;
-      case 'SJF':
-        result = runSJF(processes);
-        break;
-      case 'SRTF':
-        result = runSRTF(processes);
-        break;
-      case 'RR':
-        result = runRR(processes, quantum);
-        break;
-      default:
-        result = runFCFS(processes);
-    }
-    
-    setSimulationResult(result);
-  };
-
-  const metrics = simulationResult?.metrics;
+function Layout({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
+  const tabs = [
+    { name: 'Playground', path: '/' },
+    { name: 'Compare', path: '/compare' },
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8 font-sans">
-      <header className="max-w-6xl mx-auto mb-8">
-        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">CPU Scheduling Visualizer</h1>
-        <p className="text-gray-500 mt-2">Interactive simulation of CPU scheduling algorithms.</p>
+    <div className="min-h-screen bg-gray-100 font-sans flex flex-col">
+      <header className="bg-white shadow-sm z-10 relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex">
+              <div className="flex-shrink-0 flex items-center">
+                <h1 className="text-xl font-bold text-gray-900 tracking-tight">CPU Scheduling Visualizer</h1>
+              </div>
+              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+                {tabs.map((tab) => (
+                  <Link
+                    key={tab.name}
+                    to={tab.path}
+                    className={`${
+                      location.pathname === tab.path
+                        ? 'border-blue-500 text-gray-900'
+                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                    } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors`}
+                  >
+                    {tab.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center">
+               <a href="https://github.com" target="_blank" className="text-gray-400 hover:text-gray-500">
+                  {/* GitHub Icon Placeholder or simple text */}
+                  <span className="text-sm">GitHub</span>
+               </a>
+            </div>
+          </div>
+        </div>
       </header>
 
-      <main className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        {/* Left Column: Controls & Input */}
-        <div className="lg:col-span-5 space-y-6">
-          
-          {/* Controls */}
-          <div className="bg-white p-6 rounded-lg shadow space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Algorithm</label>
-              <select
-                value={selectedAlgorithm}
-                onChange={(e) => setSelectedAlgorithm(e.target.value as Algorithm)}
-                className="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border"
-              >
-                <option value="FCFS">First-Come, First-Served (FCFS)</option>
-                <option value="SJF">Shortest Job First (SJF - Non-Preemptive)</option>
-                <option value="SRTF">Shortest Remaining Time First (SRTF - Preemptive)</option>
-                <option value="RR">Round Robin (RR)</option>
-              </select>
-            </div>
-
-            {selectedAlgorithm === 'RR' && (
-               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Time Quantum</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={quantum}
-                  onChange={(e) => setQuantum(Math.max(1, parseInt(e.target.value) || 1))}
-                  className="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border"
-                />
-              </div>
-            )}
-            
-            <button
-              onClick={handleRunSimulation}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors shadow-sm"
-            >
-              Run Simulation
-            </button>
-          </div>
-
-          {/* Process Input Table */}
-          <ProcessTable processes={processes} onProcessChange={setProcesses} />
-        </div>
-
-        {/* Right Column: Visualization & Metrics */}
-        <div className="lg:col-span-7 space-y-6">
-          
-          {/* Gantt Chart */}
-          {simulationResult ? (
-            <Gantt events={simulationResult.events} />
-          ) : (
-            <div className="h-40 bg-white rounded-lg shadow flex items-center justify-center text-gray-400">
-              Run simulation to see Gantt Chart
-            </div>
-          )}
-
-          {/* Metrics */}
-          {metrics && (
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-              <div className="p-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-700">Metrics</h3>
-              </div>
-              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50">
-                <div className="bg-white p-4 rounded shadow-sm border border-gray-100 text-center">
-                  <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Avg. Turnaround Time</p>
-                  <p className="text-2xl font-bold text-blue-600 mt-1">{metrics.avgTurnaround.toFixed(2)}</p>
-                </div>
-                <div className="bg-white p-4 rounded shadow-sm border border-gray-100 text-center">
-                  <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Avg. Waiting Time</p>
-                  <p className="text-2xl font-bold text-green-600 mt-1">{metrics.avgWaiting.toFixed(2)}</p>
-                </div>
-              </div>
-
-              {metrics.contextSwitches !== undefined && (
-                <div className="px-4 pb-4">
-                   <div className="bg-orange-50 p-2 rounded text-center border border-orange-100">
-                      <p className="text-xs text-orange-800 uppercase font-bold tracking-wider">Context Switches</p>
-                      <p className="text-xl font-bold text-orange-700">{metrics.contextSwitches}</p>
-                   </div>
-                </div>
-              )}
-              
-              <div className="overflow-x-auto">
-                <table className="min-w-full text-sm text-left">
-                  <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b">
-                    <tr>
-                      <th className="px-6 py-3">PID</th>
-                      <th className="px-6 py-3">Completion</th>
-                      <th className="px-6 py-3">Turnaround</th>
-                      <th className="px-6 py-3">Waiting</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {Object.keys(metrics.completion).sort().map(pid => (
-                      <tr key={pid} className="bg-white">
-                        <td className="px-6 py-3 font-medium text-gray-900">{pid}</td>
-                        <td className="px-6 py-3 text-gray-500">{metrics.completion[pid]}</td>
-                        <td className="px-6 py-3 text-gray-500">{metrics.turnaround[pid]}</td>
-                        <td className="px-6 py-3 text-gray-500">{metrics.waiting[pid]}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </div>
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {children}
       </main>
     </div>
+  );
+}
+
+function App() {
+  const [processes, setProcesses] = useState<Process[]>(initialProcesses);
+
+  return (
+    <BrowserRouter>
+      <Layout>
+        <Routes>
+          <Route path="/" element={
+            <Playground processes={processes} onProcessesChange={setProcesses} />
+          } />
+          <Route path="/compare" element={
+            <Compare processes={processes} onProcessesChange={setProcesses} />
+          } />
+        </Routes>
+      </Layout>
+    </BrowserRouter>
   );
 }
 

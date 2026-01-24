@@ -1,0 +1,152 @@
+import React, { useState } from 'react';
+import { runFCFS, runSJF, runSRTF, runRR, Process, SimulationResult, Algorithm } from '@cpu-vis/shared';
+import { ProcessTable } from '../components/ProcessTable';
+import { Gantt } from '../components/GanttChart/Gantt';
+
+interface Props {
+  processes: Process[];
+  onProcessesChange: (p: Process[]) => void;
+}
+
+export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) => {
+  const [selectedAlgorithm, setSelectedAlgorithm] = useState<Algorithm>('FCFS');
+  const [quantum, setQuantum] = useState<number>(2);
+  const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
+
+  const handleRunSimulation = () => {
+    let result: SimulationResult;
+    
+    switch (selectedAlgorithm) {
+      case 'FCFS':
+        result = runFCFS(processes);
+        break;
+      case 'SJF':
+        result = runSJF(processes);
+        break;
+      case 'SRTF':
+        result = runSRTF(processes);
+        break;
+      case 'RR':
+        result = runRR(processes, quantum);
+        break;
+      default:
+        result = runFCFS(processes);
+    }
+    
+    setSimulationResult(result);
+  };
+
+  const metrics = simulationResult?.metrics;
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      {/* Left Column: Controls & Input */}
+      <div className="lg:col-span-5 space-y-6">
+        
+        {/* Controls */}
+        <div className="bg-white p-6 rounded-lg shadow space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Algorithm</label>
+            <select
+              value={selectedAlgorithm}
+              onChange={(e) => setSelectedAlgorithm(e.target.value as Algorithm)}
+              className="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border"
+            >
+              <option value="FCFS">First-Come, First-Served (FCFS)</option>
+              <option value="SJF">Shortest Job First (SJF - Non-Preemptive)</option>
+              <option value="SRTF">Shortest Remaining Time First (SRTF - Preemptive)</option>
+              <option value="RR">Round Robin (RR)</option>
+            </select>
+          </div>
+
+          {selectedAlgorithm === 'RR' && (
+              <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Time Quantum</label>
+              <input
+                type="number"
+                min="1"
+                value={quantum}
+                onChange={(e) => setQuantum(Math.max(1, parseInt(e.target.value) || 1))}
+                className="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border"
+              />
+            </div>
+          )}
+          
+          <button
+            onClick={handleRunSimulation}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors shadow-sm"
+          >
+            Run Simulation
+          </button>
+        </div>
+
+        {/* Process Input Table */}
+        <ProcessTable processes={processes} onProcessChange={onProcessesChange} />
+      </div>
+
+      {/* Right Column: Visualization & Metrics */}
+      <div className="lg:col-span-7 space-y-6">
+        
+        {/* Gantt Chart */}
+        {simulationResult ? (
+          <Gantt events={simulationResult.events} />
+        ) : (
+          <div className="h-40 bg-white rounded-lg shadow flex items-center justify-center text-gray-400">
+            Run simulation to see Gantt Chart
+          </div>
+        )}
+
+        {/* Metrics */}
+        {metrics && (
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="p-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-700">Metrics</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50">
+              <div className="bg-white p-4 rounded shadow-sm border border-gray-100 text-center">
+                <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Avg. Turnaround Time</p>
+                <p className="text-2xl font-bold text-blue-600 mt-1">{metrics.avgTurnaround.toFixed(2)}</p>
+              </div>
+              <div className="bg-white p-4 rounded shadow-sm border border-gray-100 text-center">
+                <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Avg. Waiting Time</p>
+                <p className="text-2xl font-bold text-green-600 mt-1">{metrics.avgWaiting.toFixed(2)}</p>
+              </div>
+            </div>
+
+            {metrics.contextSwitches !== undefined && (
+              <div className="px-4 pb-4">
+                  <div className="bg-orange-50 p-2 rounded text-center border border-orange-100">
+                    <p className="text-xs text-orange-800 uppercase font-bold tracking-wider">Context Switches</p>
+                    <p className="text-xl font-bold text-orange-700">{metrics.contextSwitches}</p>
+                  </div>
+              </div>
+            )}
+            
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm text-left">
+                <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b">
+                  <tr>
+                    <th className="px-6 py-3">PID</th>
+                    <th className="px-6 py-3">Completion</th>
+                    <th className="px-6 py-3">Turnaround</th>
+                    <th className="px-6 py-3">Waiting</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {Object.keys(metrics.completion).sort().map(pid => (
+                    <tr key={pid} className="bg-white">
+                      <td className="px-6 py-3 font-medium text-gray-900">{pid}</td>
+                      <td className="px-6 py-3 text-gray-500">{metrics.completion[pid]}</td>
+                      <td className="px-6 py-3 text-gray-500">{metrics.turnaround[pid]}</td>
+                      <td className="px-6 py-3 text-gray-500">{metrics.waiting[pid]}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
