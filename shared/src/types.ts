@@ -24,8 +24,15 @@ export interface Metrics {
 
 export type Algorithm = 'FCFS' | 'SJF' | 'SRTF' | 'RR' | 'PRIORITY';
 
+export interface Snapshot {
+  time: number;
+  runningPid: string | 'IDLE';
+  readyQueue: string[];
+}
+
 export interface SimulationResult {
   events: GanttEvent[];
   metrics: Metrics;
+  snapshots?: Snapshot[];
   logs?: string[]; // optional step logs for step-through
 }

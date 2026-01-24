@@ -1,4 +1,4 @@
-import { GanttEvent, Metrics, Process, SimulationResult } from '../types.js';
+import { GanttEvent, Metrics, Process, SimulationResult, Snapshot } from '../types.js';
 
 interface ProcessWithRemaining extends Process {
   remaining: number;
@@ -40,11 +40,19 @@ export function runRR(inputProcesses: Process[], quantum: number = 2): Simulatio
   // Initial load
   enqueueArrivals(currentTime);
 
+  const snapshots: Snapshot[] = [];
+
   while (completedCount < totalProcesses) {
     // If queue is empty, jump to next arrival
     if (readyQueue.length === 0) {
       if (arrivalIndex < totalProcesses) {
         const nextArrival = sortedByArrival[arrivalIndex].arrival;
+        
+        // Capture idle snapshots
+        for (let t = currentTime; t < nextArrival; t++) {
+           snapshots.push({ time: t, runningPid: 'IDLE', readyQueue: [] });
+        }
+
         events.push({ pid: 'IDLE', start: currentTime, end: nextArrival });
         currentTime = nextArrival;
         enqueueArrivals(currentTime);
@@ -57,8 +65,16 @@ export function runRR(inputProcesses: Process[], quantum: number = 2): Simulatio
     // Determine execution time
     const executeTime = Math.min(currentProcess.remaining, quantum);
     
+    // Capture snapshots for this execution slice
+    for (let t = 0; t < executeTime; t++) {
+       snapshots.push({
+         time: currentTime + t,
+         runningPid: currentProcess.pid,
+         readyQueue: readyQueue.map(p => p.pid)
+       });
+    }
+
     // Record Event
-    // Check for merge possibility
     const lastEvent = events[events.length - 1];
     if (lastEvent && lastEvent.pid === currentProcess.pid) {
       lastEvent.end += executeTime;
@@ -111,5 +127,5 @@ export function runRR(inputProcesses: Process[], quantum: number = 2): Simulatio
     contextSwitches
   };
 
-  return { events, metrics };
+  return { events, metrics, snapshots };
 }

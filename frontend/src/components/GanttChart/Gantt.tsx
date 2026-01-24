@@ -4,9 +4,10 @@ import { GanttEvent } from '@cpu-vis/shared';
 
 interface Props {
   events: GanttEvent[];
+  currentTime?: number;
 }
 
-export const Gantt: React.FC<Props> = ({ events }) => {
+export const Gantt: React.FC<Props> = ({ events, currentTime }) => {
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export const Gantt: React.FC<Props> = ({ events }) => {
     const colorScale = d3.scaleOrdinal(d3.schemeTableau10);
 
     // X Axis
-    const xAxis = d3.axisBottom(xScale).ticks(10);
+    const xAxis = d3.axisBottom(xScale).ticks(Math.min(maxTime, 20));
     g.append('g')
       .attr('transform', `translate(0, ${height})`)
       .call(xAxis);
@@ -51,7 +52,8 @@ export const Gantt: React.FC<Props> = ({ events }) => {
       .attr('height', 40)
       .attr('fill', d => d.pid === 'IDLE' ? '#e5e7eb' : colorScale(d.pid) as string)
       .attr('stroke', '#fff')
-      .attr('stroke-width', 1);
+      .attr('stroke-width', 1)
+      .attr('opacity', d => (currentTime !== undefined && d.start >= currentTime) ? 0.2 : 1);
 
     // Labels
     g.selectAll('.label')
@@ -62,26 +64,36 @@ export const Gantt: React.FC<Props> = ({ events }) => {
       .attr('y', height / 2 + 5)
       .attr('text-anchor', 'middle')
       .attr('fill', d => d.pid === 'IDLE' ? '#374151' : '#fff')
-      .attr('font-size', '12px')
+      .attr('font-size', '10px')
       .attr('font-weight', 'bold')
-      .text(d => d.pid === 'IDLE' ? 'IDLE' : d.pid);
+      .text(d => d.pid === 'IDLE' ? '' : d.pid)
+      .attr('opacity', d => (currentTime !== undefined && d.start >= currentTime) ? 0 : 1);
 
-    // Grid lines (optional)
-    g.append('g')
-      .attr('class', 'grid')
-      .attr('transform', `translate(0,${height})`)
-      .call(d3.axisBottom(xScale)
-        .ticks(10)
-        .tickSize(-height)
-        .tickFormat(() => '')
-      )
-      .attr('opacity', 0.1);
+    // Current Time Indicator
+    if (currentTime !== undefined) {
+      g.append('line')
+        .attr('x1', xScale(currentTime))
+        .attr('x2', xScale(currentTime))
+        .attr('y1', 0)
+        .attr('y2', height)
+        .attr('stroke', '#ef4444')
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '4');
 
-  }, [events]);
+      g.append('text')
+        .attr('x', xScale(currentTime))
+        .attr('y', -5)
+        .attr('text-anchor', 'middle')
+        .attr('fill', '#ef4444')
+        .attr('font-size', '10px')
+        .attr('font-weight', 'bold')
+        .text(`t=${currentTime}`);
+    }
+
+  }, [events, currentTime]);
 
   return (
     <div className="w-full bg-white shadow rounded-lg p-4">
-      <h3 className="text-lg font-semibold text-gray-700 mb-4">Gantt Chart</h3>
       <div className="w-full overflow-x-auto">
         <svg ref={svgRef} className="w-full min-w-[600px]" height="150" style={{ width: '100%' }}></svg>
       </div>

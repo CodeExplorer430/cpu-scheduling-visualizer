@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { runFCFS, runSJF, runSRTF, runRR, Process, SimulationResult, Algorithm } from '@cpu-vis/shared';
 import { ProcessTable } from '../components/ProcessTable';
 import { Gantt } from '../components/GanttChart/Gantt';
+import { Stepper } from '../components/Stepper';
 
 interface Props {
   processes: Process[];
@@ -12,8 +13,12 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<Algorithm>('FCFS');
   const [quantum, setQuantum] = useState<number>(2);
   const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
+  
+  // Step-through state
+  const [currentTime, setCurrentTime] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
 
-  const handleRunSimulation = () => {
+  const handleRunSimulation = useCallback(() => {
     let result: SimulationResult;
     
     switch (selectedAlgorithm) {
@@ -34,9 +39,32 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
     }
     
     setSimulationResult(result);
-  };
+    setCurrentTime(0);
+    setIsPlaying(false);
+  }, [processes, selectedAlgorithm, quantum]);
+
+  // Auto-play logic
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isPlaying && simulationResult) {
+      const maxTime = simulationResult.events.length > 0 
+        ? simulationResult.events[simulationResult.events.length - 1].end 
+        : 0;
+      
+      if (currentTime < maxTime) {
+        interval = setInterval(() => {
+          setCurrentTime(prev => prev + 1);
+        }, 1000); // 1 second per time unit
+      } else {
+        setIsPlaying(false);
+      }
+    }
+    return () => clearInterval(interval);
+  }, [isPlaying, currentTime, simulationResult]);
 
   const metrics = simulationResult?.metrics;
+  const currentSnapshot = simulationResult?.snapshots?.find(s => s.time === currentTime);
+  const maxTime = simulationResult?.events.length ? simulationResult.events[simulationResult.events.length - 1].end : 0;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -80,6 +108,17 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
           </button>
         </div>
 
+        {/* Stepper */}
+        {simulationResult && (
+          <Stepper 
+            currentTime={currentTime} 
+            maxTime={maxTime} 
+            onTimeChange={setCurrentTime}
+            isPlaying={isPlaying}
+            setIsPlaying={setIsPlaying}
+          />
+        )}
+
         {/* Process Input Table */}
         <ProcessTable processes={processes} onProcessChange={onProcessesChange} />
       </div>
@@ -87,21 +126,42 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
       {/* Right Column: Visualization & Metrics */}
       <div className="lg:col-span-7 space-y-6">
         
+        {/* Real-time State */}
+        {simulationResult && (
+           <div className="bg-white p-6 rounded-lg shadow border-l-4 border-blue-500 flex justify-between items-center">
+              <div>
+                 <p className="text-xs font-bold text-gray-400 uppercase">Currently Running</p>
+                 <p className="text-2xl font-bold text-gray-800">{currentSnapshot?.runningPid || (currentTime >= maxTime ? 'FINISHED' : 'IDLE')}</p>
+              </div>
+              <div className="text-right">
+                 <p className="text-xs font-bold text-gray-400 uppercase">Ready Queue</p>
+                 <div className="flex space-x-1 mt-1">
+                    {currentSnapshot?.readyQueue.map(pid => (
+                      <span key={pid} className="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded border border-blue-200">{pid}</span>
+                    ))}
+                    {(!currentSnapshot?.readyQueue.length) && <span className="text-gray-300 text-sm italic">Empty</span>}
+                 </div>
+              </div>
+           </div>
+        )}
+
         {/* Gantt Chart */}
         {simulationResult ? (
-          <Gantt events={simulationResult.events} />
+          <Gantt events={simulationResult.events} currentTime={currentTime} />
         ) : (
           <div className="h-40 bg-white rounded-lg shadow flex items-center justify-center text-gray-400">
             Run simulation to see Gantt Chart
           </div>
         )}
 
-        {/* Metrics */}
+        {/* Metrics (Only show final metrics if completed or just show anyway) */}
         {metrics && (
           <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="p-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-700">Metrics</h3>
+            <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-700">Final Metrics</h3>
+              {currentTime < maxTime && <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Simulation in progress...</span>}
             </div>
+            {/* ... rest of metrics table same as before ... */}
             <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50">
               <div className="bg-white p-4 rounded shadow-sm border border-gray-100 text-center">
                 <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Avg. Turnaround Time</p>
@@ -112,15 +172,6 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
                 <p className="text-2xl font-bold text-green-600 mt-1">{metrics.avgWaiting.toFixed(2)}</p>
               </div>
             </div>
-
-            {metrics.contextSwitches !== undefined && (
-              <div className="px-4 pb-4">
-                  <div className="bg-orange-50 p-2 rounded text-center border border-orange-100">
-                    <p className="text-xs text-orange-800 uppercase font-bold tracking-wider">Context Switches</p>
-                    <p className="text-xl font-bold text-orange-700">{metrics.contextSwitches}</p>
-                  </div>
-              </div>
-            )}
             
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm text-left">
