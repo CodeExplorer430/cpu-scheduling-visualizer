@@ -16,10 +16,10 @@ export const Stepper: React.FC<Props> = ({
   setIsPlaying 
 }) => {
   return (
-    <div className="bg-white p-4 rounded-lg shadow space-y-4">
+    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow space-y-4 transition-colors duration-200">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Simulation Control</h3>
-        <span className="text-lg font-mono font-bold text-blue-600">Time: {currentTime} / {maxTime}</span>
+        <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Simulation Control</h3>
+        <span className="text-lg font-mono font-bold text-blue-600 dark:text-blue-400">Time: {currentTime} / {maxTime}</span>
       </div>
       
       <div className="flex items-center space-x-2">
@@ -37,10 +37,11 @@ export const Stepper: React.FC<Props> = ({
             setIsPlaying(false);
             onTimeChange(Math.max(0, currentTime - 1));
           }}
-          className="bg-gray-200 hover:bg-gray-300 p-2 rounded text-gray-700"
+          className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200 p-2 rounded text-gray-700"
           disabled={currentTime === 0}
         >
-          Step Back
+          <span className="hidden sm:inline">Step Back</span>
+          <span className="sm:hidden">←</span>
         </button>
 
         <button
@@ -48,10 +49,11 @@ export const Stepper: React.FC<Props> = ({
             setIsPlaying(false);
             onTimeChange(Math.min(maxTime, currentTime + 1));
           }}
-          className="bg-gray-200 hover:bg-gray-300 p-2 rounded text-gray-700"
+          className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200 p-2 rounded text-gray-700"
           disabled={currentTime >= maxTime}
         >
-          Step Forward
+          <span className="hidden sm:inline">Step Forward</span>
+          <span className="sm:hidden">→</span>
         </button>
 
         <button
@@ -59,7 +61,7 @@ export const Stepper: React.FC<Props> = ({
             setIsPlaying(false);
             onTimeChange(0);
           }}
-          className="bg-gray-100 hover:bg-gray-200 p-2 rounded text-gray-500 text-xs"
+          className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-400 p-2 rounded text-gray-500 text-xs"
         >
           Reset
         </button>
@@ -71,7 +73,7 @@ export const Stepper: React.FC<Props> = ({
         max={maxTime}
         value={currentTime}
         onChange={(e) => onTimeChange(parseInt(e.target.value))}
-        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+        className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-600 dark:accent-blue-500"
       />
     </div>
   );

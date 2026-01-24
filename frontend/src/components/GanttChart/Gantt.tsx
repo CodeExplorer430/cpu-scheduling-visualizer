@@ -16,6 +16,13 @@ export const Gantt: React.FC<Props> = ({ events, currentTime }) => {
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove(); // Clear previous render
 
+    // Check for dark mode via class on html element
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    const axisColor = isDarkMode ? '#9ca3af' : '#374151'; // gray-400 : gray-700
+    const gridColor = isDarkMode ? '#4b5563' : '#e5e7eb'; // gray-600 : gray-200
+    const idleColor = isDarkMode ? '#374151' : '#e5e7eb'; // gray-700 : gray-200
+    const idleTextColor = isDarkMode ? '#9ca3af' : '#374151';
+
     // Dimensions
     const margin = { top: 20, right: 30, bottom: 40, left: 40 };
     const width = svgRef.current.clientWidth - margin.left - margin.right;
@@ -36,9 +43,28 @@ export const Gantt: React.FC<Props> = ({ events, currentTime }) => {
 
     // X Axis
     const xAxis = d3.axisBottom(xScale).ticks(Math.min(maxTime, 20));
-    g.append('g')
+    
+    const xAxisGroup = g.append('g')
       .attr('transform', `translate(0, ${height})`)
       .call(xAxis);
+      
+    // Style Axis
+    xAxisGroup.selectAll('text').attr('fill', axisColor);
+    xAxisGroup.selectAll('line').attr('stroke', axisColor);
+    xAxisGroup.selectAll('path').attr('stroke', axisColor);
+
+    // Grid lines
+    g.append('g')
+      .attr('class', 'grid')
+      .attr('transform', `translate(0,${height})`)
+      .call(d3.axisBottom(xScale)
+        .ticks(Math.min(maxTime, 20))
+        .tickSize(-height)
+        .tickFormat(() => '')
+      )
+      .attr('opacity', 0.1)
+      .selectAll('line')
+      .attr('stroke', gridColor);
 
     // Bars
     g.selectAll('.bar')
@@ -50,8 +76,8 @@ export const Gantt: React.FC<Props> = ({ events, currentTime }) => {
       .attr('y', height / 2 - 20)
       .attr('width', d => xScale(d.end) - xScale(d.start))
       .attr('height', 40)
-      .attr('fill', d => d.pid === 'IDLE' ? '#e5e7eb' : colorScale(d.pid) as string)
-      .attr('stroke', '#fff')
+      .attr('fill', d => d.pid === 'IDLE' ? idleColor : colorScale(d.pid) as string)
+      .attr('stroke', isDarkMode ? '#1f2937' : '#fff') // Dark bg or White
       .attr('stroke-width', 1)
       .attr('opacity', d => (currentTime !== undefined && d.start >= currentTime) ? 0.2 : 1);
 
@@ -63,7 +89,7 @@ export const Gantt: React.FC<Props> = ({ events, currentTime }) => {
       .attr('x', d => xScale(d.start) + (xScale(d.end) - xScale(d.start)) / 2)
       .attr('y', height / 2 + 5)
       .attr('text-anchor', 'middle')
-      .attr('fill', d => d.pid === 'IDLE' ? '#374151' : '#fff')
+      .attr('fill', d => d.pid === 'IDLE' ? idleTextColor : '#fff')
       .attr('font-size', '10px')
       .attr('font-weight', 'bold')
       .text(d => d.pid === 'IDLE' ? '' : d.pid)
@@ -93,7 +119,7 @@ export const Gantt: React.FC<Props> = ({ events, currentTime }) => {
   }, [events, currentTime]);
 
   return (
-    <div className="w-full bg-white shadow rounded-lg p-4">
+    <div className="w-full bg-white dark:bg-gray-800 shadow rounded-lg p-4 transition-colors duration-200">
       <div className="w-full overflow-x-auto">
         <svg ref={svgRef} className="w-full min-w-[600px]" height="150" style={{ width: '100%' }}></svg>
       </div>
