@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { generateRandomProcesses, exportToCSV, parseCSV } from './data.js';
-import { Process } from './types.js';
+import { generateRandomProcesses, exportToCSV, parseCSV } from '../src/data.js';
+import { Process } from '../src/types.js';
 
 describe('Data Utilities', () => {
   describe('generateRandomProcesses', () => {

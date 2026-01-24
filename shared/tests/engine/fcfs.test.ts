@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { runFCFS } from './fcfs.js';
-import { Process } from '../types.js';
+import { runFCFS } from '../../src/engine/fcfs.js';
+import { Process } from '../../src/types.js';
 
 describe('FCFS Algorithm', () => {
   it('should schedule processes in order of arrival', () => {
