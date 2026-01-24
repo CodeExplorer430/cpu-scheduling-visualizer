@@ -11,10 +11,7 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
 
   const addProcess = () => {
     const newPid = `P${processes.length + 1}`;
-    onProcessChange([
-      ...processes,
-      { pid: newPid, arrival: 0, burst: 1, color: '#3b82f6' }
-    ]);
+    onProcessChange([...processes, { pid: newPid, arrival: 0, burst: 1, color: '#3b82f6' }]);
   };
 
   const updateProcess = (index: number, field: keyof Process, value: string | number) => {
@@ -32,7 +29,7 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
     const randomProcesses = generateRandomProcesses({
       count: 5,
       arrivalRange: [0, 10],
-      burstRange: [1, 10]
+      burstRange: [1, 10],
     });
     onProcessChange(randomProcesses);
   };
@@ -76,13 +73,13 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
       <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4">
         <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">Processes</h3>
         <div className="flex flex-wrap gap-2">
-           <button
+          <button
             onClick={handleRandomize}
             className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
           >
             Randomize
           </button>
-           <button
+          <button
             onClick={handleExportCSV}
             className="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
           >
@@ -90,11 +87,11 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
           </button>
           <label className="bg-orange-600 hover:bg-orange-700 dark:bg-orange-500 dark:hover:bg-orange-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors cursor-pointer">
             Import CSV
-            <input 
-              type="file" 
-              accept=".csv" 
-              onChange={handleImportCSV} 
-              className="hidden" 
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleImportCSV}
+              className="hidden"
               ref={fileInputRef}
             />
           </label>
@@ -110,10 +107,18 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">PID</th>
-              <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Arrival</th>
-              <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Burst</th>
-              <th className="px-3 sm:px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+              <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                PID
+              </th>
+              <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Arrival
+              </th>
+              <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Burst
+              </th>
+              <th className="px-3 sm:px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -157,7 +162,10 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
             ))}
             {processes.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400 text-sm">
+                <td
+                  colSpan={4}
+                  className="px-6 py-4 text-center text-gray-500 dark:text-gray-400 text-sm"
+                >
                   No processes added.
                 </td>
               </tr>

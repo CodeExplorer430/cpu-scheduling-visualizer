@@ -19,7 +19,7 @@ describe('Gantt Component', () => {
 
   it('renders SVG and bars', () => {
     const { container } = renderWithTheme(<Gantt events={events} />);
-    
+
     const svg = container.querySelector('svg');
     expect(svg).toBeInTheDocument();
 
@@ -29,17 +29,17 @@ describe('Gantt Component', () => {
   });
 
   it('renders labels correctly', () => {
-     const { container } = renderWithTheme(<Gantt events={events} />);
-     // Only P1 and P2 should have text labels, IDLE usually empty or specific color
-     // Based on code: .text(d => d.pid === 'IDLE' ? '' : d.pid)
-     
-     const texts = container.querySelectorAll('text');
-     // There are axis labels too, so we need to be specific or just check if P1 exists
-     const p1Label = Array.from(texts).find(t => t.textContent === 'P1');
-     expect(p1Label).toBeInTheDocument();
-     
-     const idleLabel = Array.from(texts).find(t => t.textContent === 'IDLE');
-     // Should verify IDLE text is NOT there or empty
-     expect(idleLabel).toBeUndefined(); 
+    const { container } = renderWithTheme(<Gantt events={events} />);
+    // Only P1 and P2 should have text labels, IDLE usually empty or specific color
+    // Based on code: .text(d => d.pid === 'IDLE' ? '' : d.pid)
+
+    const texts = container.querySelectorAll('text');
+    // There are axis labels too, so we need to be specific or just check if P1 exists
+    const p1Label = Array.from(texts).find((t) => t.textContent === 'P1');
+    expect(p1Label).toBeInTheDocument();
+
+    const idleLabel = Array.from(texts).find((t) => t.textContent === 'IDLE');
+    // Should verify IDLE text is NOT there or empty
+    expect(idleLabel).toBeUndefined();
   });
 });

@@ -26,7 +26,7 @@ describe('FCFS Algorithm', () => {
     expect(metrics.completion['P1']).toBe(5);
     expect(metrics.completion['P2']).toBe(8);
     expect(metrics.completion['P3']).toBe(9);
-    
+
     // Turnaround = Completion - Arrival
     // P1: 5-0 = 5
     // P2: 8-2 = 6

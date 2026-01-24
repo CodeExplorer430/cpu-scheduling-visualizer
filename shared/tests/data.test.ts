@@ -8,7 +8,7 @@ describe('Data Utilities', () => {
       const processes = generateRandomProcesses({
         count: 5,
         arrivalRange: [0, 10],
-        burstRange: [1, 5]
+        burstRange: [1, 5],
       });
       expect(processes).toHaveLength(5);
     });
@@ -17,9 +17,9 @@ describe('Data Utilities', () => {
       const processes = generateRandomProcesses({
         count: 100,
         arrivalRange: [5, 10],
-        burstRange: [10, 20]
+        burstRange: [10, 20],
       });
-      
+
       processes.forEach((p: Process) => {
         expect(p.arrival).toBeGreaterThanOrEqual(5);
         expect(p.arrival).toBeLessThanOrEqual(10);
@@ -32,7 +32,7 @@ describe('Data Utilities', () => {
   describe('CSV Import/Export', () => {
     const processes: Process[] = [
       { pid: 'P1', arrival: 0, burst: 5, priority: 1 },
-      { pid: 'P2', arrival: 2, burst: 3 } // no priority
+      { pid: 'P2', arrival: 2, burst: 3 }, // no priority
     ];
 
     it('should export to CSV correctly', () => {
@@ -47,7 +47,7 @@ describe('Data Utilities', () => {
       const csv = `PID,Arrival,Burst,Priority
 P1,0,5,1
 P2,2,3,`;
-      
+
       const parsed = parseCSV(csv);
       expect(parsed).toHaveLength(2);
       expect(parsed[0]).toMatchObject({ pid: 'P1', arrival: 0, burst: 5, priority: 1 });

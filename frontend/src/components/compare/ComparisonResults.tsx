@@ -15,7 +15,7 @@ export const ComparisonResults: React.FC<Props> = ({ results, algorithms }) => {
   // Calculate global max time across all algorithms to synchronize scales
   const domainMax = useMemo(() => {
     let max = 0;
-    algorithms.forEach(algo => {
+    algorithms.forEach((algo) => {
       const events = results[algo].events;
       if (events.length > 0) {
         const lastEvent = events[events.length - 1];
@@ -39,7 +39,7 @@ export const ComparisonResults: React.FC<Props> = ({ results, algorithms }) => {
     if (!exportRef.current) return;
     const canvas = await html2canvas(exportRef.current);
     const imgData = canvas.toDataURL('image/png');
-    
+
     // A4 size: 210 x 297 mm
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -51,8 +51,8 @@ export const ComparisonResults: React.FC<Props> = ({ results, algorithms }) => {
 
   return (
     <div className="space-y-8">
-       {/* Actions */}
-       <div className="flex justify-end gap-4">
+      {/* Actions */}
+      <div className="flex justify-end gap-4">
         <button
           onClick={handleExportPNG}
           className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow transition-colors"
@@ -71,7 +71,9 @@ export const ComparisonResults: React.FC<Props> = ({ results, algorithms }) => {
         {/* Metrics Comparison Table */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden transition-colors duration-200">
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">Metrics Comparison</h3>
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">
+              Metrics Comparison
+            </h3>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -84,8 +86,11 @@ export const ComparisonResults: React.FC<Props> = ({ results, algorithms }) => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {algorithms.map(algo => (
-                  <tr key={algo} className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                {algorithms.map((algo) => (
+                  <tr
+                    key={algo}
+                    className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  >
                     <td className="px-6 py-3 font-bold text-gray-900 dark:text-white">{algo}</td>
                     <td className="px-6 py-3">{results[algo].metrics.avgTurnaround.toFixed(2)}</td>
                     <td className="px-6 py-3">{results[algo].metrics.avgWaiting.toFixed(2)}</td>
@@ -99,8 +104,11 @@ export const ComparisonResults: React.FC<Props> = ({ results, algorithms }) => {
 
         {/* Gantt Stack - Synchronized Vertical Alignment */}
         <div className="flex flex-col gap-6">
-          {algorithms.map(algo => (
-            <div key={algo} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow transition-colors duration-200">
+          {algorithms.map((algo) => (
+            <div
+              key={algo}
+              className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow transition-colors duration-200"
+            >
               <h4 className="text-md font-bold mb-2 text-gray-700 dark:text-gray-200">{algo}</h4>
               <Gantt events={results[algo].events} domainMax={domainMax} />
             </div>

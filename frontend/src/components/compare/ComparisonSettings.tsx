@@ -12,7 +12,9 @@ export const ComparisonSettings: React.FC<Props> = ({ quantum, setQuantum, onRun
       <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Comparison Settings</h2>
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow space-y-4 transition-colors duration-200">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Round Robin Quantum</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Round Robin Quantum
+          </label>
           <input
             type="number"
             min="1"

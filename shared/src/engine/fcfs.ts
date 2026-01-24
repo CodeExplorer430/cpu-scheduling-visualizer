@@ -12,7 +12,7 @@ export function runFCFS(inputProcesses: Process[]): SimulationResult {
   const turnaroundTimes: Record<string, number> = {};
   const waitingTimes: Record<string, number> = {};
 
-  processes.forEach(process => {
+  processes.forEach((process) => {
     const { pid, arrival, burst } = process;
 
     // Handle Idle time if necessary
@@ -20,7 +20,7 @@ export function runFCFS(inputProcesses: Process[]): SimulationResult {
       events.push({
         pid: 'IDLE',
         start: currentTime,
-        end: arrival
+        end: arrival,
       });
       currentTime = arrival;
     }
@@ -32,7 +32,7 @@ export function runFCFS(inputProcesses: Process[]): SimulationResult {
     events.push({
       pid,
       start,
-      end
+      end,
     });
 
     // Update time
@@ -51,21 +51,21 @@ export function runFCFS(inputProcesses: Process[]): SimulationResult {
   // Aggregate metrics
   const totalTurnaround = Object.values(turnaroundTimes).reduce((sum, val) => sum + val, 0);
   const totalWaiting = Object.values(waitingTimes).reduce((sum, val) => sum + val, 0);
-  
+
   const count = processes.length;
-  
+
   const metrics: Metrics = {
     completion: completionTimes,
     turnaround: turnaroundTimes,
     waiting: waitingTimes,
     avgTurnaround: count > 0 ? totalTurnaround / count : 0,
     avgWaiting: count > 0 ? totalWaiting / count : 0,
-    contextSwitches: 0 
+    contextSwitches: 0,
   };
 
-  return { 
-    events, 
-    metrics, 
-    snapshots: generateSnapshots(events, inputProcesses) 
+  return {
+    events,
+    metrics,
+    snapshots: generateSnapshots(events, inputProcesses),
   };
 }

@@ -9,9 +9,9 @@ export function runRR(inputProcesses: Process[], quantum: number = 2): Simulatio
   // 1. Setup
   // We need a queue of indices or PIDs to manage order efficiently
   // We also need to track remaining time
-  const processes: ProcessWithRemaining[] = inputProcesses.map(p => ({
+  const processes: ProcessWithRemaining[] = inputProcesses.map((p) => ({
     ...p,
-    remaining: p.burst
+    remaining: p.burst,
   }));
 
   // Sort by arrival initially just to manage the "arrival" timeline
@@ -22,7 +22,7 @@ export function runRR(inputProcesses: Process[], quantum: number = 2): Simulatio
   let completedCount = 0;
   const totalProcesses = processes.length;
   const events: GanttEvent[] = [];
-  
+
   const completionTimes: Record<string, number> = {};
   const turnaroundTimes: Record<string, number> = {};
   const waitingTimes: Record<string, number> = {};
@@ -46,7 +46,7 @@ export function runRR(inputProcesses: Process[], quantum: number = 2): Simulatio
     if (readyQueue.length === 0) {
       if (arrivalIndex < totalProcesses) {
         const nextArrival = sortedByArrival[arrivalIndex].arrival;
-        
+
         events.push({ pid: 'IDLE', start: currentTime, end: nextArrival });
         currentTime = nextArrival;
         enqueueArrivals(currentTime);
@@ -55,10 +55,10 @@ export function runRR(inputProcesses: Process[], quantum: number = 2): Simulatio
     }
 
     const currentProcess = readyQueue.shift()!;
-    
+
     // Determine execution time
     const executeTime = Math.min(currentProcess.remaining, quantum);
-    
+
     // Record Event
     // Check for merge possibility
     const lastEvent = events[events.length - 1];
@@ -68,7 +68,7 @@ export function runRR(inputProcesses: Process[], quantum: number = 2): Simulatio
       events.push({
         pid: currentProcess.pid,
         start: currentTime,
-        end: currentTime + executeTime
+        end: currentTime + executeTime,
       });
     }
 
@@ -99,7 +99,11 @@ export function runRR(inputProcesses: Process[], quantum: number = 2): Simulatio
   // Context Switches
   let contextSwitches = 0;
   for (let i = 0; i < events.length - 1; i++) {
-    if (events[i].pid !== events[i+1].pid && events[i].pid !== 'IDLE' && events[i+1].pid !== 'IDLE') {
+    if (
+      events[i].pid !== events[i + 1].pid &&
+      events[i].pid !== 'IDLE' &&
+      events[i + 1].pid !== 'IDLE'
+    ) {
       contextSwitches++;
     }
   }
@@ -110,12 +114,12 @@ export function runRR(inputProcesses: Process[], quantum: number = 2): Simulatio
     waiting: waitingTimes,
     avgTurnaround: totalProcesses > 0 ? totalTurnaround / totalProcesses : 0,
     avgWaiting: totalProcesses > 0 ? totalWaiting / totalProcesses : 0,
-    contextSwitches
+    contextSwitches,
   };
 
-  return { 
-    events, 
-    metrics, 
-    snapshots: generateSnapshots(events, inputProcesses) 
+  return {
+    events,
+    metrics,
+    snapshots: generateSnapshots(events, inputProcesses),
   };
 }

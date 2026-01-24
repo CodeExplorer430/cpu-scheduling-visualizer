@@ -7,7 +7,7 @@ router.post('/', (req: Request, res: Response) => {
   const { algorithm, processes } = req.body;
 
   if (!processes || !Array.isArray(processes)) {
-     return res.status(400).json({ error: 'Invalid processes input' });
+    return res.status(400).json({ error: 'Invalid processes input' });
   }
 
   if (algorithm === 'FCFS') {

@@ -1,10 +1,10 @@
 export interface Process {
   pid: string;
-  arrival: number;      // integer (time units)
-  burst: number;        // integer (time units)
-  remaining?: number;   // used for preemptive algorithms
-  priority?: number;    // lower => higher priority (configurable)
-  color?: string;       // For UI visualization
+  arrival: number; // integer (time units)
+  burst: number; // integer (time units)
+  remaining?: number; // used for preemptive algorithms
+  priority?: number; // lower => higher priority (configurable)
+  color?: string; // For UI visualization
 }
 
 export interface GanttEvent {

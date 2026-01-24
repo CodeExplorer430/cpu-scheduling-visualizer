@@ -8,20 +8,24 @@ interface Props {
   setIsPlaying: (playing: boolean) => void;
 }
 
-export const Stepper: React.FC<Props> = ({ 
-  currentTime, 
-  maxTime, 
-  onTimeChange, 
-  isPlaying, 
-  setIsPlaying 
+export const Stepper: React.FC<Props> = ({
+  currentTime,
+  maxTime,
+  onTimeChange,
+  isPlaying,
+  setIsPlaying,
 }) => {
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow space-y-4 transition-colors duration-200">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Simulation Control</h3>
-        <span className="text-lg font-mono font-bold text-blue-600 dark:text-blue-400">Time: {currentTime} / {maxTime}</span>
+        <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+          Simulation Control
+        </h3>
+        <span className="text-lg font-mono font-bold text-blue-600 dark:text-blue-400">
+          Time: {currentTime} / {maxTime}
+        </span>
       </div>
-      
+
       <div className="flex items-center space-x-2">
         <button
           onClick={() => setIsPlaying(!isPlaying)}
@@ -31,7 +35,7 @@ export const Stepper: React.FC<Props> = ({
         >
           {isPlaying ? 'Pause' : 'Play'}
         </button>
-        
+
         <button
           onClick={() => {
             setIsPlaying(false);

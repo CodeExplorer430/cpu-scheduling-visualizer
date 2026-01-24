@@ -19,7 +19,9 @@ export const SimulationControls: React.FC<Props> = ({
   return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow space-y-4 transition-colors duration-200">
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Algorithm</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Algorithm
+        </label>
         <select
           value={selectedAlgorithm}
           onChange={(e) => setSelectedAlgorithm(e.target.value as Algorithm)}
@@ -34,7 +36,9 @@ export const SimulationControls: React.FC<Props> = ({
 
       {selectedAlgorithm === 'RR' && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Time Quantum</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Time Quantum
+          </label>
           <input
             type="number"
             min="1"

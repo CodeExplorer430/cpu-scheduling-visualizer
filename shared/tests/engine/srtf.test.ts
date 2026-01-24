@@ -35,7 +35,7 @@ describe('SRTF (Shortest Remaining Time First - Preemptive SJF)', () => {
 
     // P1 runs 0-5 uninterrupted.
     // P2 runs 5-15.
-    
+
     expect(events[0]).toEqual({ pid: 'P1', start: 0, end: 5 });
     expect(events[1]).toEqual({ pid: 'P2', start: 5, end: 15 });
   });

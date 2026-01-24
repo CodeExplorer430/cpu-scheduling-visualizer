@@ -13,16 +13,14 @@ describe('Backend Integration Tests', () => {
   it('POST /api/simulate should run simulation', async () => {
     const processes: Process[] = [
       { pid: 'P1', arrival: 0, burst: 5 },
-      { pid: 'P2', arrival: 2, burst: 3 }
+      { pid: 'P2', arrival: 2, burst: 3 },
     ];
 
-    const res = await request(app)
-      .post('/api/simulate')
-      .send({
-        algorithm: 'FCFS',
-        processes,
-        timeQuantum: 2 // Optional but good to include
-      });
+    const res = await request(app).post('/api/simulate').send({
+      algorithm: 'FCFS',
+      processes,
+      timeQuantum: 2, // Optional but good to include
+    });
 
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('events');
@@ -32,18 +30,14 @@ describe('Backend Integration Tests', () => {
   });
 
   it('POST /api/simulate should handle invalid algorithm', async () => {
-    const processes: Process[] = [
-        { pid: 'P1', arrival: 0, burst: 5 }
-    ];
+    const processes: Process[] = [{ pid: 'P1', arrival: 0, burst: 5 }];
 
-    const res = await request(app)
-      .post('/api/simulate')
-      .send({
-        algorithm: 'UNKNOWN_ALGO',
-        processes
-      });
-    
-    // Depending on implementation, it might return 400 or 500. 
+    const res = await request(app).post('/api/simulate').send({
+      algorithm: 'UNKNOWN_ALGO',
+      processes,
+    });
+
+    // Depending on implementation, it might return 400 or 500.
     // If logic doesn't validate, it might just fail or default.
     // Let's assume 400 for bad request if validation exists, or check what happens.
     // If the route doesn't validate, this test might reveal a bug or need adjustment.

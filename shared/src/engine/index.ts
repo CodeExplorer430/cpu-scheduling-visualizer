@@ -6,5 +6,5 @@ export * from './rr.js';
 
 // Stub for future engine implementations
 export const Engine = {
-  version: '1.0.0'
+  version: '1.0.0',
 };

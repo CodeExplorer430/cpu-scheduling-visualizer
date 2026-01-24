@@ -45,7 +45,7 @@ describe('Round Robin (RR) Algorithm', () => {
 
     const result = runRR(processes, 2);
     const { events } = result;
-    
+
     // Timeline:
     // t=0: Ready=[P1]. Run P1 (0-2).
     // t=1: P2 arrives. Ready=[P1, P2].

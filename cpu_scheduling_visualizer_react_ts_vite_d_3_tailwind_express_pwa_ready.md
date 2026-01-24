@@ -67,6 +67,7 @@ frontend/
 ```
 
 **Notes:**
+
 - `service-worker.ts` should implement caching strategy for static assets and API fallback so app works offline for saved scenarios. Consider Workbox or Vite PWA plugin for simpler setup.
 - Keep visualization (Gantt) as presentational components; heavy logic should live in `shared/engine`.
 
@@ -91,13 +92,14 @@ shared/
 ```
 
 **Design:**
+
 - Expose pure functions only (no DOM or side effects). Example API:
   ```ts
   // in shared/src/engine/index.ts
-  import { Process } from './types'
-  export type SimulationResult = { events: GanttEvent[]; metrics: Metrics }
-  export function runFCFS(processes: Process[]): SimulationResult
-  export function runSJF(processes: Process[], options?): SimulationResult
+  import { Process } from './types';
+  export type SimulationResult = { events: GanttEvent[]; metrics: Metrics };
+  export function runFCFS(processes: Process[]): SimulationResult;
+  export function runSJF(processes: Process[], options?): SimulationResult;
   ```
 - This lets frontend, backend, and any other client re-use deterministic logic and unit tests.
 
@@ -126,12 +128,14 @@ backend/
 ```
 
 **API endpoints (suggested):**
+
 - `POST /api/simulate` — body: `{ algorithm, processes, options }` -> returns simulation result.
 - `POST /api/compare` — run multiple algorithms in parallel and return comparative metrics.
 - `GET /api/examples` — return included example scenarios.
 - `GET /api/scenarios/:id` — CRUD endpoints for user-saved scenarios (auth optional).
 
 **Security & performance:**
+
 - Validate inputs thoroughly; limit maximum timeline length and process count to defend against large simulations.
 - Rate-limit endpoints if deployed publicly.
 
@@ -166,6 +170,7 @@ CI pipeline tasks: `lint`, `type-check`, `unit-tests`, `build`, `deploy`.
 ## 7. Advanced feature list (complete)
 
 **Core / MVP features**
+
 - Input table (PID, Arrival, Burst, Priority optional)
 - Run algorithms: FCFS, SJF (non-preemptive), SRTF (preemptive SJF), Round Robin, Priority (preemptive/non-preemptive)
 - Display: CT, TAT, WT for each process and averages
@@ -174,6 +179,7 @@ CI pipeline tasks: `lint`, `type-check`, `unit-tests`, `build`, `deploy`.
 - Export/Import scenarios (CSV/JSON)
 
 **Advanced / Portfolio-grade**
+
 - **Algorithm comparison**: side-by-side Gantt and metrics comparison
 - **Pre-built test-suite**: standard scenarios & edge-case generator (for QA)
 - **Benchmark & statistics**: CPU utilization, context switch count, response time distributions
@@ -193,6 +199,7 @@ CI pipeline tasks: `lint`, `type-check`, `unit-tests`, `build`, `deploy`.
 - **CI & CD**: automated tests + deployment (Netlify/Vercel for frontend, Heroku/DigitalOcean/Render for backend)
 
 **Stretch / Research features**
+
 - **Trace playback**: import real OS trace logs and visualize
 - **Simulate different context-switch costs & quantum tuning optimizer**
 - **Educational mode**: guided tutorials for each algorithm
@@ -204,12 +211,14 @@ CI pipeline tasks: `lint`, `type-check`, `unit-tests`, `build`, `deploy`.
 ## 8. UX & Data Model (technical)
 
 ### UX flows
+
 1. **Landing / Playground**: create process list manually or import CSV → choose algorithm & options → Run / Step / Play → Inspect metrics
 2. **Compare**: upload or select multiple scenarios → pick algorithms to compare → show side‑by‑side Gantt + table of metrics
 3. **Scenarios**: view saved scenarios, edit, delete, export
 4. **Settings**: toggle preemption, quantum, tie-breaking rules, multi-core
 
 ### Wireframe notes
+
 - Top: control bar (New, Import, Save, Algorithm select, Run, Step, Reset)
 - Left pane: Process input table (editable rows)
 - Center: Gantt visualization with time axis and markers
@@ -222,10 +231,10 @@ CI pipeline tasks: `lint`, `type-check`, `unit-tests`, `build`, `deploy`.
 // shared/src/types.ts
 export interface Process {
   pid: string;
-  arrival: number;      // integer (time units)
-  burst: number;        // integer (time units)
-  remaining?: number;   // used for preemptive algorithms
-  priority?: number;    // lower => higher priority (configurable)
+  arrival: number; // integer (time units)
+  burst: number; // integer (time units)
+  remaining?: number; // used for preemptive algorithms
+  priority?: number; // lower => higher priority (configurable)
 }
 
 export interface GanttEvent {
@@ -270,11 +279,13 @@ export interface SimulationResult {
 ## 10. Project roadmap (milestones)
 
 **Phase 0 — Prep (1–2 days)**
+
 - Initialize workspace, repo, and license
 - Create `shared` package and implement TS types
 - Setup linting, formatting (ESLint, Prettier), and CI skeleton
 
 **Phase 1 — MVP (3–7 days)**
+
 - Scaffold frontend (Vite + React + TS + Tailwind)
 - Implement FCFS + SJF (non-preemptive) in `shared/engine`
 - Build process input table + run button
@@ -282,23 +293,27 @@ export interface SimulationResult {
 - Add export/import (JSON)
 
 **Phase 2 — Features (1–2 weeks)**
+
 - Add SRTF (preemptive), RR, and Priority
 - Step mode & play/pause
 - Implement service worker + manifest (PWA)
 - Add tests for engine and frontend components
 
 **Phase 3 — Advanced (2–4 weeks)**
+
 - Algorithm comparison view
 - Save scenarios & optional backend with Express + DB
 - Export Gantt (PNG/PDF)
 - Accessibility and i18n
 
 **Phase 4 — Polish & Deploy (1 week)**
+
 - CI/CD, Docker images, deploy frontend and backend
 - Add demo scenarios and documentation
 - Prepare README and short demo video/gif for portfolio
 
 **Stretch roadmap**
+
 - Multi-core, context-switch visualization, energy model
 - Mobile app in Flutter (reuse `shared` engine via WASM or reimplement engine in Dart)
 - Desktop app with Tauri (reuse the web UI)
@@ -324,8 +339,8 @@ export interface SimulationResult {
 ---
 
 If you want, I can next:
+
 - scaffold the workspace `package.json` + `pnpm-workspace.yaml` and `shared` engine stubs, or
 - generate the full `frontend` file tree with starter code for FCFS + a minimal Gantt component.
 
 Tell me which you'd like me to generate next and I will produce the files/code.
-

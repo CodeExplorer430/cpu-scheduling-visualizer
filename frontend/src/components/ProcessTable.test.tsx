@@ -19,7 +19,7 @@ describe('ProcessTable Component', () => {
 
   it('renders correctly with initial processes', () => {
     render(<ProcessTable processes={initialProcesses} onProcessChange={mockProcessChange} />);
-    
+
     expect(screen.getByDisplayValue('P1')).toBeInTheDocument();
     expect(screen.getByDisplayValue('P2')).toBeInTheDocument();
     expect(screen.getAllByDisplayValue('0')[0]).toBeInTheDocument(); // Arrival P1
@@ -28,7 +28,7 @@ describe('ProcessTable Component', () => {
 
   it('calls onProcessChange when adding a process', () => {
     render(<ProcessTable processes={initialProcesses} onProcessChange={mockProcessChange} />);
-    
+
     const addButton = screen.getByText('+ Add');
     fireEvent.click(addButton);
 
@@ -40,7 +40,7 @@ describe('ProcessTable Component', () => {
 
   it('calls onProcessChange when updating a process', () => {
     render(<ProcessTable processes={initialProcesses} onProcessChange={mockProcessChange} />);
-    
+
     const p1BurstInput = screen.getAllByDisplayValue('5')[0];
     fireEvent.change(p1BurstInput, { target: { value: '10' } });
 
@@ -52,12 +52,13 @@ describe('ProcessTable Component', () => {
 
   it('calls onProcessChange when removing a process', () => {
     render(<ProcessTable processes={initialProcesses} onProcessChange={mockProcessChange} />);
-    
+
     const deleteButtons = screen.getAllByText('Delete');
     fireEvent.click(deleteButtons[0]); // Delete P1
 
     expect(mockProcessChange).toHaveBeenCalled();
-    const updatedProcesses = mockProcessChange.mock.calls[mockProcessChange.mock.calls.length - 1][0];
+    const updatedProcesses =
+      mockProcessChange.mock.calls[mockProcessChange.mock.calls.length - 1][0];
     expect(updatedProcesses).toHaveLength(1);
     expect(updatedProcesses[0].pid).toBe('P2');
   });

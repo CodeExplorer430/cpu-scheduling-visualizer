@@ -11,6 +11,7 @@ A web-based visualizer for CPU scheduling algorithms.
 ## Setup
 
 1. Install dependencies:
+
    ```bash
    npm install
    ```
@@ -23,6 +24,7 @@ A web-based visualizer for CPU scheduling algorithms.
 ## Development
 
 - **Frontend**:
+
   ```bash
   npm run dev:frontend
   ```
