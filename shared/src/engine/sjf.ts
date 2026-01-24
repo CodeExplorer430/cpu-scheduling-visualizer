@@ -1,4 +1,5 @@
-import { GanttEvent, Metrics, Process, SimulationResult } from '../types.js';
+import { GanttEvent, Metrics, Process, SimulationResult, Snapshot } from '../types.js';
+import { generateSnapshots } from './utils.js';
 
 export function runSJF(inputProcesses: Process[]): SimulationResult {
   // Deep copy to avoid mutating inputs
@@ -9,17 +10,16 @@ export function runSJF(inputProcesses: Process[]): SimulationResult {
 
   let currentTime = 0;
   const events: GanttEvent[] = [];
+  
   const completionTimes: Record<string, number> = {};
   const turnaroundTimes: Record<string, number> = {};
   const waitingTimes: Record<string, number> = {};
-  const completed: string[] = [];
   
   let completedCount = 0;
   const totalProcesses = processes.length;
 
-  // We need a ready queue
   const readyQueue: Process[] = [];
-  let pIndex = 0; // index to track which processes from the sorted list have arrived
+  let pIndex = 0;
 
   while (completedCount < totalProcesses) {
     // 1. Enqueue all processes that have arrived by currentTime
@@ -32,19 +32,18 @@ export function runSJF(inputProcesses: Process[]): SimulationResult {
     if (readyQueue.length === 0) {
       if (pIndex < totalProcesses) {
         const nextArrival = processes[pIndex].arrival;
-        // Add IDLE event
+        
         events.push({
           pid: 'IDLE',
           start: currentTime,
           end: nextArrival
         });
         currentTime = nextArrival;
-        continue; // Restart loop to enqueue newly arrived
+        continue;
       }
     }
 
-    // 3. Select process with shortest burst time (Non-Preemptive)
-    // Sort ready queue by burst time, then arrival time (tie-breaker)
+    // 3. Select process with shortest burst time
     readyQueue.sort((a, b) => {
       if (a.burst !== b.burst) return a.burst - b.burst;
       return a.arrival - b.arrival;
@@ -64,15 +63,10 @@ export function runSJF(inputProcesses: Process[]): SimulationResult {
       currentTime = end;
       
       // Metrics
-      const completion = end;
-      const turnaround = completion - currentProcess.arrival;
-      const waiting = turnaround - currentProcess.burst;
+      completionTimes[currentProcess.pid] = end;
+      turnaroundTimes[currentProcess.pid] = end - currentProcess.arrival;
+      waitingTimes[currentProcess.pid] = turnaroundTimes[currentProcess.pid] - currentProcess.burst;
 
-      completionTimes[currentProcess.pid] = completion;
-      turnaroundTimes[currentProcess.pid] = turnaround;
-      waitingTimes[currentProcess.pid] = waiting;
-
-      completed.push(currentProcess.pid);
       completedCount++;
     }
   }
@@ -81,14 +75,34 @@ export function runSJF(inputProcesses: Process[]): SimulationResult {
   const totalTurnaround = Object.values(turnaroundTimes).reduce((sum, val) => sum + val, 0);
   const totalWaiting = Object.values(waitingTimes).reduce((sum, val) => sum + val, 0);
 
-  const metrics: Metrics = {
-    completion: completionTimes,
-    turnaround: turnaroundTimes,
-    waiting: waitingTimes,
-    avgTurnaround: totalProcesses > 0 ? totalTurnaround / totalProcesses : 0,
-    avgWaiting: totalProcesses > 0 ? totalWaiting / totalProcesses : 0,
-    contextSwitches: 0 
-  };
+    const metrics: Metrics = {
 
-  return { events, metrics };
-}
+      completion: completionTimes,
+
+      turnaround: turnaroundTimes,
+
+      waiting: waitingTimes,
+
+      avgTurnaround: totalProcesses > 0 ? totalTurnaround / totalProcesses : 0,
+
+      avgWaiting: totalProcesses > 0 ? totalWaiting / totalProcesses : 0,
+
+      contextSwitches: 0 
+
+    };
+
+  
+
+    return { 
+
+      events, 
+
+      metrics,
+
+      snapshots: generateSnapshots(events, inputProcesses)
+
+    };
+
+  }
+
+  

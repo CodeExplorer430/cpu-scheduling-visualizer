@@ -1,4 +1,5 @@
-import { GanttEvent, Metrics, Process, SimulationResult } from '../types.js';
+import { GanttEvent, Metrics, Process, SimulationResult, Snapshot } from '../types.js';
+import { generateSnapshots } from './utils.js';
 
 export function runSRTF(inputProcesses: Process[]): SimulationResult {
   // 1. Setup working copy with 'remaining' burst time
@@ -121,5 +122,9 @@ export function runSRTF(inputProcesses: Process[]): SimulationResult {
     contextSwitches
   };
 
-  return { events, metrics };
+  return { 
+    events, 
+    metrics,
+    snapshots: generateSnapshots(events, inputProcesses)
+  };
 }
