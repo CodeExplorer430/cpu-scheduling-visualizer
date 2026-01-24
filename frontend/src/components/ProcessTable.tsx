@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { Process, generateRandomProcesses, exportToCSV, parseCSV } from '@cpu-vis/shared';
 import toast from 'react-hot-toast';
+import { ScenarioManager } from './playground/ScenarioManager';
 
 interface Props {
   processes: Process[];
@@ -89,6 +90,7 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
           Processes
         </h3>
         <div className="flex flex-wrap gap-2 justify-center md:justify-end w-full md:w-auto">
+          <ScenarioManager processes={processes} onLoad={onProcessChange} />
           <button
             onClick={handleRandomize}
             className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors whitespace-nowrap"

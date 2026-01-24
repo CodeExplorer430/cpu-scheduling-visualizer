@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { SimulationControls } from './SimulationControls';
-import React from 'react';
 
 describe('SimulationControls Component', () => {
   const mockSetAlgo = vi.fn();

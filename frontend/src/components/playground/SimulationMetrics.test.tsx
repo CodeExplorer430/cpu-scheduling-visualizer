@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { SimulationMetrics } from './SimulationMetrics';
 import { Metrics } from '@cpu-vis/shared';
-import React from 'react';
 
 describe('SimulationMetrics Component', () => {
   const mockMetrics: Metrics = {

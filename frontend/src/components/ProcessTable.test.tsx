@@ -1,8 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ProcessTable } from './ProcessTable';
 import { Process } from '@cpu-vis/shared';
-import React from 'react';
 
 // Mock matchMedia if not already globally mocked, but setup.ts should handle it.
 

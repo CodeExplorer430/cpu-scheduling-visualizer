@@ -33,4 +33,12 @@ export default defineConfig({
       plugins: [tailwindcss('./tailwind.config.cjs'), autoprefixer],
     },
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      },
+    },
+  },
 });
