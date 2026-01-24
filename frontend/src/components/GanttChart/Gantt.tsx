@@ -19,12 +19,18 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove(); // Clear previous render
 
+    // Accessibility attributes for the SVG container
+    svg
+      .attr('role', 'img')
+      .attr('aria-label', 'Gantt chart visualization of CPU scheduling');
+
     // Check for dark mode via theme context
     const isDarkMode = theme === 'dark';
     const axisColor = isDarkMode ? '#9ca3af' : '#374151'; // gray-400 : gray-700
     const gridColor = isDarkMode ? '#4b5563' : '#e5e7eb'; // gray-600 : gray-200
     const idleColor = isDarkMode ? '#374151' : '#e5e7eb'; // gray-700 : gray-200
     const idleTextColor = isDarkMode ? '#9ca3af' : '#374151';
+    const switchMarkerColor = '#ef4444'; // Red for context switches
 
     // Dimensions
     const margin = { top: 20, right: 30, bottom: 40, left: 40 };
@@ -69,10 +75,14 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
       .attr('stroke', gridColor);
 
     // Bars
-    g.selectAll('.bar')
+    const bars = g.selectAll('.bar')
       .data(events)
       .enter()
-      .append('rect')
+      .append('g') // Group for rect + accessible title
+      .attr('role', 'graphics-symbol')
+      .attr('aria-label', d => `${d.pid === 'IDLE' ? 'Idle' : 'Process ' + d.pid} from time ${d.start} to ${d.end}`);
+
+    bars.append('rect')
       .attr('class', 'bar')
       .attr('x', (d) => xScale(d.start))
       .attr('y', height / 2 - 20)
@@ -82,6 +92,10 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
       .attr('stroke', isDarkMode ? '#1f2937' : '#fff') // Dark bg or White
       .attr('stroke-width', 1)
       .attr('opacity', (d) => (currentTime !== undefined && d.start >= currentTime ? 0.2 : 1));
+    
+    // Add title for hover tooltip (native browser behavior)
+    bars.append('title')
+      .text(d => `${d.pid} (${d.start} - ${d.end})`);
 
     // Labels
     g.selectAll('.label')
@@ -96,6 +110,34 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
       .attr('font-weight', 'bold')
       .text((d) => (d.pid === 'IDLE' ? '' : d.pid))
       .attr('opacity', (d) => (currentTime !== undefined && d.start >= currentTime ? 0 : 1));
+
+    // Context Switch Markers
+    // Identify switches: consecutive events where PID changes and neither is IDLE
+    // Or we can mark ANY switch away from a process (excluding to IDLE? No, usually switch overhead is recorded).
+    // Spec says: "show markers where context switches occur".
+    // Typically, this is between two different processes.
+    
+    const switchPoints: number[] = [];
+    for(let i = 0; i < events.length - 1; i++) {
+        const current = events[i];
+        const next = events[i+1];
+        if (current.pid !== next.pid && current.pid !== 'IDLE' && next.pid !== 'IDLE') {
+            switchPoints.push(current.end);
+        }
+    }
+
+    g.selectAll('.switch-marker')
+        .data(switchPoints)
+        .enter()
+        .append('line')
+        .attr('class', 'switch-marker')
+        .attr('x1', d => xScale(d))
+        .attr('x2', d => xScale(d))
+        .attr('y1', height / 2 - 25) // Slightly taller than bars
+        .attr('y2', height / 2 + 25)
+        .attr('stroke', switchMarkerColor)
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '2,2');
 
     // Current Time Indicator
     if (currentTime !== undefined) {
