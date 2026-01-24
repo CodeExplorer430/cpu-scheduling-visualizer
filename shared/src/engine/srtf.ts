@@ -1,4 +1,4 @@
-import { GanttEvent, Metrics, Process, SimulationResult, Snapshot } from '../types.js';
+import { GanttEvent, Metrics, Process, SimulationResult } from '../types.js';
 import { generateSnapshots } from './utils.js';
 
 export function runSRTF(inputProcesses: Process[]): SimulationResult {
@@ -17,7 +17,6 @@ export function runSRTF(inputProcesses: Process[]): SimulationResult {
   const completionTimes: Record<string, number> = {};
   const turnaroundTimes: Record<string, number> = {};
   const waitingTimes: Record<string, number> = {};
-  const firstResponse: Record<string, number> = {}; // For debugging/response time if needed
 
   // Helper to get ready processes
   const getReadyProcesses = (time: number) => 

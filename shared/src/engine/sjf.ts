@@ -1,9 +1,9 @@
-import { GanttEvent, Metrics, Process, SimulationResult, Snapshot } from '../types.js';
+import { GanttEvent, Metrics, Process, SimulationResult } from '../types.js';
 import { generateSnapshots } from './utils.js';
 
 export function runSJF(inputProcesses: Process[]): SimulationResult {
   // Deep copy to avoid mutating inputs
-  let processes = inputProcesses.map(p => ({ ...p }));
+  const processes = inputProcesses.map(p => ({ ...p }));
   
   // Sort initial list by arrival time to handle the "arriving" logic
   processes.sort((a, b) => a.arrival - b.arrival);

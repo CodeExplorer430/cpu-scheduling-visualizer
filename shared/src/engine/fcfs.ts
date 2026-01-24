@@ -1,4 +1,4 @@
-import { Algorithm, GanttEvent, Metrics, Process, SimulationResult, Snapshot } from '../types.js';
+import { GanttEvent, Metrics, Process, SimulationResult } from '../types.js';
 import { generateSnapshots } from './utils.js';
 
 export function runFCFS(inputProcesses: Process[]): SimulationResult {
