@@ -1,20 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import {
-  runFCFS,
-  runSJF,
-  runSRTF,
-  runRR,
-  Process,
-  SimulationResult,
-  Algorithm,
-} from '@cpu-vis/shared';
-import toast from 'react-hot-toast';
+import React from 'react';
+import { Process } from '@cpu-vis/shared';
 import { ProcessTable } from '../components/ProcessTable';
 import { Gantt } from '../components/GanttChart/Gantt';
 import { Stepper } from '../components/Stepper';
 import { SimulationControls } from '../components/playground/SimulationControls';
 import { RealTimeStatus } from '../components/playground/RealTimeStatus';
 import { SimulationMetrics } from '../components/playground/SimulationMetrics';
+import { useSimulation } from '../hooks/useSimulation';
 
 interface Props {
   processes: Process[];
@@ -22,59 +14,18 @@ interface Props {
 }
 
 export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) => {
-  const [selectedAlgorithm, setSelectedAlgorithm] = useState<Algorithm>('FCFS');
-  const [quantum, setQuantum] = useState<number>(2);
-  const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
-
-  // Step-through state
-  const [currentTime, setCurrentTime] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  const handleRunSimulation = useCallback(() => {
-    let result: SimulationResult;
-
-    switch (selectedAlgorithm) {
-      case 'FCFS':
-        result = runFCFS(processes);
-        break;
-      case 'SJF':
-        result = runSJF(processes);
-        break;
-      case 'SRTF':
-        result = runSRTF(processes);
-        break;
-      case 'RR':
-        result = runRR(processes, quantum);
-        break;
-      default:
-        result = runFCFS(processes);
-    }
-
-    setSimulationResult(result);
-    setCurrentTime(0);
-    setIsPlaying(false);
-    toast.success('Simulation started');
-  }, [processes, selectedAlgorithm, quantum]);
-
-  // Auto-play logic
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isPlaying && simulationResult) {
-      const maxTime =
-        simulationResult.events.length > 0
-          ? simulationResult.events[simulationResult.events.length - 1].end
-          : 0;
-
-      if (currentTime < maxTime) {
-        interval = setInterval(() => {
-          setCurrentTime((prev) => prev + 1);
-        }, 1000); // 1 second per time unit
-      } else {
-        setIsPlaying(false);
-      }
-    }
-    return () => clearInterval(interval);
-  }, [isPlaying, currentTime, simulationResult]);
+  const {
+    selectedAlgorithm,
+    setSelectedAlgorithm,
+    quantum,
+    setQuantum,
+    simulationResult,
+    currentTime,
+    setCurrentTime,
+    isPlaying,
+    setIsPlaying,
+    runSimulation,
+  } = useSimulation(processes);
 
   const metrics = simulationResult?.metrics;
   const currentSnapshot = simulationResult?.snapshots?.find((s) => s.time === currentTime);
@@ -92,7 +43,7 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
             setSelectedAlgorithm={setSelectedAlgorithm}
             quantum={quantum}
             setQuantum={setQuantum}
-            onRun={handleRunSimulation}
+            onRun={runSimulation}
           />
         </div>
 
