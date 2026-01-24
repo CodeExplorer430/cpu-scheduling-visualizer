@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { runFCFS, runSJF, Process, SimulationResult, Algorithm } from '@cpu-vis/shared';
+import { runFCFS, runSJF, runSRTF, runRR, Process, SimulationResult, Algorithm } from '@cpu-vis/shared';
 import { ProcessTable } from './components/ProcessTable';
 import { Gantt } from './components/GanttChart/Gantt';
 
@@ -13,6 +13,7 @@ const initialProcesses: Process[] = [
 function App() {
   const [processes, setProcesses] = useState<Process[]>(initialProcesses);
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<Algorithm>('FCFS');
+  const [quantum, setQuantum] = useState<number>(2);
   const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
 
   const handleRunSimulation = () => {
@@ -25,16 +26,18 @@ function App() {
       case 'SJF':
         result = runSJF(processes);
         break;
+      case 'SRTF':
+        result = runSRTF(processes);
+        break;
+      case 'RR':
+        result = runRR(processes, quantum);
+        break;
       default:
-        // Fallback or not implemented
         result = runFCFS(processes);
     }
     
     setSimulationResult(result);
   };
-
-  // Run simulation automatically when inputs change (optional, but nice for interactivity)
-  // useEffect(() => { handleRunSimulation() }, [processes, selectedAlgorithm]);
 
   const metrics = simulationResult?.metrics;
 
@@ -61,10 +64,23 @@ function App() {
               >
                 <option value="FCFS">First-Come, First-Served (FCFS)</option>
                 <option value="SJF">Shortest Job First (SJF - Non-Preemptive)</option>
-                {/* <option value="SRTF" disabled>Shortest Remaining Time First (Coming Soon)</option> */}
-                {/* <option value="RR" disabled>Round Robin (Coming Soon)</option> */}
+                <option value="SRTF">Shortest Remaining Time First (SRTF - Preemptive)</option>
+                <option value="RR">Round Robin (RR)</option>
               </select>
             </div>
+
+            {selectedAlgorithm === 'RR' && (
+               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Time Quantum</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={quantum}
+                  onChange={(e) => setQuantum(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border"
+                />
+              </div>
+            )}
             
             <button
               onClick={handleRunSimulation}
@@ -106,6 +122,15 @@ function App() {
                   <p className="text-2xl font-bold text-green-600 mt-1">{metrics.avgWaiting.toFixed(2)}</p>
                 </div>
               </div>
+
+              {metrics.contextSwitches !== undefined && (
+                <div className="px-4 pb-4">
+                   <div className="bg-orange-50 p-2 rounded text-center border border-orange-100">
+                      <p className="text-xs text-orange-800 uppercase font-bold tracking-wider">Context Switches</p>
+                      <p className="text-xl font-bold text-orange-700">{metrics.contextSwitches}</p>
+                   </div>
+                </div>
+              )}
               
               <div className="overflow-x-auto">
                 <table className="min-w-full text-sm text-left">

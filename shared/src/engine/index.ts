@@ -1,6 +1,8 @@
 export * from '../types.js';
 export * from './fcfs.js';
 export * from './sjf.js';
+export * from './srtf.js';
+export * from './rr.js';
 
 // Stub for future engine implementations
 export const Engine = {
