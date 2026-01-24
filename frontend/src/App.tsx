@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { Process } from '@cpu-vis/shared';
 import { Playground } from './pages/Playground';
 import { Compare } from './pages/Compare';
@@ -110,6 +111,7 @@ function App() {
 
   return (
     <ThemeProvider>
+      <Toaster position="bottom-right" reverseOrder={false} />
       <BrowserRouter>
         <Layout>
           <Routes>

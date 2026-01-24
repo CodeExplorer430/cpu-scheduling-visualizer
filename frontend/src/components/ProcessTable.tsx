@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { Process, generateRandomProcesses, exportToCSV, parseCSV } from '@cpu-vis/shared';
+import toast from 'react-hot-toast';
 
 interface Props {
   processes: Process[];
@@ -12,6 +13,7 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
   const addProcess = () => {
     const newPid = `P${processes.length + 1}`;
     onProcessChange([...processes, { pid: newPid, arrival: 0, burst: 1, color: '#3b82f6' }]);
+    toast.success('Process added');
   };
 
   const updateProcess = (index: number, field: keyof Process, value: string | number) => {
@@ -23,6 +25,7 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
   const removeProcess = (index: number) => {
     const updated = processes.filter((_, i) => i !== index);
     onProcessChange(updated);
+    toast.success('Process removed');
   };
 
   const handleRandomize = () => {
@@ -32,6 +35,7 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
       burstRange: [1, 10],
     });
     onProcessChange(randomProcesses);
+    toast.success('Processes randomized');
   };
 
   const handleExportCSV = () => {
@@ -46,6 +50,7 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      toast.success('CSV Exported');
     }
   };
 
@@ -56,12 +61,21 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
       reader.onload = (e) => {
         const content = e.target?.result as string;
         if (content) {
-          const parsed = parseCSV(content);
-          if (parsed.length > 0) {
-            onProcessChange(parsed);
+          try {
+            const parsed = parseCSV(content);
+            if (parsed.length > 0) {
+              onProcessChange(parsed);
+              toast.success('CSV Imported successfully');
+            } else {
+              toast.error('CSV file is empty or invalid');
+            }
+          } catch (error) {
+            toast.error('Failed to parse CSV');
+            console.error(error);
           }
         }
       };
+      reader.onerror = () => toast.error('Error reading file');
       reader.readAsText(file);
     }
     // Reset input

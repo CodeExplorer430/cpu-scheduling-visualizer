@@ -8,6 +8,7 @@ import {
   SimulationResult,
   Algorithm,
 } from '@cpu-vis/shared';
+import toast from 'react-hot-toast';
 import { ProcessTable } from '../components/ProcessTable';
 import { ComparisonSettings } from '../components/compare/ComparisonSettings';
 import { ComparisonResults } from '../components/compare/ComparisonResults';
@@ -29,6 +30,7 @@ export const Compare: React.FC<Props> = ({ processes, onProcessesChange }) => {
       RR: runRR(processes, quantum),
       PRIORITY: runFCFS(processes), // Placeholder
     });
+    toast.success('Comparison updated');
   };
 
   const algorithms: Algorithm[] = ['FCFS', 'SJF', 'SRTF', 'RR'];

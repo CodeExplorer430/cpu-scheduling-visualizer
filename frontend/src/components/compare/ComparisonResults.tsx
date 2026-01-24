@@ -3,6 +3,7 @@ import { SimulationResult, Algorithm } from '@cpu-vis/shared';
 import { Gantt } from '../GanttChart/Gantt';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import toast from 'react-hot-toast';
 
 interface Props {
   results: Record<Algorithm, SimulationResult>;
@@ -27,26 +28,44 @@ export const ComparisonResults: React.FC<Props> = ({ results, algorithms }) => {
 
   const handleExportPNG = async () => {
     if (!exportRef.current) return;
-    const canvas = await html2canvas(exportRef.current);
-    const dataUrl = canvas.toDataURL('image/png');
-    const link = document.createElement('a');
-    link.href = dataUrl;
-    link.download = 'cpu-scheduling-comparison.png';
-    link.click();
+    
+    const exportPromise = (async () => {
+      const canvas = await html2canvas(exportRef.current!);
+      const dataUrl = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = 'cpu-scheduling-comparison.png';
+      link.click();
+    })();
+
+    toast.promise(exportPromise, {
+      loading: 'Generating PNG...',
+      success: 'PNG Exported!',
+      error: 'Failed to export PNG',
+    });
   };
 
   const handleExportPDF = async () => {
     if (!exportRef.current) return;
-    const canvas = await html2canvas(exportRef.current);
-    const imgData = canvas.toDataURL('image/png');
 
-    // A4 size: 210 x 297 mm
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    const exportPromise = (async () => {
+      const canvas = await html2canvas(exportRef.current!);
+      const imgData = canvas.toDataURL('image/png');
 
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save('cpu-scheduling-comparison.pdf');
+      // A4 size: 210 x 297 mm
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save('cpu-scheduling-comparison.pdf');
+    })();
+
+    toast.promise(exportPromise, {
+      loading: 'Generating PDF...',
+      success: 'PDF Exported!',
+      error: 'Failed to export PDF',
+    });
   };
 
   return (
