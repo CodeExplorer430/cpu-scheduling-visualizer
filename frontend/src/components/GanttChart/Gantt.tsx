@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { GanttEvent } from '@cpu-vis/shared';
+import { useTheme } from '../../context/ThemeContext';
 
 interface Props {
   events: GanttEvent[];
@@ -9,6 +10,7 @@ interface Props {
 
 export const Gantt: React.FC<Props> = ({ events, currentTime }) => {
   const svgRef = useRef<SVGSVGElement>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     if (!svgRef.current || events.length === 0) return;
@@ -16,8 +18,8 @@ export const Gantt: React.FC<Props> = ({ events, currentTime }) => {
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove(); // Clear previous render
 
-    // Check for dark mode via class on html element
-    const isDarkMode = document.documentElement.classList.contains('dark');
+    // Check for dark mode via theme context
+    const isDarkMode = theme === 'dark';
     const axisColor = isDarkMode ? '#9ca3af' : '#374151'; // gray-400 : gray-700
     const gridColor = isDarkMode ? '#4b5563' : '#e5e7eb'; // gray-600 : gray-200
     const idleColor = isDarkMode ? '#374151' : '#e5e7eb'; // gray-700 : gray-200
@@ -116,7 +118,7 @@ export const Gantt: React.FC<Props> = ({ events, currentTime }) => {
         .text(`t=${currentTime}`);
     }
 
-  }, [events, currentTime]);
+  }, [events, currentTime, theme]);
 
   return (
     <div className="w-full bg-white dark:bg-gray-800 shadow rounded-lg p-4 transition-colors duration-200">
