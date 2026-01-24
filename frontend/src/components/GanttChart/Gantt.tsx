@@ -6,9 +6,10 @@ import { useTheme } from '../../context/ThemeContext';
 interface Props {
   events: GanttEvent[];
   currentTime?: number;
+  domainMax?: number; // Optional prop to force a specific X-axis range
 }
 
-export const Gantt: React.FC<Props> = ({ events, currentTime }) => {
+export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const { theme } = useTheme();
 
@@ -35,7 +36,10 @@ export const Gantt: React.FC<Props> = ({ events, currentTime }) => {
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
     // Scales
-    const maxTime = d3.max(events, d => d.end) || 10;
+    // Use domainMax if provided, otherwise default to this chart's max time
+    const localMax = d3.max(events, d => d.end) || 10;
+    const maxTime = domainMax !== undefined ? Math.max(domainMax, localMax) : localMax;
+    
     const xScale = d3.scaleLinear()
       .domain([0, maxTime])
       .range([0, width]);
@@ -118,7 +122,7 @@ export const Gantt: React.FC<Props> = ({ events, currentTime }) => {
         .text(`t=${currentTime}`);
     }
 
-  }, [events, currentTime, theme]);
+  }, [events, currentTime, theme, domainMax]);
 
   return (
     <div className="w-full bg-white dark:bg-gray-800 shadow rounded-lg p-4 transition-colors duration-200">
