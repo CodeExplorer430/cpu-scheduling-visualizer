@@ -4,6 +4,7 @@ import {
   runSJF,
   runSRTF,
   runRR,
+  runPriority,
   Process,
   SimulationResult,
   Algorithm,
@@ -28,12 +29,12 @@ export const Compare: React.FC<Props> = ({ processes, onProcessesChange }) => {
       SJF: runSJF(processes),
       SRTF: runSRTF(processes),
       RR: runRR(processes, quantum),
-      PRIORITY: runFCFS(processes), // Placeholder
+      PRIORITY: runPriority(processes),
     });
     toast.success('Comparison updated');
   };
 
-  const algorithms: Algorithm[] = ['FCFS', 'SJF', 'SRTF', 'RR'];
+  const algorithms: Algorithm[] = ['FCFS', 'SJF', 'SRTF', 'RR', 'PRIORITY'];
 
   return (
     <div className="space-y-8">

@@ -4,6 +4,7 @@ import {
   runSJF,
   runSRTF,
   runRR,
+  runPriority,
   Process,
   SimulationResult,
   Algorithm,
@@ -32,6 +33,9 @@ export const useSimulation = (processes: Process[]) => {
         break;
       case 'RR':
         result = runRR(processes, quantum);
+        break;
+      case 'PRIORITY':
+        result = runPriority(processes);
         break;
       default:
         result = runFCFS(processes);

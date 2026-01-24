@@ -35,6 +35,7 @@ export const SimulationControls: React.FC<Props> = ({
           <option value="SJF">Shortest Job First (SJF - Non-Preemptive)</option>
           <option value="SRTF">Shortest Remaining Time First (SRTF - Preemptive)</option>
           <option value="RR">Round Robin (RR)</option>
+          <option value="PRIORITY">Priority (Non-Preemptive)</option>
         </select>
       </div>
 

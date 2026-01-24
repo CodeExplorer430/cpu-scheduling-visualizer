@@ -1,13 +1,14 @@
 import { Router, Request, Response } from 'express';
-import { runFCFS, runSJF, runSRTF, runRR, Process, Algorithm } from '@cpu-vis/shared';
+import { runFCFS, runSJF, runSRTF, runRR, runPriority, validateProcesses, Process, Algorithm } from '@cpu-vis/shared';
 
 const router = Router();
 
 router.post('/', (req: Request, res: Response) => {
   const { algorithm, processes, timeQuantum } = req.body;
 
-  if (!processes || !Array.isArray(processes)) {
-    return res.status(400).json({ error: 'Invalid processes input' });
+  const validation = validateProcesses(processes);
+  if (!validation.valid) {
+    return res.status(400).json({ error: validation.error });
   }
 
   const algo = algorithm as Algorithm;
@@ -27,6 +28,9 @@ router.post('/', (req: Request, res: Response) => {
         break;
       case 'RR':
         result = runRR(processes as Process[], quantum);
+        break;
+      case 'PRIORITY':
+        result = runPriority(processes as Process[]);
         break;
       default:
         // Default to FCFS if unknown, or return error
