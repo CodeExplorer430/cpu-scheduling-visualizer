@@ -22,6 +22,10 @@ describe('Backend Integration Tests', () => {
       timeQuantum: 2, // Optional but good to include
     });
 
+    if (res.status !== 200) {
+      console.error('Test failed with status:', res.status, 'Error:', res.body);
+    }
+
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('events');
     expect(res.body).toHaveProperty('metrics');
