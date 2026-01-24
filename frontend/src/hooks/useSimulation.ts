@@ -14,38 +14,40 @@ import toast from 'react-hot-toast';
 export const useSimulation = (processes: Process[]) => {
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<Algorithm>('FCFS');
   const [quantum, setQuantum] = useState<number>(2);
+  const [contextSwitch, setContextSwitch] = useState<number>(0);
   const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
   const runSimulation = useCallback(() => {
     let result: SimulationResult;
+    const options = { quantum, contextSwitchOverhead: contextSwitch, enableLogging: true };
 
     switch (selectedAlgorithm) {
       case 'FCFS':
-        result = runFCFS(processes);
+        result = runFCFS(processes, options);
         break;
       case 'SJF':
-        result = runSJF(processes);
+        result = runSJF(processes, options);
         break;
       case 'SRTF':
-        result = runSRTF(processes);
+        result = runSRTF(processes, options);
         break;
       case 'RR':
-        result = runRR(processes, quantum);
+        result = runRR(processes, options);
         break;
       case 'PRIORITY':
-        result = runPriority(processes);
+        result = runPriority(processes, options);
         break;
       default:
-        result = runFCFS(processes);
+        result = runFCFS(processes, options);
     }
 
     setSimulationResult(result);
     setCurrentTime(0);
     setIsPlaying(false);
     toast.success('Simulation started');
-  }, [processes, selectedAlgorithm, quantum]);
+  }, [processes, selectedAlgorithm, quantum, contextSwitch]);
 
   // Auto-play logic
   useEffect(() => {
@@ -72,6 +74,8 @@ export const useSimulation = (processes: Process[]) => {
     setSelectedAlgorithm,
     quantum,
     setQuantum,
+    contextSwitch,
+    setContextSwitch,
     simulationResult,
     currentTime,
     setCurrentTime,

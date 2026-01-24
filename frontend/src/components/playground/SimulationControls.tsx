@@ -6,6 +6,8 @@ interface Props {
   setSelectedAlgorithm: (algo: Algorithm) => void;
   quantum: number;
   setQuantum: (q: number) => void;
+  contextSwitch: number;
+  setContextSwitch: (cs: number) => void;
   onRun: () => void;
 }
 
@@ -14,6 +16,8 @@ export const SimulationControls: React.FC<Props> = ({
   setSelectedAlgorithm,
   quantum,
   setQuantum,
+  contextSwitch,
+  setContextSwitch,
   onRun,
 }) => {
   return (
@@ -44,25 +48,45 @@ export const SimulationControls: React.FC<Props> = ({
         </select>
       </div>
 
-      {selectedAlgorithm === 'RR' && (
-        <div>
+      <div className="grid grid-cols-2 gap-4">
+        {selectedAlgorithm === 'RR' && (
+          <div>
+            <label
+              htmlFor="quantum-input"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              Time Quantum
+            </label>
+            <input
+              id="quantum-input"
+              type="number"
+              min="1"
+              value={quantum}
+              onChange={(e) => setQuantum(Math.max(1, parseInt(e.target.value) || 1))}
+              className="w-full bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors"
+              aria-description="Set the time quantum for Round Robin scheduling"
+            />
+          </div>
+        )}
+
+        <div className={selectedAlgorithm !== 'RR' ? 'col-span-2' : ''}>
           <label
-            htmlFor="quantum-input"
+            htmlFor="context-switch-input"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
           >
-            Time Quantum
+            Context Switch (ms)
           </label>
           <input
-            id="quantum-input"
+            id="context-switch-input"
             type="number"
-            min="1"
-            value={quantum}
-            onChange={(e) => setQuantum(Math.max(1, parseInt(e.target.value) || 1))}
+            min="0"
+            value={contextSwitch}
+            onChange={(e) => setContextSwitch(Math.max(0, parseInt(e.target.value) || 0))}
             className="w-full bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors"
-            aria-description="Set the time quantum for Round Robin scheduling"
+            aria-description="Set the context switch overhead time"
           />
         </div>
-      )}
+      </div>
 
       <button
         onClick={onRun}

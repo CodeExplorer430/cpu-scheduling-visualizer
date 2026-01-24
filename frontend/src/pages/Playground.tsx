@@ -6,6 +6,7 @@ import { Stepper } from '../components/Stepper';
 import { SimulationControls } from '../components/playground/SimulationControls';
 import { RealTimeStatus } from '../components/playground/RealTimeStatus';
 import { SimulationMetrics } from '../components/playground/SimulationMetrics';
+import { SimulationLogs } from '../components/playground/SimulationLogs';
 import { useSimulation } from '../hooks/useSimulation';
 
 interface Props {
@@ -19,6 +20,8 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
     setSelectedAlgorithm,
     quantum,
     setQuantum,
+    contextSwitch,
+    setContextSwitch,
     simulationResult,
     currentTime,
     setCurrentTime,
@@ -43,6 +46,8 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
             setSelectedAlgorithm={setSelectedAlgorithm}
             quantum={quantum}
             setQuantum={setQuantum}
+            contextSwitch={contextSwitch}
+            setContextSwitch={setContextSwitch}
             onRun={runSimulation}
           />
         </div>
@@ -81,6 +86,9 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
 
         {/* Metrics */}
         {metrics && <SimulationMetrics metrics={metrics} isFinished={currentTime >= maxTime} />}
+
+        {/* Logs */}
+        {simulationResult?.logs && <SimulationLogs logs={simulationResult.logs} />}
       </div>
     </div>
   );

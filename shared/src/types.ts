@@ -8,7 +8,7 @@ export interface Process {
 }
 
 export interface GanttEvent {
-  pid: string | 'IDLE';
+  pid: string | 'IDLE' | 'CS'; // CS = Context Switch
   start: number;
   end: number;
 }
@@ -26,7 +26,7 @@ export type Algorithm = 'FCFS' | 'SJF' | 'SRTF' | 'RR' | 'PRIORITY';
 
 export interface Snapshot {
   time: number;
-  runningPid: string | 'IDLE';
+  runningPid: string | 'IDLE' | 'CS';
   readyQueue: string[];
 }
 
@@ -34,5 +34,11 @@ export interface SimulationResult {
   events: GanttEvent[];
   metrics: Metrics;
   snapshots?: Snapshot[];
-  logs?: string[]; // optional step logs for step-through
+  logs?: string[]; // step-by-step explanations
+}
+
+export interface SimulationOptions {
+  quantum?: number;
+  contextSwitchOverhead?: number;
+  enableLogging?: boolean;
 }

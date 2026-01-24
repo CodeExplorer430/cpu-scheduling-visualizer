@@ -6,6 +6,7 @@ import React from 'react';
 describe('SimulationControls Component', () => {
   const mockSetAlgo = vi.fn();
   const mockSetQuantum = vi.fn();
+  const mockSetContextSwitch = vi.fn();
   const mockOnRun = vi.fn();
 
   it('renders correctly', () => {
@@ -15,6 +16,8 @@ describe('SimulationControls Component', () => {
         setSelectedAlgorithm={mockSetAlgo}
         quantum={2}
         setQuantum={mockSetQuantum}
+        contextSwitch={0}
+        setContextSwitch={mockSetContextSwitch}
         onRun={mockOnRun}
       />
     );
@@ -30,6 +33,8 @@ describe('SimulationControls Component', () => {
         setSelectedAlgorithm={mockSetAlgo}
         quantum={2}
         setQuantum={mockSetQuantum}
+        contextSwitch={0}
+        setContextSwitch={mockSetContextSwitch}
         onRun={mockOnRun}
       />
     );
@@ -42,6 +47,8 @@ describe('SimulationControls Component', () => {
         setSelectedAlgorithm={mockSetAlgo}
         quantum={2}
         setQuantum={mockSetQuantum}
+        contextSwitch={0}
+        setContextSwitch={mockSetContextSwitch}
         onRun={mockOnRun}
       />
     );
@@ -56,6 +63,8 @@ describe('SimulationControls Component', () => {
         setSelectedAlgorithm={mockSetAlgo}
         quantum={2}
         setQuantum={mockSetQuantum}
+        contextSwitch={0}
+        setContextSwitch={mockSetContextSwitch}
         onRun={mockOnRun}
       />
     );
