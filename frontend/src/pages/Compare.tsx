@@ -39,7 +39,7 @@ export const Compare: React.FC<Props> = ({ processes, onProcessesChange }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <ComparisonSettings quantum={quantum} setQuantum={setQuantum} onRun={handleRunComparison} />
 
-        <div className="overflow-auto max-h-96">
+        <div className="">
           <ProcessTable processes={processes} onProcessChange={onProcessesChange} />
         </div>
       </div>
