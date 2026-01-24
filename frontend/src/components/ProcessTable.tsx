@@ -1,5 +1,5 @@
-import React from 'react';
-import { Process } from '@cpu-vis/shared';
+import React, { useRef } from 'react';
+import { Process, generateRandomProcesses, exportToCSV, parseCSV } from '@cpu-vis/shared';
 
 interface Props {
   processes: Process[];
@@ -7,6 +7,8 @@ interface Props {
 }
 
 export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const addProcess = () => {
     const newPid = `P${processes.length + 1}`;
     onProcessChange([
@@ -26,16 +28,83 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
     onProcessChange(updated);
   };
 
+  const handleRandomize = () => {
+    const randomProcesses = generateRandomProcesses({
+      count: 5,
+      arrivalRange: [0, 10],
+      burstRange: [1, 10]
+    });
+    onProcessChange(randomProcesses);
+  };
+
+  const handleExportCSV = () => {
+    const csvContent = exportToCSV(processes);
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'processes.csv');
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  const handleImportCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target?.result as string;
+        if (content) {
+          const parsed = parseCSV(content);
+          if (parsed.length > 0) {
+            onProcessChange(parsed);
+          }
+        }
+      };
+      reader.readAsText(file);
+    }
+    // Reset input
+    if (event.target) event.target.value = '';
+  };
+
   return (
     <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden transition-colors duration-200">
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4">
         <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">Processes</h3>
-        <button
-          onClick={addProcess}
-          className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
-        >
-          + Add
-        </button>
+        <div className="flex flex-wrap gap-2">
+           <button
+            onClick={handleRandomize}
+            className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+          >
+            Randomize
+          </button>
+           <button
+            onClick={handleExportCSV}
+            className="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+          >
+            Export CSV
+          </button>
+          <label className="bg-orange-600 hover:bg-orange-700 dark:bg-orange-500 dark:hover:bg-orange-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors cursor-pointer">
+            Import CSV
+            <input 
+              type="file" 
+              accept=".csv" 
+              onChange={handleImportCSV} 
+              className="hidden" 
+              ref={fileInputRef}
+            />
+          </label>
+          <button
+            onClick={addProcess}
+            className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+          >
+            + Add
+          </button>
+        </div>
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
