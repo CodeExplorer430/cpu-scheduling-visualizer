@@ -81,51 +81,53 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
     : 0;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      {/* Left Column: Controls & Input */}
-      <div className="lg:col-span-5 space-y-6">
-        <SimulationControls
-          selectedAlgorithm={selectedAlgorithm}
-          setSelectedAlgorithm={setSelectedAlgorithm}
-          quantum={quantum}
-          setQuantum={setQuantum}
-          onRun={handleRunSimulation}
-        />
-
-        {/* Stepper */}
-        {simulationResult && (
-          <Stepper
-            currentTime={currentTime}
-            maxTime={maxTime}
-            onTimeChange={setCurrentTime}
-            isPlaying={isPlaying}
-            setIsPlaying={setIsPlaying}
+    <div className="space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Left Column: Controls & Input */}
+        <div className="lg:col-span-5 space-y-6">
+          <SimulationControls
+            selectedAlgorithm={selectedAlgorithm}
+            setSelectedAlgorithm={setSelectedAlgorithm}
+            quantum={quantum}
+            setQuantum={setQuantum}
+            onRun={handleRunSimulation}
           />
-        )}
 
-        {/* Process Input Table */}
-        <ProcessTable processes={processes} onProcessChange={onProcessesChange} />
+          {/* Stepper */}
+          {simulationResult && (
+            <Stepper
+              currentTime={currentTime}
+              maxTime={maxTime}
+              onTimeChange={setCurrentTime}
+              isPlaying={isPlaying}
+              setIsPlaying={setIsPlaying}
+            />
+          )}
+        </div>
+
+        {/* Right Column: Visualization & Metrics */}
+        <div className="lg:col-span-7 space-y-6">
+          {/* Real-time State */}
+          {simulationResult && (
+            <RealTimeStatus snapshot={currentSnapshot} currentTime={currentTime} maxTime={maxTime} />
+          )}
+
+          {/* Gantt Chart */}
+          {simulationResult ? (
+            <Gantt events={simulationResult.events} currentTime={currentTime} />
+          ) : (
+            <div className="h-40 bg-white dark:bg-gray-800 rounded-lg shadow flex items-center justify-center text-gray-400 dark:text-gray-500 transition-colors duration-200">
+              Run simulation to see Gantt Chart
+            </div>
+          )}
+
+          {/* Metrics */}
+          {metrics && <SimulationMetrics metrics={metrics} isFinished={currentTime >= maxTime} />}
+        </div>
       </div>
 
-      {/* Right Column: Visualization & Metrics */}
-      <div className="lg:col-span-7 space-y-6">
-        {/* Real-time State */}
-        {simulationResult && (
-          <RealTimeStatus snapshot={currentSnapshot} currentTime={currentTime} maxTime={maxTime} />
-        )}
-
-        {/* Gantt Chart */}
-        {simulationResult ? (
-          <Gantt events={simulationResult.events} currentTime={currentTime} />
-        ) : (
-          <div className="h-40 bg-white dark:bg-gray-800 rounded-lg shadow flex items-center justify-center text-gray-400 dark:text-gray-500 transition-colors duration-200">
-            Run simulation to see Gantt Chart
-          </div>
-        )}
-
-        {/* Metrics */}
-        {metrics && <SimulationMetrics metrics={metrics} isFinished={currentTime >= maxTime} />}
-      </div>
+      {/* Full Width: Process Input Table */}
+      <ProcessTable processes={processes} onProcessChange={onProcessesChange} />
     </div>
   );
 };
