@@ -119,21 +119,13 @@ export function runRR(
     const runTime = Math.min(currentProcess.remaining, quantum);
     log(`Time ${currentTime}: ${currentProcess.pid} runs for ${runTime}ms (Quantum: ${quantum})`);
 
-    const lastEvent = events[events.length - 1];
-    // Merge if same PID and contiguous (end == start)
-    // Note: With context switches, contiguous might mean separated by CS? No, CS breaks contiguity.
-    // If contextSwitchOverhead > 0, we insert CS, so lastEvent.pid will be 'CS' or different.
-    // So merging only happens if NO CS happened and it's the same process (e.g. quantum extension? unlikely in standard RR unless logic changes)
-    // OR if the previous event was THIS process.
-    if (lastEvent && lastEvent.pid === currentProcess.pid && lastEvent.end === currentTime) {
-      lastEvent.end += runTime;
-    } else {
-      events.push({
-        pid: currentProcess.pid,
-        start: currentTime,
-        end: currentTime + runTime,
-      });
-    }
+    // In Round Robin, we avoid merging events even for the same PID 
+    // to allow the user to see the quantum-based preemption steps.
+    events.push({
+      pid: currentProcess.pid,
+      start: currentTime,
+      end: currentTime + runTime,
+    });
 
     currentTime += runTime;
     currentProcess.remaining -= runTime;

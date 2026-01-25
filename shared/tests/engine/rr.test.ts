@@ -54,14 +54,15 @@ describe('Round Robin (RR) Algorithm', () => {
     // t=4: Ready=[P1, P2]. Run P1 (4-6). rem=0. Done.
     // t=6: Ready=[P2]. Run P2 (6-8). rem=1.
     // t=8: Ready=[P2]. Run P2 (8-9). Done.
-    // Note: The implementation merges consecutive events for the same PID.
-    // So 6-8 and 8-9 become 6-9.
+    // Note: The implementation no longer merges consecutive events for the same PID 
+    // in RR to allow visual stepping of quantums.
 
-    expect(events).toHaveLength(4);
+    expect(events).toHaveLength(5);
     expect(events[0]).toEqual({ pid: 'P1', start: 0, end: 2 });
     expect(events[1]).toEqual({ pid: 'P2', start: 2, end: 4 });
     expect(events[2]).toEqual({ pid: 'P1', start: 4, end: 6 });
-    expect(events[3]).toEqual({ pid: 'P2', start: 6, end: 9 });
+    expect(events[3]).toEqual({ pid: 'P2', start: 6, end: 8 });
+    expect(events[4]).toEqual({ pid: 'P2', start: 8, end: 9 });
   });
 
   it('should handle idle time correctly', () => {

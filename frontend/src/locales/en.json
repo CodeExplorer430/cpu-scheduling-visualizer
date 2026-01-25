@@ -6,21 +6,59 @@
     "stepForward": "Step Forward",
     "stepBack": "Step Back",
     "time": "Time",
-    "run": "Run Simulation"
+    "run": "Run Simulation",
+    "ms": "ms",
+    "watts": "W",
+    "joules": "J"
   },
   "controls": {
     "title": "Simulation Control",
     "algorithm": "Algorithm",
     "quantum": "Time Quantum",
     "contextSwitch": "Context Switch",
-    "cores": "CPU Cores",
-    "optimize": "Optimize Quantum"
+    "cores": "Core Count",
+    "optimize": "Optimize",
+    "optimizeHint": "Find optimal quantum for minimal waiting time",
+    "energyTitle": "Energy Model Settings",
+    "activePower": "Active Power",
+    "idlePower": "Idle Power",
+    "switchCost": "Switch Cost",
+    "guide": "Algorithm Guide",
+    "algorithms": {
+      "FCFS": "First-Come, First-Served (FCFS)",
+      "SJF": "Shortest Job First (SJF - Non-Preemptive)",
+      "SRTF": "Shortest Remaining Time First (SRTF - Preemptive)",
+      "RR": "Round Robin (RR)",
+      "PRIORITY": "Priority (Non-Preemptive)"
+    }
   },
   "explainer": {
     "title": "Algorithm Decision Logic",
     "subtitle": "Understanding why the scheduler made specific choices up to time {{time}}",
     "reason": "Reason",
     "queue": "Ready Queue",
-    "noDecisions": "No decisions made yet."
+    "noDecisions": "No decisions made yet.",
+    "core": "Core"
+  },
+  "processTable": {
+    "title": "Process List",
+    "addProcess": "Add Process",
+    "importCSV": "Import CSV",
+    "pid": "PID",
+    "arrival": "Arrival",
+    "burst": "Burst",
+    "priority": "Priority",
+    "actions": "Actions",
+    "delete": "Delete"
+  },
+  "metrics": {
+    "title": "Simulation Metrics",
+    "avgWait": "Avg Waiting Time",
+    "avgTurnaround": "Avg Turnaround Time",
+    "utilization": "CPU Utilization",
+    "energy": "Total Energy Consumption",
+    "active": "Active",
+    "idle": "Idle",
+    "switches": "Context Switches"
   }
 }

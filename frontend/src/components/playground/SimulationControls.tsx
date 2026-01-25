@@ -1,4 +1,5 @@
 import { EnergyConfig, Algorithm } from '@cpu-vis/shared';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   selectedAlgorithm: Algorithm;
@@ -33,21 +34,22 @@ export const SimulationControls: React.FC<Props> = ({
   onOptimizeQuantum,
   onShowTutorial,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <div
       className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow space-y-4 transition-colors duration-200"
       role="region"
-      aria-label="Simulation Controls"
+      aria-label={t('controls.title')}
     >
       <div className="flex justify-between items-center mb-2">
-        {/* Spacer to keep layout grid clean, or just absolute pos? No, flex header. */}
         <span className="sr-only">Controls</span>
         {onShowTutorial && (
           <button
             onClick={onShowTutorial}
             className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
           >
-            <span className="text-lg">ℹ️</span> Algorithm Guide
+            <span className="text-lg">ℹ️</span> {t('controls.guide')}
           </button>
         )}
       </div>
@@ -58,20 +60,19 @@ export const SimulationControls: React.FC<Props> = ({
             htmlFor="algorithm-select"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
           >
-            Algorithm
+            {t('controls.algorithm')}
           </label>
           <select
             id="algorithm-select"
             value={selectedAlgorithm}
             onChange={(e) => setSelectedAlgorithm(e.target.value as Algorithm)}
             className="w-full bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors"
-            aria-description="Select the CPU scheduling algorithm to simulate"
           >
-            <option value="FCFS">First-Come, First-Served (FCFS)</option>
-            <option value="SJF">Shortest Job First (SJF - Non-Preemptive)</option>
-            <option value="SRTF">Shortest Remaining Time First (SRTF - Preemptive)</option>
-            <option value="RR">Round Robin (RR)</option>
-            <option value="PRIORITY">Priority (Non-Preemptive)</option>
+            <option value="FCFS">{t('controls.algorithms.FCFS')}</option>
+            <option value="SJF">{t('controls.algorithms.SJF')}</option>
+            <option value="SRTF">{t('controls.algorithms.SRTF')}</option>
+            <option value="RR">{t('controls.algorithms.RR')}</option>
+            <option value="PRIORITY">{t('controls.algorithms.PRIORITY')}</option>
           </select>
         </div>
 
@@ -80,7 +81,7 @@ export const SimulationControls: React.FC<Props> = ({
             htmlFor="core-count-input"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
           >
-            Core Count
+            {t('controls.cores')}
           </label>
           <input
             id="core-count-input"
@@ -98,7 +99,7 @@ export const SimulationControls: React.FC<Props> = ({
             htmlFor="context-switch-input"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
           >
-            Context Switch (ms)
+            {t('controls.contextSwitch')} ({t('common.ms')})
           </label>
           <input
             id="context-switch-input"
@@ -116,7 +117,7 @@ export const SimulationControls: React.FC<Props> = ({
               htmlFor="quantum-input"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
             >
-              Time Quantum
+              {t('controls.quantum')}
             </label>
             <div className="flex gap-2">
               <input
@@ -131,9 +132,9 @@ export const SimulationControls: React.FC<Props> = ({
                 <button
                   onClick={onOptimizeQuantum}
                   className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 rounded whitespace-nowrap"
-                  title="Find optimal quantum for minimal waiting time"
+                  title={t('controls.optimizeHint')}
                 >
-                  Optimize
+                  {t('controls.optimize')}
                 </button>
               )}
             </div>
@@ -144,12 +145,12 @@ export const SimulationControls: React.FC<Props> = ({
       <details className="mt-4 group">
         <summary className="text-sm font-medium text-blue-600 dark:text-blue-400 cursor-pointer list-none flex items-center gap-1">
           <span className="group-open:rotate-90 transition-transform">▶</span>
-          Energy Model Settings
+          {t('controls.energyTitle')}
         </summary>
         <div className="grid grid-cols-2 gap-4 mt-2 p-4 bg-gray-50 dark:bg-gray-900 rounded-md border border-gray-100 dark:border-gray-700">
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase">
-              Active Power (W)
+              {t('controls.activePower')} ({t('common.watts')})
             </label>
             <input
               type="number"
@@ -162,7 +163,7 @@ export const SimulationControls: React.FC<Props> = ({
           </div>
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase">
-              Idle Power (W)
+              {t('controls.idlePower')} ({t('common.watts')})
             </label>
             <input
               type="number"
@@ -175,7 +176,7 @@ export const SimulationControls: React.FC<Props> = ({
           </div>
           <div className="col-span-2">
             <label className="block text-xs font-bold text-gray-500 uppercase">
-              Switch Cost (J)
+              {t('controls.switchCost')} ({t('common.joules')})
             </label>
             <input
               type="number"
@@ -193,9 +194,8 @@ export const SimulationControls: React.FC<Props> = ({
       <button
         onClick={onRun}
         className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        aria-label="Start Simulation"
       >
-        Run Simulation
+        {t('common.run')}
       </button>
     </div>
   );

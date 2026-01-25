@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { DecisionLog } from '@cpu-vis/shared';
 import { Process } from '@cpu-vis/shared';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   stepLogs: DecisionLog[];
@@ -10,6 +11,7 @@ interface Props {
 
 export const StepExplainer: React.FC<Props> = ({ stepLogs, currentTime, processes }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
   
   // Filter logs up to current time
   const currentLogs = stepLogs.filter(log => log.time <= currentTime);
@@ -24,7 +26,7 @@ export const StepExplainer: React.FC<Props> = ({ stepLogs, currentTime, processe
   if (currentLogs.length === 0) {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 text-center text-gray-500 dark:text-gray-400">
-        No decisions made yet.
+        {t('explainer.noDecisions')}
       </div>
     );
   }
@@ -33,10 +35,10 @@ export const StepExplainer: React.FC<Props> = ({ stepLogs, currentTime, processe
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden transition-colors duration-200 flex flex-col h-96">
       <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-blue-50 dark:bg-gray-900">
         <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 flex items-center">
-          <span className="mr-2">🧠</span> Algorithm Decision Logic
+          <span className="mr-2">🧠</span> {t('explainer.title')}
         </h3>
         <p className="text-sm text-blue-700 dark:text-blue-300 opacity-80">
-          Understanding why the scheduler made specific choices up to time {currentTime}
+          {t('explainer.subtitle', { time: currentTime })}
         </p>
       </div>
       
@@ -58,9 +60,9 @@ export const StepExplainer: React.FC<Props> = ({ stepLogs, currentTime, processe
                 >
                     <div className="flex justify-between items-start mb-2">
                         <span className="text-xs font-bold uppercase tracking-wider text-gray-500 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 px-2 py-1 rounded">
-                            Time: {log.time}
+                            {t('common.time')}: {log.time}
                         </span>
-                        <span className="text-xs font-mono text-gray-400">Core {log.coreId}</span>
+                        <span className="text-xs font-mono text-gray-400">{t('explainer.core')} {log.coreId}</span>
                     </div>
                     
                     <h4 className="font-bold text-gray-900 dark:text-gray-100 mb-1">
@@ -68,12 +70,12 @@ export const StepExplainer: React.FC<Props> = ({ stepLogs, currentTime, processe
                     </h4>
                     
                     <div className="text-sm text-gray-700 dark:text-gray-300 bg-blue-50 dark:bg-blue-900/20 p-2 rounded border border-blue-100 dark:border-blue-900/30">
-                        <span className="font-semibold text-blue-800 dark:text-blue-300">Reason:</span> {log.reason}
+                        <span className="font-semibold text-blue-800 dark:text-blue-300">{t('explainer.reason')}:</span> {log.reason}
                     </div>
 
                     {log.queueState.length > 0 && (
                         <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                            <span className="font-semibold">Ready Queue:</span> [{log.queueState.join(', ')}]
+                            <span className="font-semibold">{t('explainer.queue')}:</span> [{log.queueState.join(', ')}]
                         </div>
                     )}
                 </div>
