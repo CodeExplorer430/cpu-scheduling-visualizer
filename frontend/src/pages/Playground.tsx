@@ -27,6 +27,8 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
     setContextSwitch,
     coreCount,
     setCoreCount,
+    zoomLevel,
+    setZoomLevel,
     energyConfig,
     setEnergyConfig,
     simulationResult,
@@ -58,6 +60,8 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
             setContextSwitch={setContextSwitch}
             coreCount={coreCount}
             setCoreCount={setCoreCount}
+            zoomLevel={zoomLevel}
+            setZoomLevel={setZoomLevel}
             energyConfig={energyConfig}
             setEnergyConfig={setEnergyConfig}
             onRun={runSimulation}

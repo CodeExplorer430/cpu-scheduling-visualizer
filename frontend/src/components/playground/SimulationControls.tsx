@@ -9,6 +9,8 @@ interface Props {
   setContextSwitch: (cs: number) => void;
   coreCount: number;
   setCoreCount: (count: number) => void;
+  zoomLevel: number;
+  setZoomLevel: (zoom: number) => void;
   energyConfig: EnergyConfig;
   setEnergyConfig: (config: EnergyConfig) => void;
   onRun: () => void;

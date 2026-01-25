@@ -18,6 +18,7 @@ export const useSimulation = (processes: Process[]) => {
   const [quantum, setQuantum] = useState<number>(2);
   const [contextSwitch, setContextSwitch] = useState<number>(0);
   const [coreCount, setCoreCount] = useState<number>(1);
+  const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [energyConfig, setEnergyConfig] = useState<EnergyConfig>({
     activeWatts: 20,
     idleWatts: 5,
@@ -98,6 +99,8 @@ export const useSimulation = (processes: Process[]) => {
     setContextSwitch,
     coreCount,
     setCoreCount,
+    zoomLevel,
+    setZoomLevel,
     energyConfig,
     setEnergyConfig,
     simulationResult,

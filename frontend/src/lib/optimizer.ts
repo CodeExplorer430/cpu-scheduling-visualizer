@@ -1,4 +1,4 @@
-import { Process, runRR, Metrics } from '@cpu-vis/shared';
+import { Process, runRR } from '@cpu-vis/shared';
 
 export function findOptimalQuantum(processes: Process[], maxQuantumToCheck: number = 20): { optimalQuantum: number; minAvgWaiting: number } {
   let optimalQuantum = 1;
