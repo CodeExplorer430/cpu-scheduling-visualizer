@@ -7,6 +7,7 @@ import { SimulationControls } from '../components/playground/SimulationControls'
 import { RealTimeStatus } from '../components/playground/RealTimeStatus';
 import { SimulationMetrics } from '../components/playground/SimulationMetrics';
 import { SimulationLogs } from '../components/playground/SimulationLogs';
+import { TutorialModal } from '../components/playground/TutorialModal';
 import { useSimulation } from '../hooks/useSimulation';
 
 interface Props {
@@ -15,6 +16,8 @@ interface Props {
 }
 
 export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) => {
+  const [isTutorialOpen, setIsTutorialOpen] = React.useState(false);
+  
   const {
     selectedAlgorithm,
     setSelectedAlgorithm,
@@ -32,6 +35,7 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
     isPlaying,
     setIsPlaying,
     runSimulation,
+    optimizeQuantum,
   } = useSimulation(processes);
 
   const metrics = simulationResult?.metrics;
@@ -57,6 +61,8 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
             energyConfig={energyConfig}
             setEnergyConfig={setEnergyConfig}
             onRun={runSimulation}
+            onOptimizeQuantum={optimizeQuantum}
+            onShowTutorial={() => setIsTutorialOpen(true)}
           />
         </div>
 
@@ -64,6 +70,8 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
           <ProcessTable processes={processes} onProcessChange={onProcessesChange} />
         </div>
       </div>
+
+      <TutorialModal isOpen={isTutorialOpen} onClose={() => setIsTutorialOpen(false)} />
 
       {/* Outputs Section */}
       <div className="space-y-6">

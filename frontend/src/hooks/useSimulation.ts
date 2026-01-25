@@ -11,6 +11,7 @@ import {
   EnergyConfig,
 } from '@cpu-vis/shared';
 import toast from 'react-hot-toast';
+import { findOptimalQuantum } from '../lib/optimizer';
 
 export const useSimulation = (processes: Process[]) => {
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<Algorithm>('FCFS');
@@ -62,6 +63,12 @@ export const useSimulation = (processes: Process[]) => {
     toast.success('Simulation started');
   }, [processes, selectedAlgorithm, quantum, contextSwitch, coreCount, energyConfig]);
 
+  const optimizeQuantum = useCallback(() => {
+    const { optimalQuantum, minAvgWaiting } = findOptimalQuantum(processes);
+    setQuantum(optimalQuantum);
+    toast.success(`Optimal Quantum found: ${optimalQuantum} (Avg Wait: ${minAvgWaiting.toFixed(2)})`);
+  }, [processes]);
+
   // Auto-play logic
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -99,5 +106,6 @@ export const useSimulation = (processes: Process[]) => {
     isPlaying,
     setIsPlaying,
     runSimulation,
+    optimizeQuantum,
   };
 };

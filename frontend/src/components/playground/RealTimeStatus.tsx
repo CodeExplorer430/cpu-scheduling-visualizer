@@ -14,9 +14,19 @@ export const RealTimeStatus: React.FC<Props> = ({ snapshot, currentTime, maxTime
         <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">
           Currently Running
         </p>
-        <p className="text-2xl font-bold text-gray-800 dark:text-white">
-          {snapshot?.runningPid || (currentTime >= maxTime ? 'FINISHED' : 'IDLE')}
-        </p>
+        <div className="flex gap-2">
+          {Array.isArray(snapshot?.runningPid) ? (
+            snapshot?.runningPid.map((pid, idx) => (
+              <span key={idx} className="text-2xl font-bold text-gray-800 dark:text-white">
+                {pid}
+              </span>
+            ))
+          ) : (
+            <p className="text-2xl font-bold text-gray-800 dark:text-white">
+              {snapshot?.runningPid || (currentTime >= maxTime ? 'FINISHED' : 'IDLE')}
+            </p>
+          )}
+        </div>
       </div>
       <div className="text-right">
         <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Ready Queue</p>

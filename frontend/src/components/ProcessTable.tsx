@@ -13,7 +13,7 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
 
   const addProcess = () => {
     const newPid = `P${processes.length + 1}`;
-    onProcessChange([...processes, { pid: newPid, arrival: 0, burst: 1, color: '#3b82f6' }]);
+    onProcessChange([...processes, { pid: newPid, arrival: 0, burst: 1, priority: 1, color: '#3b82f6' }]);
     toast.success('Process added');
   };
 
@@ -134,6 +134,9 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
               <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Burst
               </th>
+              <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Priority
+              </th>
               <th className="px-3 sm:px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Actions
               </th>
@@ -165,6 +168,15 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
                     min="1"
                     value={process.burst}
                     onChange={(e) => updateProcess(index, 'burst', parseInt(e.target.value) || 1)}
+                    className="bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white border rounded px-2 py-1 w-20 sm:w-full max-w-[6rem] text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  />
+                </td>
+                <td className="px-3 sm:px-4 py-4 whitespace-nowrap">
+                  <input
+                    type="number"
+                    min="1"
+                    value={process.priority || 1}
+                    onChange={(e) => updateProcess(index, 'priority', parseInt(e.target.value) || 1)}
                     className="bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white border rounded px-2 py-1 w-20 sm:w-full max-w-[6rem] text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   />
                 </td>

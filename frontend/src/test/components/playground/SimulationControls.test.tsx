@@ -9,6 +9,7 @@ describe('SimulationControls Component', () => {
   const mockSetCoreCount = vi.fn();
   const mockSetEnergyConfig = vi.fn();
   const mockOnRun = vi.fn();
+  const mockOnShowTutorial = vi.fn();
 
   const energyConfig = { activeWatts: 20, idleWatts: 5, switchJoules: 0.1 };
 
@@ -26,6 +27,7 @@ describe('SimulationControls Component', () => {
         energyConfig={energyConfig}
         setEnergyConfig={mockSetEnergyConfig}
         onRun={mockOnRun}
+        onShowTutorial={mockOnShowTutorial}
       />
     );
 
@@ -47,6 +49,7 @@ describe('SimulationControls Component', () => {
         energyConfig={energyConfig}
         setEnergyConfig={mockSetEnergyConfig}
         onRun={mockOnRun}
+        onShowTutorial={mockOnShowTutorial}
       />
     );
 
@@ -65,6 +68,7 @@ describe('SimulationControls Component', () => {
         energyConfig={energyConfig}
         setEnergyConfig={mockSetEnergyConfig}
         onRun={mockOnRun}
+        onShowTutorial={mockOnShowTutorial}
       />
     );
 
@@ -85,6 +89,7 @@ describe('SimulationControls Component', () => {
         energyConfig={energyConfig}
         setEnergyConfig={mockSetEnergyConfig}
         onRun={mockOnRun}
+        onShowTutorial={mockOnShowTutorial}
       />
     );
 

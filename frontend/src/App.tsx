@@ -8,10 +8,10 @@ import { ThemeProvider, useTheme } from './context/ThemeContext';
 
 // --- Initial Data ---
 const initialProcesses: Process[] = [
-  { pid: 'P1', arrival: 0, burst: 4 },
-  { pid: 'P2', arrival: 1, burst: 3 },
-  { pid: 'P3', arrival: 2, burst: 1 },
-  { pid: 'P4', arrival: 5, burst: 2 },
+  { pid: 'P1', arrival: 0, burst: 4, priority: 1 },
+  { pid: 'P2', arrival: 1, burst: 3, priority: 2 },
+  { pid: 'P3', arrival: 2, burst: 1, priority: 3 },
+  { pid: 'P4', arrival: 5, burst: 2, priority: 1 },
 ];
 
 // --- Layout ---
