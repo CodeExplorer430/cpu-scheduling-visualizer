@@ -19,9 +19,9 @@ describe('FCFS Algorithm', () => {
     // P3: 8-9 (Arrived at 4, waits for P1, P2)
 
     expect(events).toHaveLength(3);
-    expect(events[0]).toEqual({ pid: 'P1', start: 0, end: 5 });
-    expect(events[1]).toEqual({ pid: 'P2', start: 5, end: 8 });
-    expect(events[2]).toEqual({ pid: 'P3', start: 8, end: 9 });
+    expect(events[0]).toEqual({ pid: 'P1', start: 0, end: 5, coreId: 0 });
+    expect(events[1]).toEqual({ pid: 'P2', start: 5, end: 8, coreId: 0 });
+    expect(events[2]).toEqual({ pid: 'P3', start: 8, end: 9, coreId: 0 });
 
     expect(metrics.completion['P1']).toBe(5);
     expect(metrics.completion['P2']).toBe(8);
@@ -59,9 +59,9 @@ describe('FCFS Algorithm', () => {
     // P2: 4-6
 
     expect(events).toHaveLength(3);
-    expect(events[0]).toEqual({ pid: 'P1', start: 0, end: 2 });
-    expect(events[1]).toEqual({ pid: 'IDLE', start: 2, end: 4 });
-    expect(events[2]).toEqual({ pid: 'P2', start: 4, end: 6 });
+    expect(events[0]).toEqual({ pid: 'P1', start: 0, end: 2, coreId: 0 });
+    expect(events[1]).toEqual({ pid: 'IDLE', start: 2, end: 4, coreId: 0 });
+    expect(events[2]).toEqual({ pid: 'P2', start: 4, end: 6, coreId: 0 });
   });
 
   it('should handle identical arrival times (stable sort/order preservation)', () => {

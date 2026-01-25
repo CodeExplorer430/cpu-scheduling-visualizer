@@ -6,7 +6,11 @@ describe('SimulationControls Component', () => {
   const mockSetAlgo = vi.fn();
   const mockSetQuantum = vi.fn();
   const mockSetContextSwitch = vi.fn();
+  const mockSetCoreCount = vi.fn();
+  const mockSetEnergyConfig = vi.fn();
   const mockOnRun = vi.fn();
+
+  const energyConfig = { activeWatts: 20, idleWatts: 5, switchJoules: 0.1 };
 
   it('renders correctly', () => {
     render(
@@ -17,6 +21,10 @@ describe('SimulationControls Component', () => {
         setQuantum={mockSetQuantum}
         contextSwitch={0}
         setContextSwitch={mockSetContextSwitch}
+        coreCount={1}
+        setCoreCount={mockSetCoreCount}
+        energyConfig={energyConfig}
+        setEnergyConfig={mockSetEnergyConfig}
         onRun={mockOnRun}
       />
     );
@@ -34,6 +42,10 @@ describe('SimulationControls Component', () => {
         setQuantum={mockSetQuantum}
         contextSwitch={0}
         setContextSwitch={mockSetContextSwitch}
+        coreCount={1}
+        setCoreCount={mockSetCoreCount}
+        energyConfig={energyConfig}
+        setEnergyConfig={mockSetEnergyConfig}
         onRun={mockOnRun}
       />
     );
@@ -48,6 +60,10 @@ describe('SimulationControls Component', () => {
         setQuantum={mockSetQuantum}
         contextSwitch={0}
         setContextSwitch={mockSetContextSwitch}
+        coreCount={1}
+        setCoreCount={mockSetCoreCount}
+        energyConfig={energyConfig}
+        setEnergyConfig={mockSetEnergyConfig}
         onRun={mockOnRun}
       />
     );
@@ -64,6 +80,10 @@ describe('SimulationControls Component', () => {
         setQuantum={mockSetQuantum}
         contextSwitch={0}
         setContextSwitch={mockSetContextSwitch}
+        coreCount={1}
+        setCoreCount={mockSetCoreCount}
+        energyConfig={energyConfig}
+        setEnergyConfig={mockSetEnergyConfig}
         onRun={mockOnRun}
       />
     );

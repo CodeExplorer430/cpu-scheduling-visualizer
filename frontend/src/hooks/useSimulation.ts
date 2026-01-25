@@ -8,6 +8,7 @@ import {
   Process,
   SimulationResult,
   Algorithm,
+  EnergyConfig,
 } from '@cpu-vis/shared';
 import toast from 'react-hot-toast';
 
@@ -15,13 +16,25 @@ export const useSimulation = (processes: Process[]) => {
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<Algorithm>('FCFS');
   const [quantum, setQuantum] = useState<number>(2);
   const [contextSwitch, setContextSwitch] = useState<number>(0);
+  const [coreCount, setCoreCount] = useState<number>(1);
+  const [energyConfig, setEnergyConfig] = useState<EnergyConfig>({
+    activeWatts: 20,
+    idleWatts: 5,
+    switchJoules: 0.1,
+  });
   const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
   const runSimulation = useCallback(() => {
     let result: SimulationResult;
-    const options = { quantum, contextSwitchOverhead: contextSwitch, enableLogging: true };
+    const options = {
+      quantum,
+      contextSwitchOverhead: contextSwitch,
+      enableLogging: true,
+      coreCount,
+      energyConfig,
+    };
 
     switch (selectedAlgorithm) {
       case 'FCFS':
@@ -47,7 +60,7 @@ export const useSimulation = (processes: Process[]) => {
     setCurrentTime(0);
     setIsPlaying(false);
     toast.success('Simulation started');
-  }, [processes, selectedAlgorithm, quantum, contextSwitch]);
+  }, [processes, selectedAlgorithm, quantum, contextSwitch, coreCount, energyConfig]);
 
   // Auto-play logic
   useEffect(() => {
@@ -76,6 +89,10 @@ export const useSimulation = (processes: Process[]) => {
     setQuantum,
     contextSwitch,
     setContextSwitch,
+    coreCount,
+    setCoreCount,
+    energyConfig,
+    setEnergyConfig,
     simulationResult,
     currentTime,
     setCurrentTime,

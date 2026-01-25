@@ -31,11 +31,21 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
     const idleColor = isDarkMode ? '#374151' : '#e5e7eb'; // gray-700 : gray-200
     const idleTextColor = isDarkMode ? '#9ca3af' : '#374151';
     const switchMarkerColor = '#ef4444'; // Red for context switches
+    const switchBlockColor = isDarkMode ? '#7f1d1d' : '#fca5a5'; // Dark red background for CS block
+
+    // Determine Cores
+    const coreIds = Array.from(new Set(events.map(e => e.coreId ?? 0))).sort((a, b) => a - b);
+    const numCores = coreIds.length;
+    const rowHeight = 60;
+    const rowGap = 20;
 
     // Dimensions
-    const margin = { top: 20, right: 30, bottom: 40, left: 40 };
+    const margin = { top: 30, right: 30, bottom: 40, left: 60 };
     const width = svgRef.current.clientWidth - margin.left - margin.right;
-    const height = 150 - margin.top - margin.bottom;
+    const height = (numCores * rowHeight) + ((numCores - 1) * rowGap) + margin.top + margin.bottom;
+
+    // Resize SVG container
+    svg.attr('height', height);
 
     const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
 
@@ -52,107 +62,131 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
     // X Axis
     const xAxis = d3.axisBottom(xScale).ticks(Math.min(maxTime, 20));
 
-    const xAxisGroup = g.append('g').attr('transform', `translate(0, ${height})`).call(xAxis);
+    const xAxisGroup = g.append('g').attr('transform', `translate(0, ${height - margin.top - margin.bottom})`).call(xAxis);
 
     // Style Axis
     xAxisGroup.selectAll('text').attr('fill', axisColor);
     xAxisGroup.selectAll('line').attr('stroke', axisColor);
     xAxisGroup.selectAll('path').attr('stroke', axisColor);
 
-    // Grid lines
-    g.append('g')
-      .attr('class', 'grid')
-      .attr('transform', `translate(0,${height})`)
-      .call(
-        d3
-          .axisBottom(xScale)
-          .ticks(Math.min(maxTime, 20))
-          .tickSize(-height)
-          .tickFormat(() => '')
-      )
-      .attr('opacity', 0.1)
-      .selectAll('line')
-      .attr('stroke', gridColor);
+    // Render Rows for each Core
+    coreIds.forEach((coreId, index) => {
+        const coreY = index * (rowHeight + rowGap);
+        const coreEvents = events.filter(e => (e.coreId ?? 0) === coreId);
 
-    // Bars
-    const bars = g.selectAll('.bar')
-      .data(events)
-      .enter()
-      .append('g') // Group for rect + accessible title
-      .attr('role', 'graphics-symbol')
-      .attr('aria-label', d => `${d.pid === 'IDLE' ? 'Idle' : 'Process ' + d.pid} from time ${d.start} to ${d.end}`);
+        // Core Label
+        g.append('text')
+         .attr('x', -10)
+         .attr('y', coreY + rowHeight / 2)
+         .attr('text-anchor', 'end')
+         .attr('dominant-baseline', 'middle')
+         .attr('fill', axisColor)
+         .attr('font-weight', 'bold')
+         .text(`Core ${coreId + 1}`);
 
-    bars.append('rect')
-      .attr('class', 'bar')
-      .attr('x', (d) => xScale(d.start))
-      .attr('y', height / 2 - 20)
-      .attr('width', (d) => xScale(d.end) - xScale(d.start))
-      .attr('height', 40)
-      .attr('fill', (d) => (d.pid === 'IDLE' ? idleColor : (colorScale(d.pid) as string)))
-      .attr('stroke', isDarkMode ? '#1f2937' : '#fff') // Dark bg or White
-      .attr('stroke-width', 1)
-      .attr('opacity', (d) => (currentTime !== undefined && d.start >= currentTime ? 0.2 : 1));
-    
-    // Add title for hover tooltip (native browser behavior)
-    bars.append('title')
-      .text(d => `${d.pid} (${d.start} - ${d.end})`);
+        // Grid lines per row
+        g.append('g')
+          .attr('class', 'grid')
+          .attr('transform', `translate(0,${height - margin.top - margin.bottom})`)
+          .call(
+            d3
+              .axisBottom(xScale)
+              .ticks(Math.min(maxTime, 20))
+              .tickSize(-(height - margin.top - margin.bottom))
+              .tickFormat(() => '')
+          )
+          .attr('opacity', 0.1)
+          .selectAll('line')
+          .attr('stroke', gridColor);
 
-    // Labels
-    g.selectAll('.label')
-      .data(events)
-      .enter()
-      .append('text')
-      .attr('x', (d) => xScale(d.start) + (xScale(d.end) - xScale(d.start)) / 2)
-      .attr('y', height / 2 + 5)
-      .attr('text-anchor', 'middle')
-      .attr('fill', (d) => (d.pid === 'IDLE' ? idleTextColor : '#fff'))
-      .attr('font-size', '10px')
-      .attr('font-weight', 'bold')
-      .text((d) => (d.pid === 'IDLE' ? '' : d.pid))
-      .attr('opacity', (d) => (currentTime !== undefined && d.start >= currentTime ? 0 : 1));
+        // Bars
+        const rowG = g.append('g').attr('transform', `translate(0, ${coreY})`);
+        
+        const bars = rowG.selectAll('.bar')
+          .data(coreEvents)
+          .enter()
+          .append('g') // Group for rect + accessible title
+          .attr('role', 'graphics-symbol')
+          .attr('aria-label', d => {
+            if (d.pid === 'IDLE') return `Core ${coreId + 1}: Idle from ${d.start} to ${d.end}`;
+            if (d.pid === 'CS') return `Core ${coreId + 1}: Context Switch from ${d.start} to ${d.end}`;
+            return `Core ${coreId + 1}: Process ${d.pid} from time ${d.start} to ${d.end}`;
+          });
 
-    // Context Switch Markers
-    // Identify switches: consecutive events where PID changes and neither is IDLE
-    // Or we can mark ANY switch away from a process (excluding to IDLE? No, usually switch overhead is recorded).
-    // Spec says: "show markers where context switches occur".
-    // Typically, this is between two different processes.
-    
-    const switchPoints: number[] = [];
-    for(let i = 0; i < events.length - 1; i++) {
-        const current = events[i];
-        const next = events[i+1];
-        if (current.pid !== next.pid && current.pid !== 'IDLE' && next.pid !== 'IDLE') {
-            switchPoints.push(current.end);
+        bars.append('rect')
+          .attr('class', 'bar')
+          .attr('x', (d) => xScale(d.start))
+          .attr('y', 0)
+          .attr('width', (d) => xScale(d.end) - xScale(d.start))
+          .attr('height', rowHeight)
+          .attr('fill', (d) => {
+            if (d.pid === 'IDLE') return idleColor;
+            if (d.pid === 'CS') return switchBlockColor;
+            return colorScale(d.pid) as string;
+          })
+          .attr('stroke', isDarkMode ? '#1f2937' : '#fff') // Dark bg or White
+          .attr('stroke-width', 1)
+          .attr('opacity', (d) => (currentTime !== undefined && d.start >= currentTime ? 0.2 : 1));
+        
+        // Add title for hover tooltip (native browser behavior)
+        bars.append('title')
+          .text(d => `${d.pid} (${d.start} - ${d.end})`);
+
+        // Labels
+        rowG.selectAll('.label')
+          .data(coreEvents)
+          .enter()
+          .append('text')
+          .attr('x', (d) => xScale(d.start) + (xScale(d.end) - xScale(d.start)) / 2)
+          .attr('y', rowHeight / 2 + 5)
+          .attr('text-anchor', 'middle')
+          .attr('fill', (d) => (d.pid === 'IDLE' || d.pid === 'CS' ? idleTextColor : '#fff'))
+          .attr('font-size', '10px')
+          .attr('font-weight', 'bold')
+          .text((d) => (d.pid === 'IDLE' || d.pid === 'CS' ? '' : d.pid))
+          .attr('opacity', (d) => (currentTime !== undefined && d.start >= currentTime ? 0 : 1));
+
+        // Context Switch Markers (Per Row)
+        const switchPoints: number[] = [];
+        // Sort events by start time just in case
+        coreEvents.sort((a,b) => a.start - b.start);
+        
+        for(let i = 0; i < coreEvents.length - 1; i++) {
+            const current = coreEvents[i];
+            const next = coreEvents[i+1];
+            if (current.pid !== next.pid && current.pid !== 'IDLE' && next.pid !== 'IDLE') {
+                switchPoints.push(current.end);
+            }
         }
-    }
 
-    g.selectAll('.switch-marker')
-        .data(switchPoints)
-        .enter()
-        .append('line')
-        .attr('class', 'switch-marker')
-        .attr('x1', d => xScale(d))
-        .attr('x2', d => xScale(d))
-        .attr('y1', height / 2 - 25) // Slightly taller than bars
-        .attr('y2', height / 2 + 25)
-        .attr('stroke', switchMarkerColor)
-        .attr('stroke-width', 2)
-        .attr('stroke-dasharray', '2,2');
+        rowG.selectAll('.switch-marker')
+            .data(switchPoints)
+            .enter()
+            .append('line')
+            .attr('class', 'switch-marker')
+            .attr('x1', d => xScale(d))
+            .attr('x2', d => xScale(d))
+            .attr('y1', -5)
+            .attr('y2', rowHeight + 5)
+            .attr('stroke', switchMarkerColor)
+            .attr('stroke-width', 2)
+            .attr('stroke-dasharray', '2,2');
+    });
 
-    // Current Time Indicator
+    // Current Time Indicator (Global across all rows)
     if (currentTime !== undefined) {
       g.append('line')
         .attr('x1', xScale(currentTime))
         .attr('x2', xScale(currentTime))
         .attr('y1', 0)
-        .attr('y2', height)
+        .attr('y2', height - margin.top - margin.bottom)
         .attr('stroke', '#ef4444')
         .attr('stroke-width', 2)
         .attr('stroke-dasharray', '4');
 
       g.append('text')
         .attr('x', xScale(currentTime))
-        .attr('y', -5)
+        .attr('y', -10)
         .attr('text-anchor', 'middle')
         .attr('fill', '#ef4444')
         .attr('font-size', '10px')
@@ -167,7 +201,7 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
         <svg
           ref={svgRef}
           className="w-full min-w-[600px]"
-          height="150"
+          height="150" // This will be updated by D3
           style={{ width: '100%' }}
         ></svg>
       </div>

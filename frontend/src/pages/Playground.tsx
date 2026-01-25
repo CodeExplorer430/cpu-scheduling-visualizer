@@ -22,6 +22,10 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
     setQuantum,
     contextSwitch,
     setContextSwitch,
+    coreCount,
+    setCoreCount,
+    energyConfig,
+    setEnergyConfig,
     simulationResult,
     currentTime,
     setCurrentTime,
@@ -48,6 +52,10 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
             setQuantum={setQuantum}
             contextSwitch={contextSwitch}
             setContextSwitch={setContextSwitch}
+            coreCount={coreCount}
+            setCoreCount={setCoreCount}
+            energyConfig={energyConfig}
+            setEnergyConfig={setEnergyConfig}
             onRun={runSimulation}
           />
         </div>

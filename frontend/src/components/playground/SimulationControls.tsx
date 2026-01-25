@@ -1,5 +1,4 @@
-import React from 'react';
-import { Algorithm } from '@cpu-vis/shared';
+import { EnergyConfig, Algorithm } from '@cpu-vis/shared';
 
 interface Props {
   selectedAlgorithm: Algorithm;
@@ -8,6 +7,10 @@ interface Props {
   setQuantum: (q: number) => void;
   contextSwitch: number;
   setContextSwitch: (cs: number) => void;
+  coreCount: number;
+  setCoreCount: (count: number) => void;
+  energyConfig: EnergyConfig;
+  setEnergyConfig: (config: EnergyConfig) => void;
   onRun: () => void;
 }
 
@@ -18,6 +21,10 @@ export const SimulationControls: React.FC<Props> = ({
   setQuantum,
   contextSwitch,
   setContextSwitch,
+  coreCount,
+  setCoreCount,
+  energyConfig,
+  setEnergyConfig,
   onRun,
 }) => {
   return (
@@ -26,50 +33,48 @@ export const SimulationControls: React.FC<Props> = ({
       role="region"
       aria-label="Simulation Controls"
     >
-      <div>
-        <label
-          htmlFor="algorithm-select"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-        >
-          Algorithm
-        </label>
-        <select
-          id="algorithm-select"
-          value={selectedAlgorithm}
-          onChange={(e) => setSelectedAlgorithm(e.target.value as Algorithm)}
-          className="w-full bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors"
-          aria-description="Select the CPU scheduling algorithm to simulate"
-        >
-          <option value="FCFS">First-Come, First-Served (FCFS)</option>
-          <option value="SJF">Shortest Job First (SJF - Non-Preemptive)</option>
-          <option value="SRTF">Shortest Remaining Time First (SRTF - Preemptive)</option>
-          <option value="RR">Round Robin (RR)</option>
-          <option value="PRIORITY">Priority (Non-Preemptive)</option>
-        </select>
-      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="col-span-1 md:col-span-2">
+          <label
+            htmlFor="algorithm-select"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
+            Algorithm
+          </label>
+          <select
+            id="algorithm-select"
+            value={selectedAlgorithm}
+            onChange={(e) => setSelectedAlgorithm(e.target.value as Algorithm)}
+            className="w-full bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors"
+            aria-description="Select the CPU scheduling algorithm to simulate"
+          >
+            <option value="FCFS">First-Come, First-Served (FCFS)</option>
+            <option value="SJF">Shortest Job First (SJF - Non-Preemptive)</option>
+            <option value="SRTF">Shortest Remaining Time First (SRTF - Preemptive)</option>
+            <option value="RR">Round Robin (RR)</option>
+            <option value="PRIORITY">Priority (Non-Preemptive)</option>
+          </select>
+        </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        {selectedAlgorithm === 'RR' && (
-          <div>
-            <label
-              htmlFor="quantum-input"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >
-              Time Quantum
-            </label>
-            <input
-              id="quantum-input"
-              type="number"
-              min="1"
-              value={quantum}
-              onChange={(e) => setQuantum(Math.max(1, parseInt(e.target.value) || 1))}
-              className="w-full bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors"
-              aria-description="Set the time quantum for Round Robin scheduling"
-            />
-          </div>
-        )}
+        <div>
+          <label
+            htmlFor="core-count-input"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
+            Core Count
+          </label>
+          <input
+            id="core-count-input"
+            type="number"
+            min="1"
+            max="8"
+            value={coreCount}
+            onChange={(e) => setCoreCount(Math.max(1, parseInt(e.target.value) || 1))}
+            className="w-full bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors"
+          />
+        </div>
 
-        <div className={selectedAlgorithm !== 'RR' ? 'col-span-2' : ''}>
+        <div>
           <label
             htmlFor="context-switch-input"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
@@ -83,10 +88,65 @@ export const SimulationControls: React.FC<Props> = ({
             value={contextSwitch}
             onChange={(e) => setContextSwitch(Math.max(0, parseInt(e.target.value) || 0))}
             className="w-full bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors"
-            aria-description="Set the context switch overhead time"
           />
         </div>
+
+        {selectedAlgorithm === 'RR' && (
+          <div className="col-span-1 md:col-span-2">
+            <label
+              htmlFor="quantum-input"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              Time Quantum
+            </label>
+            <input
+              id="quantum-input"
+              type="number"
+              min="1"
+              value={quantum}
+              onChange={(e) => setQuantum(Math.max(1, parseInt(e.target.value) || 1))}
+              className="w-full bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors"
+            />
+          </div>
+        )}
       </div>
+
+      <details className="mt-4 group">
+        <summary className="text-sm font-medium text-blue-600 dark:text-blue-400 cursor-pointer list-none flex items-center gap-1">
+          <span className="group-open:rotate-90 transition-transform">▶</span>
+          Energy Model Settings
+        </summary>
+        <div className="grid grid-cols-2 gap-4 mt-2 p-4 bg-gray-50 dark:bg-gray-900 rounded-md border border-gray-100 dark:border-gray-700">
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase">Active Power (W)</label>
+            <input
+              type="number"
+              value={energyConfig.activeWatts}
+              onChange={(e) => setEnergyConfig({ ...energyConfig, activeWatts: parseFloat(e.target.value) || 0 })}
+              className="w-full text-sm bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-blue-500 outline-none py-1 dark:text-white"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase">Idle Power (W)</label>
+            <input
+              type="number"
+              value={energyConfig.idleWatts}
+              onChange={(e) => setEnergyConfig({ ...energyConfig, idleWatts: parseFloat(e.target.value) || 0 })}
+              className="w-full text-sm bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-blue-500 outline-none py-1 dark:text-white"
+            />
+          </div>
+          <div className="col-span-2">
+            <label className="block text-xs font-bold text-gray-500 uppercase">Switch Cost (J)</label>
+            <input
+              type="number"
+              step="0.01"
+              value={energyConfig.switchJoules}
+              onChange={(e) => setEnergyConfig({ ...energyConfig, switchJoules: parseFloat(e.target.value) || 0 })}
+              className="w-full text-sm bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-blue-500 outline-none py-1 dark:text-white"
+            />
+          </div>
+        </div>
+      </details>
 
       <button
         onClick={onRun}
