@@ -39,10 +39,12 @@ export const Compare: React.FC<Props> = ({ processes, onProcessesChange }) => {
   return (
     <div className="space-y-8">
       {/* Top: Controls & Input */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        <ComparisonSettings quantum={quantum} setQuantum={setQuantum} onRun={handleRunComparison} />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="lg:col-span-4">
+          <ComparisonSettings quantum={quantum} setQuantum={setQuantum} onRun={handleRunComparison} />
+        </div>
 
-        <div className="max-h-[450px] overflow-y-auto rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="lg:col-span-8">
           <ProcessTable processes={processes} onProcessChange={onProcessesChange} />
         </div>
       </div>
