@@ -101,7 +101,6 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
           <StepExplainer
             stepLogs={simulationResult.stepLogs}
             currentTime={currentTime}
-            processes={processes}
           />
         )}
 

@@ -1,15 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import { DecisionLog } from '@cpu-vis/shared';
-import { Process } from '@cpu-vis/shared';
 import { useTranslation } from 'react-i18next';
 
 interface Props {
   stepLogs: DecisionLog[];
   currentTime: number;
-  processes: Process[]; // To look up colors if needed
 }
 
-export const StepExplainer: React.FC<Props> = ({ stepLogs, currentTime, processes }) => {
+export const StepExplainer: React.FC<Props> = ({ stepLogs, currentTime }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
   
