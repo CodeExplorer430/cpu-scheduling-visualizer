@@ -90,26 +90,26 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
 
   return (
     <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden transition-colors duration-200">
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4">
         <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap">
           {t('processTable.title')}
         </h3>
-        <div className="flex flex-wrap gap-2 justify-center md:justify-end w-full md:w-auto">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 justify-center sm:justify-end w-full sm:w-auto overflow-x-auto no-scrollbar pb-1 sm:pb-0">
           <ScenarioManager processes={processes} onLoad={onProcessChange} />
           <button
             onClick={handleRandomize}
-            className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors whitespace-nowrap"
+            className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors whitespace-nowrap"
           >
             Randomize
           </button>
           <button
             onClick={handleExportCSV}
-            className="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors whitespace-nowrap"
+            className="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors whitespace-nowrap"
           >
-            Export CSV
+            Export
           </button>
-          <label className="bg-orange-600 hover:bg-orange-700 dark:bg-orange-500 dark:hover:bg-orange-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors cursor-pointer whitespace-nowrap">
-            {t('processTable.importCSV')}
+          <label className="bg-orange-600 hover:bg-orange-700 dark:bg-orange-500 dark:hover:bg-orange-600 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors cursor-pointer whitespace-nowrap">
+            Import
             <input
               type="file"
               accept=".csv"
@@ -120,7 +120,7 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
           </label>
           <button
             onClick={addProcess}
-            className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors whitespace-nowrap"
+            className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 py-1.5 rounded text-xs font-bold transition-colors whitespace-nowrap border-2 border-transparent focus:border-blue-300"
           >
             + {t('processTable.addProcess')}
           </button>

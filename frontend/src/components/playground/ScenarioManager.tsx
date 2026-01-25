@@ -71,18 +71,18 @@ export const ScenarioManager: React.FC<Props> = ({ processes, onLoad }) => {
     <div className="flex gap-2">
       <button
         onClick={() => setShowSaveModal(true)}
-        className="bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-900 dark:hover:bg-indigo-800 text-indigo-700 dark:text-indigo-200 px-3 py-1 rounded text-sm font-medium transition-colors"
+        className="bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-900 dark:hover:bg-indigo-800 text-indigo-700 dark:text-indigo-200 px-3 py-1.5 rounded text-xs font-medium transition-colors whitespace-nowrap"
       >
-        Save Scenario
+        Save
       </button>
       <button
         onClick={() => {
           setShowLoadModal(true);
           fetchScenarios();
         }}
-        className="bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-900 dark:hover:bg-indigo-800 text-indigo-700 dark:text-indigo-200 px-3 py-1 rounded text-sm font-medium transition-colors"
+        className="bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-900 dark:hover:bg-indigo-800 text-indigo-700 dark:text-indigo-200 px-3 py-1.5 rounded text-xs font-medium transition-colors whitespace-nowrap"
       >
-        Load Scenario
+        Load
       </button>
 
       {/* Save Modal */}
