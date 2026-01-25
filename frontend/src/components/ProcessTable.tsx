@@ -2,6 +2,13 @@ import React, { useRef } from 'react';
 import { Process, generateRandomProcesses, exportToCSV, parseCSV } from '@cpu-vis/shared';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
+import { 
+  PlusIcon, 
+  ArrowUpTrayIcon, 
+  ArrowDownTrayIcon, 
+  SparklesIcon, 
+  TrashIcon 
+} from '@heroicons/react/24/outline';
 import { ScenarioManager } from './playground/ScenarioManager';
 
 interface Props {
@@ -98,17 +105,20 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
           <ScenarioManager processes={processes} onLoad={onProcessChange} />
           <button
             onClick={handleRandomize}
-            className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors whitespace-nowrap"
+            className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors whitespace-nowrap flex items-center gap-1"
           >
+            <SparklesIcon className="w-3.5 h-3.5" />
             Randomize
           </button>
           <button
             onClick={handleExportCSV}
-            className="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors whitespace-nowrap"
+            className="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors whitespace-nowrap flex items-center gap-1"
           >
+            <ArrowDownTrayIcon className="w-3.5 h-3.5" />
             Export
           </button>
-          <label className="bg-orange-600 hover:bg-orange-700 dark:bg-orange-500 dark:hover:bg-orange-600 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors cursor-pointer whitespace-nowrap">
+          <label className="bg-orange-600 hover:bg-orange-700 dark:bg-orange-500 dark:hover:bg-orange-600 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors cursor-pointer whitespace-nowrap flex items-center gap-1">
+            <ArrowUpTrayIcon className="w-3.5 h-3.5" />
             Import
             <input
               type="file"
@@ -120,9 +130,10 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
           </label>
           <button
             onClick={addProcess}
-            className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 py-1.5 rounded text-xs font-bold transition-colors whitespace-nowrap border-2 border-transparent focus:border-blue-300"
+            className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 py-1.5 rounded text-xs font-bold transition-colors whitespace-nowrap border-2 border-transparent focus:border-blue-300 flex items-center gap-1"
           >
-            + {t('processTable.addProcess')}
+            <PlusIcon className="w-3.5 h-3.5" />
+            {t('processTable.addProcess')}
           </button>
         </div>
       </div>
@@ -190,9 +201,10 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
                 <td className="px-3 sm:px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button
                     onClick={() => removeProcess(index)}
-                    className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                    className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 flex items-center gap-1 ml-auto"
                   >
-                    {t('processTable.delete')}
+                    <TrashIcon className="w-4 h-4" />
+                    <span className="hidden sm:inline">{t('processTable.delete')}</span>
                   </button>
                 </td>
               </tr>

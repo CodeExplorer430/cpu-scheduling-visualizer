@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { DecisionLog } from '@cpu-vis/shared';
 import { useTranslation } from 'react-i18next';
+import { CpuChipIcon } from '@heroicons/react/24/outline';
 
 interface Props {
   stepLogs: DecisionLog[];
@@ -33,7 +34,7 @@ export const StepExplainer: React.FC<Props> = ({ stepLogs, currentTime }) => {
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden transition-colors duration-200 flex flex-col h-96">
       <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-blue-50 dark:bg-gray-900">
         <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 flex items-center">
-          <span className="mr-2">🧠</span> {t('explainer.title')}
+          <CpuChipIcon className="w-6 h-6 mr-2 text-blue-600 dark:text-blue-400" /> {t('explainer.title')}
         </h3>
         <p className="text-sm text-blue-700 dark:text-blue-300 opacity-80">
           {t('explainer.subtitle', { time: currentTime })}

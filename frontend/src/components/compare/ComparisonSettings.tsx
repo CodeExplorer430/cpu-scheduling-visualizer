@@ -1,4 +1,5 @@
 import React from 'react';
+import { PlayIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 
 interface Props {
   quantum: number;
@@ -9,7 +10,10 @@ interface Props {
 export const ComparisonSettings: React.FC<Props> = ({ quantum, setQuantum, onRun }) => {
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Comparison Settings</h2>
+      <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
+        <Cog6ToothIcon className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+        Comparison Settings
+      </h2>
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow space-y-4 transition-colors duration-200">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -25,8 +29,9 @@ export const ComparisonSettings: React.FC<Props> = ({ quantum, setQuantum, onRun
         </div>
         <button
           onClick={onRun}
-          className="w-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded transition-colors shadow-sm"
+          className="w-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded transition-colors shadow-sm flex items-center justify-center gap-2"
         >
+          <PlayIcon className="w-5 h-5" />
           Run Comparison
         </button>
       </div>

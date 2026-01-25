@@ -1,5 +1,6 @@
 import { EnergyConfig, Algorithm } from '@cpu-vis/shared';
 import { useTranslation } from 'react-i18next';
+import { InformationCircleIcon, ChevronRightIcon, PlayIcon } from '@heroicons/react/24/outline';
 
 interface Props {
   selectedAlgorithm: Algorithm;
@@ -47,9 +48,9 @@ export const SimulationControls: React.FC<Props> = ({
         {onShowTutorial && (
           <button
             onClick={onShowTutorial}
-            className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+            className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 group"
           >
-            <span className="text-lg">ℹ️</span> {t('controls.guide')}
+            <InformationCircleIcon className="w-4 h-4" /> {t('controls.guide')}
           </button>
         )}
       </div>
@@ -144,7 +145,7 @@ export const SimulationControls: React.FC<Props> = ({
 
       <details className="mt-4 group">
         <summary className="text-sm font-medium text-blue-600 dark:text-blue-400 cursor-pointer list-none flex items-center gap-1">
-          <span className="group-open:rotate-90 transition-transform">▶</span>
+          <ChevronRightIcon className="w-4 h-4 group-open:rotate-90 transition-transform" />
           {t('controls.energyTitle')}
         </summary>
         <div className="grid grid-cols-2 gap-4 mt-2 p-4 bg-gray-50 dark:bg-gray-900 rounded-md border border-gray-100 dark:border-gray-700">
@@ -193,8 +194,9 @@ export const SimulationControls: React.FC<Props> = ({
 
       <button
         onClick={onRun}
-        className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center justify-center gap-2"
       >
+        <PlayIcon className="w-5 h-5" />
         {t('common.run')}
       </button>
     </div>
