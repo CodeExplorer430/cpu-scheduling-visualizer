@@ -19,6 +19,7 @@ This project supports an optional database integration using **MongoDB** to save
 ## Step 2: Configure Security
 
 ### 1. Create a Database User
+
 1.  Go to the **Database Access** tab (under Security in the sidebar).
 2.  Click **+ Add New Database User**.
 3.  **Authentication Method**: Password.
@@ -28,10 +29,11 @@ This project supports an optional database integration using **MongoDB** to save
 7.  Click **Add User**.
 
 ### 2. Network Access (Allow Connection)
+
 1.  Go to the **Network Access** tab.
 2.  Click **+ Add IP Address**.
 3.  Select **Allow Access from Anywhere** (`0.0.0.0/0`) for easiest development access.
-    *   *Note: For production, you should only whitelist your specific server IP.*
+    - _Note: For production, you should only whitelist your specific server IP._
 4.  Click **Confirm**.
 
 ## Step 3: Get Connection String
@@ -55,11 +57,13 @@ This project supports an optional database integration using **MongoDB** to save
 4.  Add the `MONGODB_URI` variable, replacing `<password>` with the password you created in Step 2.
 
     **backend/.env**:
+
     ```env
     PORT=3000
     MONGODB_URI=mongodb+srv://cpu_admin:mySecurePassword123@cluster0.123xy.mongodb.net/cpu-visualizer?retryWrites=true&w=majority
     ```
-    *Note: I added `/cpu-visualizer` after the domain to specify the database name.*
+
+    _Note: I added `/cpu-visualizer` after the domain to specify the database name._
 
 ---
 

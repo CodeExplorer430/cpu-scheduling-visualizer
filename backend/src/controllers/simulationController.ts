@@ -55,3 +55,50 @@ export const runSimulation = (req: Request, res: Response) => {
     return res.status(500).json({ error: 'Internal simulation error' });
   }
 };
+
+export const runBatchSimulation = (req: Request, res: Response) => {
+  const { algorithms, processes, timeQuantum } = req.body;
+
+  if (!Array.isArray(algorithms) || algorithms.length === 0) {
+    return res.status(400).json({ error: 'Algorithms array is required' });
+  }
+
+  // Validate input
+  const validation = validateProcesses(processes);
+  if (!validation.valid) {
+    return res.status(400).json({ error: validation.error });
+  }
+
+  const quantum = typeof timeQuantum === 'number' ? timeQuantum : 2;
+  const results: Record<string, any> = {};
+
+  algorithms.forEach((algoName: string) => {
+    try {
+      const algo = algoName as Algorithm;
+      switch (algo) {
+        case 'FCFS':
+          results[algo] = runFCFS(processes as Process[]);
+          break;
+        case 'SJF':
+          results[algo] = runSJF(processes as Process[]);
+          break;
+        case 'SRTF':
+          results[algo] = runSRTF(processes as Process[]);
+          break;
+        case 'RR':
+          results[algo] = runRR(processes as Process[], quantum);
+          break;
+        case 'PRIORITY':
+          results[algo] = runPriority(processes as Process[]);
+          break;
+        default:
+          results[algoName] = { error: `Algorithm '${algoName}' not supported` };
+      }
+    } catch (error: any) {
+      console.error(`Batch simulation error for ${algoName}:`, error);
+      results[algoName] = { error: error.message || 'Internal error' };
+    }
+  });
+
+  return res.json(results);
+};

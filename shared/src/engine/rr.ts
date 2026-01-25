@@ -1,25 +1,35 @@
-import { GanttEvent, Metrics, Process, SimulationResult, SimulationOptions } from '../types.js';
+import { GanttEvent, Metrics, Process, SimulationResult, SimulationOptions, DecisionLog } from '../types.js';
 import { generateSnapshots } from './utils.js';
 
 interface ProcessWithRemaining extends Process {
   remaining: number;
 }
 
-export function runRR(inputProcesses: Process[], optionsOrQuantum: SimulationOptions | number = 2): SimulationResult {
-  const options: SimulationOptions = typeof optionsOrQuantum === 'number' 
-    ? { quantum: optionsOrQuantum } 
-    : optionsOrQuantum;
-    
+export function runRR(
+  inputProcesses: Process[],
+  optionsOrQuantum: SimulationOptions | number = 2
+): SimulationResult {
+  const options: SimulationOptions =
+    typeof optionsOrQuantum === 'number' ? { quantum: optionsOrQuantum } : optionsOrQuantum;
+
   const { quantum = 2, contextSwitchOverhead = 0, enableLogging = false } = options;
   const logs: string[] = [];
-  const log = (msg: string) => { if (enableLogging) logs.push(msg); };
+  const stepLogs: DecisionLog[] = [];
+
+  const log = (msg: string) => {
+    if (enableLogging) logs.push(msg);
+  };
+
+  const logDecision = (time: number, coreId: number, message: string, reason: string, queueState: string[]) => {
+    if (enableLogging) stepLogs.push({ time, coreId, message, reason, queueState });
+  };
 
   // Deep copy + add remaining burst
-  const processes: ProcessWithRemaining[] = inputProcesses.map(p => ({
+  const processes: ProcessWithRemaining[] = inputProcesses.map((p) => ({
     ...p,
-    remaining: p.burst
+    remaining: p.burst,
   }));
-  
+
   // Sort by arrival initially
   const sortedByArrival = [...processes].sort((a, b) => a.arrival - b.arrival);
 
@@ -27,11 +37,11 @@ export function runRR(inputProcesses: Process[], optionsOrQuantum: SimulationOpt
   let completedCount = 0;
   const totalProcesses = processes.length;
   const events: GanttEvent[] = [];
-  
+
   const completionTimes: Record<string, number> = {};
   const turnaroundTimes: Record<string, number> = {};
   const waitingTimes: Record<string, number> = {};
-  
+
   const readyQueue: ProcessWithRemaining[] = [];
   let arrivalIndex = 0;
   let lastPid: string | 'IDLE' | 'CS' = 'IDLE';
@@ -54,10 +64,12 @@ export function runRR(inputProcesses: Process[], optionsOrQuantum: SimulationOpt
       if (arrivalIndex < totalProcesses) {
         const nextArrival = sortedByArrival[arrivalIndex].arrival;
         log(`Time ${currentTime}: System IDLE until ${nextArrival}`);
+        logDecision(currentTime, 0, `IDLE until ${nextArrival}`, `Ready queue empty. Waiting for next arrival.`, []);
+
         events.push({
           pid: 'IDLE',
           start: currentTime,
-          end: nextArrival
+          end: nextArrival,
         });
         currentTime = nextArrival;
         lastPid = 'IDLE';
@@ -66,33 +78,47 @@ export function runRR(inputProcesses: Process[], optionsOrQuantum: SimulationOpt
       continue;
     }
 
+    const queueState = readyQueue.map(p => `${p.pid}(Rem:${p.remaining})`);
     const currentProcess = readyQueue.shift()!;
-    
+
+    logDecision(
+        currentTime,
+        0,
+        `Selected ${currentProcess.pid}`,
+        `Selected ${currentProcess.pid} from head of queue. Quantum: ${quantum}.`,
+        queueState
+    );
+
     // Context Switch Overhead
     // We switch if the new process is different from the last one
     // AND the last one wasn't IDLE (unless we treat IDLE->Process as switch, usually we don't count overhead there, but maybe?)
     // Usually overhead is "saving old state, loading new state".
     // From IDLE means no old state to save (maybe).
     // Let's stick to: if lastPid != IDLE && lastPid != current.pid -> Overhead.
-    if (contextSwitchOverhead > 0 && lastPid !== 'IDLE' && lastPid !== currentProcess.pid && lastPid !== 'CS') {
-        log(`Time ${currentTime}: Context Switch from ${lastPid} to ${currentProcess.pid}`);
-        events.push({
-            pid: 'CS',
-            start: currentTime,
-            end: currentTime + contextSwitchOverhead
-        });
-        currentTime += contextSwitchOverhead;
-        
-        // Arrivals might happen DURING context switch?
-        // Let's assume queue is frozen during switch or arrivals can happen.
-        // For simplicity, check arrivals after switch time.
-        enqueueArrivals(currentTime);
+    if (
+      contextSwitchOverhead > 0 &&
+      lastPid !== 'IDLE' &&
+      lastPid !== currentProcess.pid &&
+      lastPid !== 'CS'
+    ) {
+      log(`Time ${currentTime}: Context Switch from ${lastPid} to ${currentProcess.pid}`);
+      events.push({
+        pid: 'CS',
+        start: currentTime,
+        end: currentTime + contextSwitchOverhead,
+      });
+      currentTime += contextSwitchOverhead;
+
+      // Arrivals might happen DURING context switch?
+      // Let's assume queue is frozen during switch or arrivals can happen.
+      // For simplicity, check arrivals after switch time.
+      enqueueArrivals(currentTime);
     }
 
     // Determine run time
     const runTime = Math.min(currentProcess.remaining, quantum);
     log(`Time ${currentTime}: ${currentProcess.pid} runs for ${runTime}ms (Quantum: ${quantum})`);
-    
+
     const lastEvent = events[events.length - 1];
     // Merge if same PID and contiguous (end == start)
     // Note: With context switches, contiguous might mean separated by CS? No, CS breaks contiguity.
@@ -100,13 +126,13 @@ export function runRR(inputProcesses: Process[], optionsOrQuantum: SimulationOpt
     // So merging only happens if NO CS happened and it's the same process (e.g. quantum extension? unlikely in standard RR unless logic changes)
     // OR if the previous event was THIS process.
     if (lastEvent && lastEvent.pid === currentProcess.pid && lastEvent.end === currentTime) {
-       lastEvent.end += runTime;
+      lastEvent.end += runTime;
     } else {
-       events.push({
-         pid: currentProcess.pid,
-         start: currentTime,
-         end: currentTime + runTime
-       });
+      events.push({
+        pid: currentProcess.pid,
+        start: currentTime,
+        end: currentTime + runTime,
+      });
     }
 
     currentTime += runTime;
@@ -137,14 +163,34 @@ export function runRR(inputProcesses: Process[], optionsOrQuantum: SimulationOpt
   // Count context switches
   let contextSwitches = 0;
   if (contextSwitchOverhead > 0) {
-      contextSwitches = events.filter(e => e.pid === 'CS').length;
+    contextSwitches = events.filter((e) => e.pid === 'CS').length;
   } else {
-      for (let i = 0; i < events.length - 1; i++) {
-        if (events[i].pid !== events[i+1].pid && events[i].pid !== 'IDLE' && events[i+1].pid !== 'IDLE') {
-          contextSwitches++;
-        }
+    for (let i = 0; i < events.length - 1; i++) {
+      if (
+        events[i].pid !== events[i + 1].pid &&
+        events[i].pid !== 'IDLE' &&
+        events[i + 1].pid !== 'IDLE'
+      ) {
+        contextSwitches++;
       }
+    }
   }
+
+  // Calculate Active Time for Energy & Utilization
+  let activeTime = 0;
+  let idleTime = 0;
+  events.forEach((e) => {
+    const duration = e.end - e.start;
+    if (e.pid === 'IDLE') idleTime += duration;
+    else if (e.pid !== 'CS') activeTime += duration;
+  });
+
+  const totalEnergy =
+    activeTime * (options.energyConfig?.activeWatts ?? 20) +
+    idleTime * (options.energyConfig?.idleWatts ?? 5) +
+    contextSwitches * (options.energyConfig?.switchJoules ?? 0.1);
+  const totalTime = events.length > 0 ? events[events.length - 1].end : 1;
+  const cpuUtilization = (activeTime / totalTime) * 100;
 
   const metrics: Metrics = {
     completion: completionTimes,
@@ -152,13 +198,21 @@ export function runRR(inputProcesses: Process[], optionsOrQuantum: SimulationOpt
     waiting: waitingTimes,
     avgTurnaround: totalProcesses > 0 ? totalTurnaround / totalProcesses : 0,
     avgWaiting: totalProcesses > 0 ? totalWaiting / totalProcesses : 0,
-    contextSwitches
+    contextSwitches,
+    cpuUtilization,
+    energy: {
+      totalEnergy,
+      activeEnergy: activeTime * (options.energyConfig?.activeWatts ?? 20),
+      idleEnergy: idleTime * (options.energyConfig?.idleWatts ?? 5),
+      switchEnergy: contextSwitches * (options.energyConfig?.switchJoules ?? 0.1),
+    },
   };
 
-  return { 
-    events, 
+  return {
+    events,
     metrics,
     snapshots: generateSnapshots(events, inputProcesses),
-    logs: enableLogging ? logs : undefined
+    logs: enableLogging ? logs : undefined,
+    stepLogs: enableLogging ? stepLogs : undefined,
   };
 }

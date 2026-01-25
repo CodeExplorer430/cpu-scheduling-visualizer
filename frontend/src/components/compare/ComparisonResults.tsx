@@ -28,7 +28,7 @@ export const ComparisonResults: React.FC<Props> = ({ results, algorithms }) => {
 
   const handleExportPNG = async () => {
     if (!exportRef.current) return;
-    
+
     const exportPromise = (async () => {
       const canvas = await html2canvas(exportRef.current!);
       const dataUrl = canvas.toDataURL('image/png');

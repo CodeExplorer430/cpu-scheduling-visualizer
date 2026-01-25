@@ -67,7 +67,9 @@ export const useSimulation = (processes: Process[]) => {
   const optimizeQuantum = useCallback(() => {
     const { optimalQuantum, minAvgWaiting } = findOptimalQuantum(processes);
     setQuantum(optimalQuantum);
-    toast.success(`Optimal Quantum found: ${optimalQuantum} (Avg Wait: ${minAvgWaiting.toFixed(2)})`);
+    toast.success(
+      `Optimal Quantum found: ${optimalQuantum} (Avg Wait: ${minAvgWaiting.toFixed(2)})`
+    );
   }, [processes]);
 
   // Auto-play logic

@@ -13,7 +13,10 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
 
   const addProcess = () => {
     const newPid = `P${processes.length + 1}`;
-    onProcessChange([...processes, { pid: newPid, arrival: 0, burst: 1, priority: 1, color: '#3b82f6' }]);
+    onProcessChange([
+      ...processes,
+      { pid: newPid, arrival: 0, burst: 1, priority: 1, color: '#3b82f6' },
+    ]);
     toast.success('Process added');
   };
 
@@ -176,7 +179,9 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
                     type="number"
                     min="1"
                     value={process.priority || 1}
-                    onChange={(e) => updateProcess(index, 'priority', parseInt(e.target.value) || 1)}
+                    onChange={(e) =>
+                      updateProcess(index, 'priority', parseInt(e.target.value) || 1)
+                    }
                     className="bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white border rounded px-2 py-1 w-20 sm:w-full max-w-[6rem] text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   />
                 </td>

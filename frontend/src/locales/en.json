@@ -1,0 +1,26 @@
+{
+  "common": {
+    "play": "Play",
+    "pause": "Pause",
+    "reset": "Reset",
+    "stepForward": "Step Forward",
+    "stepBack": "Step Back",
+    "time": "Time",
+    "run": "Run Simulation"
+  },
+  "controls": {
+    "title": "Simulation Control",
+    "algorithm": "Algorithm",
+    "quantum": "Time Quantum",
+    "contextSwitch": "Context Switch",
+    "cores": "CPU Cores",
+    "optimize": "Optimize Quantum"
+  },
+  "explainer": {
+    "title": "Algorithm Decision Logic",
+    "subtitle": "Understanding why the scheduler made specific choices up to time {{time}}",
+    "reason": "Reason",
+    "queue": "Ready Queue",
+    "noDecisions": "No decisions made yet."
+  }
+}

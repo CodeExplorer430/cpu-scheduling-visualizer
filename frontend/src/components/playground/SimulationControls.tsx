@@ -40,16 +40,16 @@ export const SimulationControls: React.FC<Props> = ({
       aria-label="Simulation Controls"
     >
       <div className="flex justify-between items-center mb-2">
-         {/* Spacer to keep layout grid clean, or just absolute pos? No, flex header. */}
-         <span className="sr-only">Controls</span>
-         {onShowTutorial && (
-            <button
-              onClick={onShowTutorial}
-              className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
-            >
-              <span className="text-lg">ℹ️</span> Algorithm Guide
-            </button>
-         )}
+        {/* Spacer to keep layout grid clean, or just absolute pos? No, flex header. */}
+        <span className="sr-only">Controls</span>
+        {onShowTutorial && (
+          <button
+            onClick={onShowTutorial}
+            className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+          >
+            <span className="text-lg">ℹ️</span> Algorithm Guide
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -148,30 +148,42 @@ export const SimulationControls: React.FC<Props> = ({
         </summary>
         <div className="grid grid-cols-2 gap-4 mt-2 p-4 bg-gray-50 dark:bg-gray-900 rounded-md border border-gray-100 dark:border-gray-700">
           <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase">Active Power (W)</label>
+            <label className="block text-xs font-bold text-gray-500 uppercase">
+              Active Power (W)
+            </label>
             <input
               type="number"
               value={energyConfig.activeWatts}
-              onChange={(e) => setEnergyConfig({ ...energyConfig, activeWatts: parseFloat(e.target.value) || 0 })}
+              onChange={(e) =>
+                setEnergyConfig({ ...energyConfig, activeWatts: parseFloat(e.target.value) || 0 })
+              }
               className="w-full text-sm bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-blue-500 outline-none py-1 dark:text-white"
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase">Idle Power (W)</label>
+            <label className="block text-xs font-bold text-gray-500 uppercase">
+              Idle Power (W)
+            </label>
             <input
               type="number"
               value={energyConfig.idleWatts}
-              onChange={(e) => setEnergyConfig({ ...energyConfig, idleWatts: parseFloat(e.target.value) || 0 })}
+              onChange={(e) =>
+                setEnergyConfig({ ...energyConfig, idleWatts: parseFloat(e.target.value) || 0 })
+              }
               className="w-full text-sm bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-blue-500 outline-none py-1 dark:text-white"
             />
           </div>
           <div className="col-span-2">
-            <label className="block text-xs font-bold text-gray-500 uppercase">Switch Cost (J)</label>
+            <label className="block text-xs font-bold text-gray-500 uppercase">
+              Switch Cost (J)
+            </label>
             <input
               type="number"
               step="0.01"
               value={energyConfig.switchJoules}
-              onChange={(e) => setEnergyConfig({ ...energyConfig, switchJoules: parseFloat(e.target.value) || 0 })}
+              onChange={(e) =>
+                setEnergyConfig({ ...energyConfig, switchJoules: parseFloat(e.target.value) || 0 })
+              }
               className="w-full text-sm bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-blue-500 outline-none py-1 dark:text-white"
             />
           </div>

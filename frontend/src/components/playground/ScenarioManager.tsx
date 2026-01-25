@@ -135,7 +135,9 @@ export const ScenarioManager: React.FC<Props> = ({ processes, onLoad }) => {
                     >
                       <div>
                         <p className="font-medium dark:text-white">{s.name}</p>
-                        <p className="text-xs text-gray-500">{new Date(s.createdAt).toLocaleDateString()}</p>
+                        <p className="text-xs text-gray-500">
+                          {new Date(s.createdAt).toLocaleDateString()}
+                        </p>
                       </div>
                       <span className="text-indigo-600 dark:text-indigo-400 text-sm">Load</span>
                     </li>

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Scenario from '../models/Scenario.js';
 import { validateProcesses } from '@cpu-vis/shared';
+import { parse } from 'csv-parse/sync';
 
 export const createScenario = async (req: Request, res: Response) => {
   try {
@@ -51,5 +52,39 @@ export const getScenarioById = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Get scenario error:', error);
     return res.status(500).json({ error: 'Failed to fetch scenario' });
+  }
+};
+
+export const uploadCSV = async (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const content = req.file.buffer.toString();
+    const records = parse(content, {
+      columns: true,
+      skip_empty_lines: true,
+      cast: true,
+      trim: true,
+    });
+
+    // Map to Process type with flexible column names
+    const processes = records.map((r: any, index: number) => ({
+      pid: String(r.pid || r.PID || r.id || r.ID || `P${index + 1}`),
+      arrival: Number(r.arrival !== undefined ? r.arrival : (r.Arrival !== undefined ? r.Arrival : 0)),
+      burst: Number(r.burst !== undefined ? r.burst : (r.Burst !== undefined ? r.Burst : 1)),
+      priority: r.priority !== undefined ? Number(r.priority) : (r.Priority !== undefined ? Number(r.Priority) : undefined),
+    }));
+
+    const validation = validateProcesses(processes);
+    if (!validation.valid) {
+      return res.status(400).json({ error: `Invalid processes in CSV: ${validation.error}` });
+    }
+
+    return res.json({ processes });
+  } catch (error: any) {
+    console.error('CSV upload error:', error);
+    return res.status(400).json({ error: `Failed to parse CSV: ${error.message}` });
   }
 };

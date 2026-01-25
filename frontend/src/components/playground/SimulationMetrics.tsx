@@ -64,9 +64,18 @@ export const SimulationMetrics: React.FC<Props> = ({ metrics, isFinished }) => {
           <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-100 dark:border-gray-700">
             <p className="text-xs font-bold text-gray-400 uppercase mb-2">Energy Breakdown</p>
             <div className="flex gap-4 text-[10px] sm:text-xs">
-              <span className="text-gray-600 dark:text-gray-400">Active: <b className="text-gray-900 dark:text-white">{energy.activeEnergy.toFixed(1)}J</b></span>
-              <span className="text-gray-600 dark:text-gray-400">Idle: <b className="text-gray-900 dark:text-white">{energy.idleEnergy.toFixed(1)}J</b></span>
-              <span className="text-gray-600 dark:text-gray-400">Switch: <b className="text-gray-900 dark:text-white">{energy.switchEnergy.toFixed(1)}J</b></span>
+              <span className="text-gray-600 dark:text-gray-400">
+                Active:{' '}
+                <b className="text-gray-900 dark:text-white">{energy.activeEnergy.toFixed(1)}J</b>
+              </span>
+              <span className="text-gray-600 dark:text-gray-400">
+                Idle:{' '}
+                <b className="text-gray-900 dark:text-white">{energy.idleEnergy.toFixed(1)}J</b>
+              </span>
+              <span className="text-gray-600 dark:text-gray-400">
+                Switch:{' '}
+                <b className="text-gray-900 dark:text-white">{energy.switchEnergy.toFixed(1)}J</b>
+              </span>
             </div>
           </div>
         </div>

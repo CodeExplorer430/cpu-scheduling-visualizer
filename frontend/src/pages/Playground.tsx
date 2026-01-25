@@ -7,6 +7,7 @@ import { SimulationControls } from '../components/playground/SimulationControls'
 import { RealTimeStatus } from '../components/playground/RealTimeStatus';
 import { SimulationMetrics } from '../components/playground/SimulationMetrics';
 import { SimulationLogs } from '../components/playground/SimulationLogs';
+import { StepExplainer } from '../components/playground/StepExplainer';
 import { TutorialModal } from '../components/playground/TutorialModal';
 import { useSimulation } from '../hooks/useSimulation';
 
@@ -17,7 +18,7 @@ interface Props {
 
 export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) => {
   const [isTutorialOpen, setIsTutorialOpen] = React.useState(false);
-  
+
   const {
     selectedAlgorithm,
     setSelectedAlgorithm,
@@ -95,6 +96,15 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
           <RealTimeStatus snapshot={currentSnapshot} currentTime={currentTime} maxTime={maxTime} />
         )}
 
+        {/* Step Explainer - WHY things happened */}
+        {simulationResult?.stepLogs && (
+          <StepExplainer
+            stepLogs={simulationResult.stepLogs}
+            currentTime={currentTime}
+            processes={processes}
+          />
+        )}
+
         {/* Gantt Chart */}
         {simulationResult ? (
           <Gantt events={simulationResult.events} currentTime={currentTime} />
@@ -107,7 +117,7 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
         {/* Metrics */}
         {metrics && <SimulationMetrics metrics={metrics} isFinished={currentTime >= maxTime} />}
 
-        {/* Logs */}
+        {/* Raw Logs */}
         {simulationResult?.logs && <SimulationLogs logs={simulationResult.logs} />}
       </div>
     </div>

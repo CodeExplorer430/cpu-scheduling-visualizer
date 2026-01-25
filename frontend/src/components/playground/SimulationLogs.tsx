@@ -21,7 +21,7 @@ export const SimulationLogs: React.FC<Props> = ({ logs }) => {
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">Execution Log</h3>
       </div>
-      <div 
+      <div
         ref={scrollRef}
         className="p-4 bg-gray-900 text-gray-100 font-mono text-xs h-64 overflow-y-auto"
       >

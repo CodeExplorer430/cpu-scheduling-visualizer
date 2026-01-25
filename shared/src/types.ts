@@ -16,7 +16,7 @@ export interface GanttEvent {
 
 export interface EnergyConfig {
   activeWatts: number; // e.g., 20W
-  idleWatts: number;   // e.g., 5W
+  idleWatts: number; // e.g., 5W
   switchJoules: number; // e.g., 0.1J per switch
 }
 
@@ -34,6 +34,7 @@ export interface Metrics {
   avgTurnaround: number;
   avgWaiting: number;
   contextSwitches?: number;
+  cpuUtilization?: number; // 0-100%
   energy?: EnergyMetrics;
 }
 
@@ -45,11 +46,20 @@ export interface Snapshot {
   readyQueue: string[];
 }
 
+export interface DecisionLog {
+  time: number;
+  coreId: number;
+  message: string; // Human readable event "Scheduled P1"
+  reason: string; // Explanation "Shortest Job in queue (3 < 5)"
+  queueState: string[]; // PIDs in queue considered
+}
+
 export interface SimulationResult {
   events: GanttEvent[];
   metrics: Metrics;
   snapshots?: Snapshot[];
   logs?: string[]; // step-by-step explanations
+  stepLogs?: DecisionLog[]; // Structured decision logs
 }
 
 export interface SimulationOptions {

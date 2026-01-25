@@ -20,9 +20,7 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
     svg.selectAll('*').remove(); // Clear previous render
 
     // Accessibility attributes for the SVG container
-    svg
-      .attr('role', 'img')
-      .attr('aria-label', 'Gantt chart visualization of CPU scheduling');
+    svg.attr('role', 'img').attr('aria-label', 'Gantt chart visualization of CPU scheduling');
 
     // Check for dark mode via theme context
     const isDarkMode = theme === 'dark';
@@ -34,7 +32,7 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
     const switchBlockColor = isDarkMode ? '#7f1d1d' : '#fca5a5'; // Dark red background for CS block
 
     // Determine Cores
-    const coreIds = Array.from(new Set(events.map(e => e.coreId ?? 0))).sort((a, b) => a - b);
+    const coreIds = Array.from(new Set(events.map((e) => e.coreId ?? 0))).sort((a, b) => a - b);
     const numCores = coreIds.length;
     const rowHeight = 60;
     const rowGap = 20;
@@ -42,7 +40,7 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
     // Dimensions
     const margin = { top: 30, right: 30, bottom: 40, left: 60 };
     const width = svgRef.current.clientWidth - margin.left - margin.right;
-    const height = (numCores * rowHeight) + ((numCores - 1) * rowGap) + margin.top + margin.bottom;
+    const height = numCores * rowHeight + (numCores - 1) * rowGap + margin.top + margin.bottom;
 
     // Resize SVG container
     svg.attr('height', height);
@@ -62,7 +60,10 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
     // X Axis
     const xAxis = d3.axisBottom(xScale).ticks(Math.min(maxTime, 20));
 
-    const xAxisGroup = g.append('g').attr('transform', `translate(0, ${height - margin.top - margin.bottom})`).call(xAxis);
+    const xAxisGroup = g
+      .append('g')
+      .attr('transform', `translate(0, ${height - margin.top - margin.bottom})`)
+      .call(xAxis);
 
     // Style Axis
     xAxisGroup.selectAll('text').attr('fill', axisColor);
@@ -71,106 +72,110 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
 
     // Render Rows for each Core
     coreIds.forEach((coreId, index) => {
-        const coreY = index * (rowHeight + rowGap);
-        const coreEvents = events.filter(e => (e.coreId ?? 0) === coreId);
+      const coreY = index * (rowHeight + rowGap);
+      const coreEvents = events.filter((e) => (e.coreId ?? 0) === coreId);
 
-        // Core Label
-        g.append('text')
-         .attr('x', -10)
-         .attr('y', coreY + rowHeight / 2)
-         .attr('text-anchor', 'end')
-         .attr('dominant-baseline', 'middle')
-         .attr('fill', axisColor)
-         .attr('font-weight', 'bold')
-         .text(`Core ${coreId + 1}`);
+      // Core Label
+      g.append('text')
+        .attr('x', -10)
+        .attr('y', coreY + rowHeight / 2)
+        .attr('text-anchor', 'end')
+        .attr('dominant-baseline', 'middle')
+        .attr('fill', axisColor)
+        .attr('font-weight', 'bold')
+        .text(`Core ${coreId + 1}`);
 
-        // Grid lines per row
-        g.append('g')
-          .attr('class', 'grid')
-          .attr('transform', `translate(0,${height - margin.top - margin.bottom})`)
-          .call(
-            d3
-              .axisBottom(xScale)
-              .ticks(Math.min(maxTime, 20))
-              .tickSize(-(height - margin.top - margin.bottom))
-              .tickFormat(() => '')
-          )
-          .attr('opacity', 0.1)
-          .selectAll('line')
-          .attr('stroke', gridColor);
+      // Grid lines per row
+      g.append('g')
+        .attr('class', 'grid')
+        .attr('transform', `translate(0,${height - margin.top - margin.bottom})`)
+        .call(
+          d3
+            .axisBottom(xScale)
+            .ticks(Math.min(maxTime, 20))
+            .tickSize(-(height - margin.top - margin.bottom))
+            .tickFormat(() => '')
+        )
+        .attr('opacity', 0.1)
+        .selectAll('line')
+        .attr('stroke', gridColor);
 
-        // Bars
-        const rowG = g.append('g').attr('transform', `translate(0, ${coreY})`);
-        
-        const bars = rowG.selectAll('.bar')
-          .data(coreEvents)
-          .enter()
-          .append('g') // Group for rect + accessible title
-          .attr('role', 'graphics-symbol')
-          .attr('aria-label', d => {
-            if (d.pid === 'IDLE') return `Core ${coreId + 1}: Idle from ${d.start} to ${d.end}`;
-            if (d.pid === 'CS') return `Core ${coreId + 1}: Context Switch from ${d.start} to ${d.end}`;
-            return `Core ${coreId + 1}: Process ${d.pid} from time ${d.start} to ${d.end}`;
-          });
+      // Bars
+      const rowG = g.append('g').attr('transform', `translate(0, ${coreY})`);
 
-        bars.append('rect')
-          .attr('class', 'bar')
-          .attr('x', (d) => xScale(d.start))
-          .attr('y', 0)
-          .attr('width', (d) => xScale(d.end) - xScale(d.start))
-          .attr('height', rowHeight)
-          .attr('fill', (d) => {
-            if (d.pid === 'IDLE') return idleColor;
-            if (d.pid === 'CS') return switchBlockColor;
-            return colorScale(d.pid) as string;
-          })
-          .attr('stroke', isDarkMode ? '#1f2937' : '#fff') // Dark bg or White
-          .attr('stroke-width', 1)
-          .attr('opacity', (d) => (currentTime !== undefined && d.start >= currentTime ? 0.2 : 1));
-        
-        // Add title for hover tooltip (native browser behavior)
-        bars.append('title')
-          .text(d => `${d.pid} (${d.start} - ${d.end})`);
+      const bars = rowG
+        .selectAll('.bar')
+        .data(coreEvents)
+        .enter()
+        .append('g') // Group for rect + accessible title
+        .attr('role', 'graphics-symbol')
+        .attr('aria-label', (d) => {
+          if (d.pid === 'IDLE') return `Core ${coreId + 1}: Idle from ${d.start} to ${d.end}`;
+          if (d.pid === 'CS')
+            return `Core ${coreId + 1}: Context Switch from ${d.start} to ${d.end}`;
+          return `Core ${coreId + 1}: Process ${d.pid} from time ${d.start} to ${d.end}`;
+        });
 
-        // Labels
-        rowG.selectAll('.label')
-          .data(coreEvents)
-          .enter()
-          .append('text')
-          .attr('x', (d) => xScale(d.start) + (xScale(d.end) - xScale(d.start)) / 2)
-          .attr('y', rowHeight / 2 + 5)
-          .attr('text-anchor', 'middle')
-          .attr('fill', (d) => (d.pid === 'IDLE' || d.pid === 'CS' ? idleTextColor : '#fff'))
-          .attr('font-size', '10px')
-          .attr('font-weight', 'bold')
-          .text((d) => (d.pid === 'IDLE' || d.pid === 'CS' ? '' : d.pid))
-          .attr('opacity', (d) => (currentTime !== undefined && d.start >= currentTime ? 0 : 1));
+      bars
+        .append('rect')
+        .attr('class', 'bar')
+        .attr('x', (d) => xScale(d.start))
+        .attr('y', 0)
+        .attr('width', (d) => xScale(d.end) - xScale(d.start))
+        .attr('height', rowHeight)
+        .attr('fill', (d) => {
+          if (d.pid === 'IDLE') return idleColor;
+          if (d.pid === 'CS') return switchBlockColor;
+          return colorScale(d.pid) as string;
+        })
+        .attr('stroke', isDarkMode ? '#1f2937' : '#fff') // Dark bg or White
+        .attr('stroke-width', 1)
+        .attr('opacity', (d) => (currentTime !== undefined && d.start >= currentTime ? 0.2 : 1));
 
-        // Context Switch Markers (Per Row)
-        const switchPoints: number[] = [];
-        // Sort events by start time just in case
-        coreEvents.sort((a,b) => a.start - b.start);
-        
-        for(let i = 0; i < coreEvents.length - 1; i++) {
-            const current = coreEvents[i];
-            const next = coreEvents[i+1];
-            if (current.pid !== next.pid && current.pid !== 'IDLE' && next.pid !== 'IDLE') {
-                switchPoints.push(current.end);
-            }
+      // Add title for hover tooltip (native browser behavior)
+      bars.append('title').text((d) => `${d.pid} (${d.start} - ${d.end})`);
+
+      // Labels
+      rowG
+        .selectAll('.label')
+        .data(coreEvents)
+        .enter()
+        .append('text')
+        .attr('x', (d) => xScale(d.start) + (xScale(d.end) - xScale(d.start)) / 2)
+        .attr('y', rowHeight / 2 + 5)
+        .attr('text-anchor', 'middle')
+        .attr('fill', (d) => (d.pid === 'IDLE' || d.pid === 'CS' ? idleTextColor : '#fff'))
+        .attr('font-size', '10px')
+        .attr('font-weight', 'bold')
+        .text((d) => (d.pid === 'IDLE' || d.pid === 'CS' ? '' : d.pid))
+        .attr('opacity', (d) => (currentTime !== undefined && d.start >= currentTime ? 0 : 1));
+
+      // Context Switch Markers (Per Row)
+      const switchPoints: number[] = [];
+      // Sort events by start time just in case
+      coreEvents.sort((a, b) => a.start - b.start);
+
+      for (let i = 0; i < coreEvents.length - 1; i++) {
+        const current = coreEvents[i];
+        const next = coreEvents[i + 1];
+        if (current.pid !== next.pid && current.pid !== 'IDLE' && next.pid !== 'IDLE') {
+          switchPoints.push(current.end);
         }
+      }
 
-        rowG.selectAll('.switch-marker')
-            .data(switchPoints)
-            .enter()
-            .append('line')
-            .attr('class', 'switch-marker')
-            .attr('x1', d => xScale(d))
-            .attr('x2', d => xScale(d))
-            .attr('y1', -5)
-            .attr('y2', rowHeight + 5)
-            .attr('stroke', switchMarkerColor)
-            .attr('stroke-width', 2)
-            .attr('stroke-dasharray', '2,2');
+      rowG
+        .selectAll('.switch-marker')
+        .data(switchPoints)
+        .enter()
+        .append('line')
+        .attr('class', 'switch-marker')
+        .attr('x1', (d) => xScale(d))
+        .attr('x2', (d) => xScale(d))
+        .attr('y1', -5)
+        .attr('y2', rowHeight + 5)
+        .attr('stroke', switchMarkerColor)
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '2,2');
     });
 
     // Current Time Indicator (Global across all rows)

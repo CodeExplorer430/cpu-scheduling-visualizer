@@ -1,6 +1,10 @@
 import { GanttEvent, Process, Snapshot } from '../types.js';
 
-export function generateSnapshots(events: GanttEvent[], processes: Process[], coreCount: number = 1): Snapshot[] {
+export function generateSnapshots(
+  events: GanttEvent[],
+  processes: Process[],
+  coreCount: number = 1
+): Snapshot[] {
   if (events.length === 0) return [];
 
   const maxTime = events[events.length - 1].end;
@@ -23,14 +27,14 @@ export function generateSnapshots(events: GanttEvent[], processes: Process[], co
     // Not running on ANY core
     // Arrived
     // Not finished
-    
+
     // Calculate completion times
     const completionTimes: Record<string, number> = {};
     processes.forEach((p) => {
       const pEvents = events.filter((e) => e.pid === p.pid);
       if (pEvents.length > 0) {
         // Max end time across all events for this process
-        completionTimes[p.pid] = Math.max(...pEvents.map(e => e.end));
+        completionTimes[p.pid] = Math.max(...pEvents.map((e) => e.end));
       } else {
         completionTimes[p.pid] = -1;
       }

@@ -14,7 +14,9 @@ describe('Compare Page', () => {
     const mockProcesses: Process[] = [{ pid: 'P1', arrival: 0, burst: 5 }];
     const mockOnProcessesChange = vi.fn();
 
-    renderWithTheme(<Compare processes={mockProcesses} onProcessesChange={mockOnProcessesChange} />);
+    renderWithTheme(
+      <Compare processes={mockProcesses} onProcessesChange={mockOnProcessesChange} />
+    );
 
     // Check for ComparisonSettings title or content
     expect(screen.getByText('Run Comparison')).toBeInTheDocument();

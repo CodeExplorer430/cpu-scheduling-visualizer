@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   currentTime: number;
@@ -15,14 +16,16 @@ export const Stepper: React.FC<Props> = ({
   isPlaying,
   setIsPlaying,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow space-y-4 transition-colors duration-200">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-          Simulation Control
+          {t('common.time')} Control
         </h3>
         <span className="text-lg font-mono font-bold text-blue-600 dark:text-blue-400">
-          Time: {currentTime} / {maxTime}
+          {t('common.time')}: {currentTime} / {maxTime}
         </span>
       </div>
 
@@ -33,7 +36,7 @@ export const Stepper: React.FC<Props> = ({
             isPlaying ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-600 hover:bg-green-700'
           }`}
         >
-          {isPlaying ? 'Pause' : 'Play'}
+          {isPlaying ? t('common.pause') : t('common.play')}
         </button>
 
         <button
@@ -44,7 +47,7 @@ export const Stepper: React.FC<Props> = ({
           className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200 p-2 rounded text-gray-700"
           disabled={currentTime === 0}
         >
-          <span className="hidden sm:inline">Step Back</span>
+          <span className="hidden sm:inline">{t('common.stepBack')}</span>
           <span className="sm:hidden">←</span>
         </button>
 
@@ -56,7 +59,7 @@ export const Stepper: React.FC<Props> = ({
           className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200 p-2 rounded text-gray-700"
           disabled={currentTime >= maxTime}
         >
-          <span className="hidden sm:inline">Step Forward</span>
+          <span className="hidden sm:inline">{t('common.stepForward')}</span>
           <span className="sm:hidden">→</span>
         </button>
 
@@ -67,7 +70,7 @@ export const Stepper: React.FC<Props> = ({
           }}
           className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-400 p-2 rounded text-gray-500 text-xs"
         >
-          Reset
+          {t('common.reset')}
         </button>
       </div>
 
