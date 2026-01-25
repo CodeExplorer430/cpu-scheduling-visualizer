@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "nodemon src/server.ts",
+    "dev": "tsx watch src/server.ts",
     "test": "vitest run",
     "lint": "eslint . --ext .ts"
   },
@@ -28,6 +28,7 @@
     "nodemon": "^3.0.1",
     "supertest": "^7.0.0",
     "ts-node": "^10.9.1",
+    "tsx": "^4.21.0",
     "typescript": "^5.1.6",
     "vitest": "^4.0.18"
   }

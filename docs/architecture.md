@@ -17,3 +17,4 @@ The CPU Scheduling Visualizer is a monorepo consisting of:
 - **SJF**: Shortest Job First (Non-preemptive).
 - **SRTF**: Shortest Remaining Time First (Preemptive).
 - **RR**: Round Robin (Preemptive, Time Quantum).
+- **PRIORITY**: Priority Scheduling (Non-preemptive).
