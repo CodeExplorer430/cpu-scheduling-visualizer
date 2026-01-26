@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import { runFCFS } from '../../src/engine/fcfs';
-import { Process } from '../../src/types';
 
 describe('FCFS Property Tests', () => {
   it('should maintain basic invariants', () => {

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import { register, login, getMe } from '../controllers/authController.js';
+import { IUser } from '../models/User.js';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key-change-me';
@@ -18,7 +19,7 @@ router.get(
   passport.authenticate('google', { session: false, failureRedirect: '/login' }),
   (req, res) => {
     // Successful authentication, issue JWT and redirect
-    const user = req.user as any;
+    const user = req.user as IUser;
     const token = jwt.sign({ userId: user._id, username: user.username }, JWT_SECRET, {
       expiresIn: '7d',
     });

@@ -126,7 +126,6 @@ export function runPriorityPreemptive(
       .sort((a, b) => a.arrival - b.arrival);
 
     let runTime = currentProcess.remaining;
-    let preempted = false;
 
     for (const arrival of futureArrivals) {
       const timeToArrival = arrival.arrival - currentTime;
@@ -139,7 +138,6 @@ export function runPriorityPreemptive(
       if (arrivalPrio < currentPrio) {
         // Preemption!
         runTime = timeToArrival;
-        preempted = true;
         break;
       }
     }

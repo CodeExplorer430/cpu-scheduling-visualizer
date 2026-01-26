@@ -79,7 +79,13 @@ export const getMe = async (req: Request, res: Response) => {
     if (!authHeader) return res.status(401).json({ error: 'No token provided' });
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    
+    interface TokenPayload {
+      userId: string;
+      username: string;
+    }
+    
+    const decoded = jwt.verify(token, JWT_SECRET) as TokenPayload;
 
     const user = await User.findById(decoded.userId).select('-passwordHash');
     if (!user) return res.status(404).json({ error: 'User not found' });

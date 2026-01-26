@@ -36,7 +36,7 @@ describe('ComparisonResults Component', () => {
       snapshots: [],
     },
     // Add placeholders for others if needed, but let's just test with a subset
-  } as any;
+  } as unknown as Record<Algorithm, SimulationResult>;
 
   const algorithms: Algorithm[] = ['FCFS'];
 

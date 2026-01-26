@@ -70,7 +70,7 @@ export const uploadCSV = async (req: Request, res: Response) => {
     });
 
     // Map to Process type with flexible column names
-    const processes = records.map((r: any, index: number) => ({
+    const processes = records.map((r: Record<string, unknown>, index: number) => ({
       pid: String(r.pid || r.PID || r.id || r.ID || `P${index + 1}`),
       arrival: Number(
         r.arrival !== undefined ? r.arrival : r.Arrival !== undefined ? r.Arrival : 0
@@ -90,8 +90,9 @@ export const uploadCSV = async (req: Request, res: Response) => {
     }
 
     return res.json({ processes });
-  } catch (error: any) {
+  } catch (error) {
     console.error('CSV upload error:', error);
-    return res.status(400).json({ error: `Failed to parse CSV: ${error.message}` });
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return res.status(400).json({ error: `Failed to parse CSV: ${message}` });
   }
 };

@@ -37,9 +37,10 @@ export const Compare: React.FC<Props> = ({ processes, onProcessesChange }) => {
       const data = await response.json();
       setResults(data);
       toast.success(t('common.run') + ' ' + t('common.play'));
-    } catch (error: any) {
+    } catch (error) {
       console.error('Batch simulation error:', error);
-      toast.error(error.message || 'Error communicating with backend');
+      const message = error instanceof Error ? error.message : 'Error communicating with backend';
+      toast.error(message);
 
       // Fallback to client-side if backend fails
       // setResults({ ... });

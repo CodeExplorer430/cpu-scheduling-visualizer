@@ -83,7 +83,7 @@ export function runFCFS(
     // Next arrival?
     const nextArrival = pIndex < totalProcesses ? processes[pIndex].arrival : Infinity;
     // Earliest core free?
-    const nextCoreFree = Math.min(...cores.map((c) => c.currentTime));
+    // const nextCoreFree = Math.min(...cores.map((c) => c.currentTime));
 
     // Global time advances to the interesting point
     // Ideally we process events at `nextCoreFree` if it's <= nextArrival, or `nextArrival` if it's earlier.
@@ -248,7 +248,9 @@ export function runFCFS(
     const duration = e.end - e.start;
     if (e.pid === 'IDLE') idleTime += duration;
     else if (e.pid === 'CS') {
-    } // Overhead usually counts as active or separate? Let's say separate or active.
+      // Switch energy is calculated separately using switchJoules
+    } 
+    // Overhead usually counts as active or separate? Let's say separate or active.
     // Spec: active vs idle. Usually CS consumes power. Let's count CS as Active for power?
     // Or define switchJoules separate.
     // Let's assume switchJoules covers the switch cost entirely.

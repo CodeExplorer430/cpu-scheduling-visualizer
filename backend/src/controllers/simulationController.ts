@@ -8,6 +8,7 @@ import {
   validateProcesses,
   Process,
   Algorithm,
+  SimulationResult,
 } from '@cpu-vis/shared';
 
 export const runSimulation = (req: Request, res: Response) => {
@@ -21,29 +22,30 @@ export const runSimulation = (req: Request, res: Response) => {
 
   const algo = algorithm as Algorithm;
   const quantum = typeof timeQuantum === 'number' ? timeQuantum : 2; // Default quantum
+  const options = { quantum };
 
   try {
     let result;
     switch (algo) {
       case 'FCFS':
-        result = runFCFS(processes as Process[]);
+        result = runFCFS(processes as Process[], options);
         break;
       case 'SJF':
-        result = runSJF(processes as Process[]);
+        result = runSJF(processes as Process[], options);
         break;
       case 'SRTF':
-        result = runSRTF(processes as Process[]);
+        result = runSRTF(processes as Process[], options);
         break;
       case 'RR':
-        result = runRR(processes as Process[], quantum);
+        result = runRR(processes as Process[], options);
         break;
       case 'PRIORITY':
-        result = runPriority(processes as Process[]);
+        result = runPriority(processes as Process[], options);
         break;
       default:
         // Default to FCFS if unknown, or return error
         if (!algo) {
-          result = runFCFS(processes as Process[]);
+          result = runFCFS(processes as Process[], options);
         } else {
           return res.status(400).json({ error: `Algorithm '${algo}' not supported` });
         }
@@ -70,33 +72,35 @@ export const runBatchSimulation = (req: Request, res: Response) => {
   }
 
   const quantum = typeof timeQuantum === 'number' ? timeQuantum : 2;
-  const results: Record<string, any> = {};
+  const options = { quantum };
+  const results: Record<string, SimulationResult | { error: string }> = {};
 
   algorithms.forEach((algoName: string) => {
     try {
       const algo = algoName as Algorithm;
       switch (algo) {
         case 'FCFS':
-          results[algo] = runFCFS(processes as Process[]);
+          results[algo] = runFCFS(processes as Process[], options);
           break;
         case 'SJF':
-          results[algo] = runSJF(processes as Process[]);
+          results[algo] = runSJF(processes as Process[], options);
           break;
         case 'SRTF':
-          results[algo] = runSRTF(processes as Process[]);
+          results[algo] = runSRTF(processes as Process[], options);
           break;
         case 'RR':
-          results[algo] = runRR(processes as Process[], quantum);
+          results[algo] = runRR(processes as Process[], options);
           break;
         case 'PRIORITY':
-          results[algo] = runPriority(processes as Process[]);
+          results[algo] = runPriority(processes as Process[], options);
           break;
         default:
           results[algoName] = { error: `Algorithm '${algoName}' not supported` };
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error(`Batch simulation error for ${algoName}:`, error);
-      results[algoName] = { error: error.message || 'Internal error' };
+      const message = error instanceof Error ? error.message : 'Internal error';
+      results[algoName] = { error: message };
     }
   });
 

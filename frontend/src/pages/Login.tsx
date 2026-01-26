@@ -29,8 +29,9 @@ export const Login: React.FC = () => {
 
       login(data.token, data.user);
       navigate('/');
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      toast.error(message);
     } finally {
       setLoading(false);
     }
