@@ -77,6 +77,7 @@ export const SimulationControls: React.FC<Props> = ({
             <option value="PRIORITY">{t('controls.algorithms.PRIORITY')}</option>
             <option value="PRIORITY_PE">Priority (Preemptive)</option>
             <option value="HRRN">HRRN (Highest Response Ratio Next)</option>
+            <option value="LRTF">LRTF (Longest Remaining Time First)</option>
           </select>
         </div>
 

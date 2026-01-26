@@ -7,6 +7,7 @@ export * from './rr.js';
 export * from './priority.js';
 export * from './priority_preemptive.js';
 export * from './hrrn.js';
+export * from './lrtf.js';
 
 // Stub for future engine implementations
 export const Engine = {
