@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { runRR } from '../../src/engine/rr';
+import { runRR } from '../../src/engine/rr.js';
+import { GanttEvent } from '../../src/types.js';
 
 describe('RR Property Tests', () => {
   it('should be fair and eventually complete', () => {
@@ -22,7 +23,7 @@ describe('RR Property Tests', () => {
           expect(Object.keys(result.metrics.completion).length).toBe(processes.length);
 
           // Invariant: No process runs for more than 'quantum' continuously
-          result.events.forEach((e) => {
+          result.events.forEach((e: GanttEvent) => {
             if (e.pid !== 'IDLE' && e.pid !== 'CS') {
               expect(e.end - e.start).toBeLessThanOrEqual(quantum);
             }

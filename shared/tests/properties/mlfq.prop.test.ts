@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { runMLFQ } from '../../src/engine/mlfq';
+import { runMLFQ } from '../../src/engine/mlfq.js';
+import { GanttEvent } from '../../src/types.js';
 
 describe('MLFQ Property Tests', () => {
   it('should maintain basic invariants', () => {
@@ -24,8 +25,8 @@ describe('MLFQ Property Tests', () => {
 
           // 2. No overlapping events
           const sortedEvents = [...events]
-            .filter((e) => e.pid !== 'IDLE' && e.pid !== 'CS')
-            .sort((a, b) => a.start - b.start);
+            .filter((e: GanttEvent) => e.pid !== 'IDLE' && e.pid !== 'CS')
+            .sort((a: GanttEvent, b: GanttEvent) => a.start - b.start);
 
           for (let i = 0; i < sortedEvents.length - 1; i++) {
             expect(sortedEvents[i].end).toBeLessThanOrEqual(sortedEvents[i + 1].start);

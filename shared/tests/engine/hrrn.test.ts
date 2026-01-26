@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { runHRRN } from '../../src/engine/hrrn';
-import { Process } from '../../src/types';
+import { runHRRN } from '../../src/engine/hrrn.js';
+import { Process } from '../../src/types.js';
 
 describe('HRRN Scheduling', () => {
   it('should select process with highest response ratio', () => {

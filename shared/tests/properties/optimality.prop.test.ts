@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { runSJF } from '../../src/engine/sjf';
-import { runFCFS } from '../../src/engine/fcfs';
-import { Process } from '../../src/types';
+import { runSJF } from '../../src/engine/sjf.js';
+import { runFCFS } from '../../src/engine/fcfs.js';
+import { Process } from '../../src/types.js';
 
 // Helper to get all permutations
 function getPermutations<T>(array: T[]): T[][] {

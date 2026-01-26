@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { runFCFS } from '../../src/engine/fcfs';
+import { runFCFS } from '../../src/engine/fcfs.js';
+import { GanttEvent } from '../../src/types.js';
 
 describe('FCFS Property Tests', () => {
   it('should maintain basic invariants', () => {
@@ -33,8 +34,8 @@ describe('FCFS Property Tests', () => {
           // Invariant 3: No overlap on single core
           // Sort events by start time
           const sortedEvents = events
-            .filter((e) => e.pid !== 'IDLE' && e.pid !== 'CS')
-            .sort((a, b) => a.start - b.start);
+            .filter((e: GanttEvent) => e.pid !== 'IDLE' && e.pid !== 'CS')
+            .sort((a: GanttEvent, b: GanttEvent) => a.start - b.start);
 
           for (let i = 0; i < sortedEvents.length - 1; i++) {
             expect(sortedEvents[i].end).toBeLessThanOrEqual(sortedEvents[i + 1].start);
@@ -53,7 +54,7 @@ describe('FCFS Property Tests', () => {
 
           // Map PID to Start Time
           const startTimes: Record<string, number> = {};
-          events.forEach((e) => {
+          events.forEach((e: GanttEvent) => {
             if (e.pid !== 'IDLE' && e.pid !== 'CS') {
               // Only take first start time (though FCFS is non-preemptive so only one)
               if (startTimes[e.pid] === undefined) startTimes[e.pid] = e.start;

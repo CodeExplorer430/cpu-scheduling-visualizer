@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { runPriorityPreemptive } from '../../src/engine/priority_preemptive';
-import { Process } from '../../src/types';
+import { runPriorityPreemptive } from '../../src/engine/priority_preemptive.js';
+import { Process } from '../../src/types.js';
 
 describe('Preemptive Priority Scheduling', () => {
   it('should preempt lower priority process when higher priority arrives', () => {

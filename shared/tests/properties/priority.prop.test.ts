@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { runPriority } from '../../src/engine/priority';
+import { runPriority } from '../../src/engine/priority.js';
+import { GanttEvent } from '../../src/types.js';
 
 describe('Priority Property Tests', () => {
   it('should respect priority order', () => {
@@ -26,7 +27,7 @@ describe('Priority Property Tests', () => {
           // then P1.priority <= P2.priority (or P1 arrived earlier if priorities equal)
 
           const startTimes: Record<string, number> = {};
-          events.forEach((e) => {
+          events.forEach((e: GanttEvent) => {
             if (e.pid !== 'IDLE' && e.pid !== 'CS') {
               if (startTimes[e.pid] === undefined) startTimes[e.pid] = e.start;
             }

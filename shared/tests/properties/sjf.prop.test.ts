@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { runSJF } from '../../src/engine/sjf';
+import { runSJF } from '../../src/engine/sjf.js';
+import { GanttEvent } from '../../src/types.js';
 
 describe('SJF Property Tests', () => {
   it('should maintain basic invariants', () => {
@@ -26,7 +27,7 @@ describe('SJF Property Tests', () => {
           // This is harder to check from Gantt alone without knowing ready queue at each step,
           // but we can check it at start times.
           const startTimes: Record<string, number> = {};
-          events.forEach((e) => {
+          events.forEach((e: GanttEvent) => {
             if (e.pid !== 'IDLE' && e.pid !== 'CS') {
               if (startTimes[e.pid] === undefined) startTimes[e.pid] = e.start;
             }

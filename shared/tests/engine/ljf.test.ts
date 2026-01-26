@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { runLJF } from '../../src/engine/ljf';
-import { Process } from '../../src/types';
+import { runLJF } from '../../src/engine/ljf.js';
+import { Process } from '../../src/types.js';
 
 describe('LJF Scheduling', () => {
   it('should schedule longer jobs first when they arrive at the same time', () => {

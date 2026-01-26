@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { runMQ } from '../../src/engine/mq';
-import { Process } from '../../src/types';
+import { runMQ } from '../../src/engine/mq.js';
+import { Process } from '../../src/types.js';
 
 describe('Multilevel Queue (MQ) Scheduling', () => {
   it('should prioritize Q1 (RR) over Q2 (FCFS)', () => {

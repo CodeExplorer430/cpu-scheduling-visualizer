@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { runSRTF } from '../../src/engine/srtf';
+import { runSRTF } from '../../src/engine/srtf.js';
+import { GanttEvent } from '../../src/types.js';
 
 describe('SRTF Property Tests', () => {
   it('should maintain basic invariants and optimality', () => {
@@ -25,12 +26,12 @@ describe('SRTF Property Tests', () => {
           // minimum remaining time among all arrived and unfinished processes.
 
           // Reconstruct state at each time unit
-          const maxTime = Math.max(...Object.values(metrics.completion));
+          const maxTime = Math.max(...Object.values(metrics.completion).map((v) => Number(v)));
           const remainingTime: Record<string, number> = {};
           processes.forEach((p) => (remainingTime[p.pid] = p.burst));
 
           for (let t = 0; t < maxTime; t++) {
-            const runningEvent = events.find((e) => t >= e.start && t < e.end);
+            const runningEvent = events.find((e: GanttEvent) => t >= e.start && t < e.end);
             const runningPid = runningEvent?.pid;
 
             const readyPids = processes

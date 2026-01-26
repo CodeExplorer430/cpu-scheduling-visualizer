@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { runFCFS } from '../src/engine/fcfs';
-import { Process } from '../src/types';
+import { runFCFS } from '../src/engine/fcfs.js';
+import { Process } from '../src/types.js';
 
 describe('Step Logs (Decision Explanation)', () => {
   it('should generate step logs for FCFS', () => {

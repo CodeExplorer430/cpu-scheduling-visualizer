@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { runLRTF } from '../../src/engine/lrtf';
-import { Process } from '../../src/types';
+import { runLRTF } from '../../src/engine/lrtf.js';
+import { Process } from '../../src/types.js';
 
 describe('LRTF Scheduling', () => {
   it('should preempt when another process has longer remaining time', () => {

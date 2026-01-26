@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { runMLFQ } from '../../src/engine/mlfq';
-import { Process } from '../../src/types';
+import { runMLFQ } from '../../src/engine/mlfq.js';
+import { Process } from '../../src/types.js';
 
 describe('MLFQ Scheduling', () => {
   it('should run short job in Q0 without demotion', () => {
