@@ -71,6 +71,7 @@ export const SimulationControls: React.FC<Props> = ({
           >
             <option value="FCFS">{t('controls.algorithms.FCFS')}</option>
             <option value="SJF">{t('controls.algorithms.SJF')}</option>
+            <option value="LJF">LJF (Longest Job First)</option>
             <option value="SRTF">{t('controls.algorithms.SRTF')}</option>
             <option value="RR">{t('controls.algorithms.RR')}</option>
             <option value="PRIORITY">{t('controls.algorithms.PRIORITY')}</option>

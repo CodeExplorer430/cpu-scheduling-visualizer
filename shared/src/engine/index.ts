@@ -1,6 +1,7 @@
 export * from '../types.js';
 export * from './fcfs.js';
 export * from './sjf.js';
+export * from './ljf.js';
 export * from './srtf.js';
 export * from './rr.js';
 export * from './priority.js';

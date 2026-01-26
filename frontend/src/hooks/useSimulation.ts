@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   runFCFS,
   runSJF,
+  runLJF,
   runSRTF,
   runRR,
   runPriority,
@@ -44,6 +45,9 @@ export const useSimulation = (processes: Process[]) => {
         break;
       case 'SJF':
         result = runSJF(processes, options);
+        break;
+      case 'LJF':
+        result = runLJF(processes, options);
         break;
       case 'SRTF':
         result = runSRTF(processes, options);
