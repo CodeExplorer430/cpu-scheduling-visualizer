@@ -44,7 +44,7 @@ describe('HRRN Scheduling', () => {
     // P2 runs 10-11.
     // At t=11:
     // P3: Wait = 9. Burst = 1. RR = (9+1)/1 = 10.0
-    
+
     const { events } = runHRRN(processes);
     expect(events[0].pid).toBe('P1');
     expect(events[1].pid).toBe('P2');

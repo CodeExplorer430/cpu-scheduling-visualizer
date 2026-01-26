@@ -72,9 +72,16 @@ export const uploadCSV = async (req: Request, res: Response) => {
     // Map to Process type with flexible column names
     const processes = records.map((r: any, index: number) => ({
       pid: String(r.pid || r.PID || r.id || r.ID || `P${index + 1}`),
-      arrival: Number(r.arrival !== undefined ? r.arrival : (r.Arrival !== undefined ? r.Arrival : 0)),
-      burst: Number(r.burst !== undefined ? r.burst : (r.Burst !== undefined ? r.Burst : 1)),
-      priority: r.priority !== undefined ? Number(r.priority) : (r.Priority !== undefined ? Number(r.Priority) : undefined),
+      arrival: Number(
+        r.arrival !== undefined ? r.arrival : r.Arrival !== undefined ? r.Arrival : 0
+      ),
+      burst: Number(r.burst !== undefined ? r.burst : r.Burst !== undefined ? r.Burst : 1),
+      priority:
+        r.priority !== undefined
+          ? Number(r.priority)
+          : r.Priority !== undefined
+            ? Number(r.Priority)
+            : undefined,
     }));
 
     const validation = validateProcesses(processes);

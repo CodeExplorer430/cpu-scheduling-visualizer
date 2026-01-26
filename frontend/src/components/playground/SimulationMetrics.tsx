@@ -18,7 +18,9 @@ export const SimulationMetrics: React.FC<Props> = ({ metrics, isFinished }) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden transition-colors duration-200">
       <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">{t('metrics.title')}</h3>
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">
+          {t('metrics.title')}
+        </h3>
         {!isFinished && (
           <span className="text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
             Simulation in progress...
@@ -68,15 +70,24 @@ export const SimulationMetrics: React.FC<Props> = ({ metrics, isFinished }) => {
             <div className="flex gap-4 text-[10px] sm:text-xs">
               <span className="text-gray-600 dark:text-gray-400">
                 {t('metrics.active')}:{' '}
-                <b className="text-gray-900 dark:text-white">{energy.activeEnergy.toFixed(1)}{t('common.joules')}</b>
+                <b className="text-gray-900 dark:text-white">
+                  {energy.activeEnergy.toFixed(1)}
+                  {t('common.joules')}
+                </b>
               </span>
               <span className="text-gray-600 dark:text-gray-400">
                 {t('metrics.idle')}:{' '}
-                <b className="text-gray-900 dark:text-white">{energy.idleEnergy.toFixed(1)}{t('common.joules')}</b>
+                <b className="text-gray-900 dark:text-white">
+                  {energy.idleEnergy.toFixed(1)}
+                  {t('common.joules')}
+                </b>
               </span>
               <span className="text-gray-600 dark:text-gray-400">
                 {t('metrics.switches')}:{' '}
-                <b className="text-gray-900 dark:text-white">{energy.switchEnergy.toFixed(1)}{t('common.joules')}</b>
+                <b className="text-gray-900 dark:text-white">
+                  {energy.switchEnergy.toFixed(1)}
+                  {t('common.joules')}
+                </b>
               </span>
             </div>
           </div>

@@ -18,7 +18,7 @@ describe('FCFS Property Tests', () => {
         (processesInput) => {
           // Ensure unique PIDs
           const processes = processesInput.map((p, i) => ({ ...p, pid: `${p.pid}-${i}` }));
-          
+
           const result = runFCFS(processes);
           const { events, metrics } = result;
 
@@ -34,9 +34,9 @@ describe('FCFS Property Tests', () => {
           // Invariant 3: No overlap on single core
           // Sort events by start time
           const sortedEvents = events
-            .filter(e => e.pid !== 'IDLE' && e.pid !== 'CS')
+            .filter((e) => e.pid !== 'IDLE' && e.pid !== 'CS')
             .sort((a, b) => a.start - b.start);
-          
+
           for (let i = 0; i < sortedEvents.length - 1; i++) {
             expect(sortedEvents[i].end).toBeLessThanOrEqual(sortedEvents[i + 1].start);
           }
@@ -49,24 +49,24 @@ describe('FCFS Property Tests', () => {
           // Exception: If A arrives, queue empty, runs. B arrives.
           // If C running, A arrives (queue: [A]). B arrives (queue: [A, B]).
           // Yes, strictly monotonic start times for strictly monotonic arrivals.
-          
+
           const sortedByArrival = [...processes].sort((a, b) => a.arrival - b.arrival);
-          
+
           // Map PID to Start Time
           const startTimes: Record<string, number> = {};
-          events.forEach(e => {
+          events.forEach((e) => {
             if (e.pid !== 'IDLE' && e.pid !== 'CS') {
-               // Only take first start time (though FCFS is non-preemptive so only one)
-               if (startTimes[e.pid] === undefined) startTimes[e.pid] = e.start;
+              // Only take first start time (though FCFS is non-preemptive so only one)
+              if (startTimes[e.pid] === undefined) startTimes[e.pid] = e.start;
             }
           });
 
           for (let i = 0; i < sortedByArrival.length - 1; i++) {
-             const p1 = sortedByArrival[i];
-             const p2 = sortedByArrival[i+1];
-             if (p1.arrival < p2.arrival) {
-                 expect(startTimes[p1.pid]).toBeLessThanOrEqual(startTimes[p2.pid]);
-             }
+            const p1 = sortedByArrival[i];
+            const p2 = sortedByArrival[i + 1];
+            if (p1.arrival < p2.arrival) {
+              expect(startTimes[p1.pid]).toBeLessThanOrEqual(startTimes[p2.pid]);
+            }
           }
         }
       )

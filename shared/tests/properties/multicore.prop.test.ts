@@ -25,26 +25,26 @@ describe('FCFS Multi-core Property Tests', () => {
 
           // 2. No process runs on two cores simultaneously (Non-preemptive FCFS specific)
           // Since it's non-preemptive, each PID should have exactly ONE non-IDLE/non-CS event
-          processes.forEach(p => {
-             const pEvents = events.filter(e => e.pid === p.pid);
-             expect(pEvents).toHaveLength(1);
+          processes.forEach((p) => {
+            const pEvents = events.filter((e) => e.pid === p.pid);
+            expect(pEvents).toHaveLength(1);
           });
 
           // 3. No overlap on any single core
           for (let c = 0; c < coreCount; c++) {
-             const coreEvents = events
-                .filter(e => e.coreId === c)
-                .sort((a, b) => a.start - b.start);
-             
-             for (let i = 0; i < coreEvents.length - 1; i++) {
-                expect(coreEvents[i].end).toBeLessThanOrEqual(coreEvents[i+1].start);
-             }
+            const coreEvents = events
+              .filter((e) => e.coreId === c)
+              .sort((a, b) => a.start - b.start);
+
+            for (let i = 0; i < coreEvents.length - 1; i++) {
+              expect(coreEvents[i].end).toBeLessThanOrEqual(coreEvents[i + 1].start);
+            }
           }
 
           // 4. Total burst time matches
           const totalBurstObserved = events
-             .filter(e => e.pid !== 'IDLE' && e.pid !== 'CS')
-             .reduce((sum, e) => sum + (e.end - e.start), 0);
+            .filter((e) => e.pid !== 'IDLE' && e.pid !== 'CS')
+            .reduce((sum, e) => sum + (e.end - e.start), 0);
           const totalBurstInput = processes.reduce((sum, p) => sum + p.burst, 0);
           expect(totalBurstObserved).toBe(totalBurstInput);
         }

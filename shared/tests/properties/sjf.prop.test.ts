@@ -26,31 +26,31 @@ describe('SJF Property Tests', () => {
           // This is harder to check from Gantt alone without knowing ready queue at each step,
           // but we can check it at start times.
           const startTimes: Record<string, number> = {};
-          events.forEach(e => {
+          events.forEach((e) => {
             if (e.pid !== 'IDLE' && e.pid !== 'CS') {
-               if (startTimes[e.pid] === undefined) startTimes[e.pid] = e.start;
+              if (startTimes[e.pid] === undefined) startTimes[e.pid] = e.start;
             }
           });
 
           Object.entries(startTimes).forEach(([pid, start]) => {
-             const p = processes.find(proc => proc.pid === pid)!;
-             // Check all other processes that arrived before or at 'start' but haven't started yet
-             processes.forEach(other => {
-                if (other.pid !== pid && other.arrival <= start) {
-                   const otherStart = startTimes[other.pid];
-                   if (otherStart > start) {
-                      // 'other' was ready but 'p' was picked. 
-                      // So p.burst should be <= other.burst (or p arrived earlier if bursts equal)
-                      if (p.burst > other.burst) {
-                         // This is only a violation if 'other' had actually arrived by the time 'p' was selected.
-                         // FCFS/SJF selection happens at the moment the core becomes free.
-                         // Let's find when the core became free.
-                         // For SJF (non-preemptive), it's the start time of the process.
-                         expect(p.burst).toBeLessThanOrEqual(other.burst);
-                      }
-                   }
+            const p = processes.find((proc) => proc.pid === pid)!;
+            // Check all other processes that arrived before or at 'start' but haven't started yet
+            processes.forEach((other) => {
+              if (other.pid !== pid && other.arrival <= start) {
+                const otherStart = startTimes[other.pid];
+                if (otherStart > start) {
+                  // 'other' was ready but 'p' was picked.
+                  // So p.burst should be <= other.burst (or p arrived earlier if bursts equal)
+                  if (p.burst > other.burst) {
+                    // This is only a violation if 'other' had actually arrived by the time 'p' was selected.
+                    // FCFS/SJF selection happens at the moment the core becomes free.
+                    // Let's find when the core became free.
+                    // For SJF (non-preemptive), it's the start time of the process.
+                    expect(p.burst).toBeLessThanOrEqual(other.burst);
+                  }
                 }
-             });
+              }
+            });
           });
         }
       )

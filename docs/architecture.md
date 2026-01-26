@@ -22,8 +22,8 @@ The CPU Scheduling Visualizer is a full-stack monorepo designed for interactivit
 ## Data Flow
 
 1.  **Simulation**:
-    - *Client-side*: Instant feedback for small datasets.
-    - *Server-side*: `/api/simulate/batch` for large-scale comparisons.
+    - _Client-side_: Instant feedback for small datasets.
+    - _Server-side_: `/api/simulate/batch` for large-scale comparisons.
 2.  **Persistence**:
     - Users authenticate via Email/Password or Google.
     - Scenarios are saved to MongoDB (`Scenario` collection).

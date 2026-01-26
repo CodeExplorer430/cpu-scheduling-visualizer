@@ -1,13 +1,20 @@
-import { GanttEvent, Metrics, Process, SimulationResult, SimulationOptions, DecisionLog } from '../types.js';
+import {
+  GanttEvent,
+  Metrics,
+  Process,
+  SimulationResult,
+  SimulationOptions,
+  DecisionLog,
+} from '../types.js';
 import { generateSnapshots } from './utils.js';
 
 /**
  * Multilevel Queue (MQ)
- * 
+ *
  * Static configuration for this implementation:
  * - Queue 1 (High Priority): Priority === 1. Algorithm: Round Robin (RR).
  * - Queue 2 (Low Priority): Priority > 1. Algorithm: FCFS.
- * 
+ *
  * Scheduling Rule:
  * - Queue 1 has absolute priority over Queue 2.
  * - Queue 2 processes only run if Queue 1 is empty.
@@ -25,7 +32,13 @@ export function runMQ(
     if (enableLogging) logs.push(msg);
   };
 
-  const logDecision = (time: number, coreId: number, message: string, reason: string, queueState: string[]) => {
+  const logDecision = (
+    time: number,
+    coreId: number,
+    message: string,
+    reason: string,
+    queueState: string[]
+  ) => {
     if (enableLogging) stepLogs.push({ time, coreId, message, reason, queueState });
   };
 
@@ -78,7 +91,7 @@ export function runMQ(
     if (q1.length > 0) {
       currentProcess = q1[0];
       selectedQueue = 'Q1 (RR)';
-    } 
+    }
     // Check Queue 2 (FCFS) only if Q1 empty
     else if (q2.length > 0) {
       currentProcess = q2[0];
@@ -87,28 +100,34 @@ export function runMQ(
 
     // 3. Handle IDLE
     if (!currentProcess) {
-       // Find next arrival
-       if (pIndex < totalProcesses) {
-         const nextArrival = processes[pIndex].arrival;
-         logDecision(currentTime, 0, 'IDLE', `Both queues empty. Waiting for next arrival at ${nextArrival}.`, []);
-         events.push({ pid: 'IDLE', start: currentTime, end: nextArrival });
-         currentTime = nextArrival;
-         lastPid = 'IDLE';
-         continue;
-       } else {
-         break; // All done
-       }
+      // Find next arrival
+      if (pIndex < totalProcesses) {
+        const nextArrival = processes[pIndex].arrival;
+        logDecision(
+          currentTime,
+          0,
+          'IDLE',
+          `Both queues empty. Waiting for next arrival at ${nextArrival}.`,
+          []
+        );
+        events.push({ pid: 'IDLE', start: currentTime, end: nextArrival });
+        currentTime = nextArrival;
+        lastPid = 'IDLE';
+        continue;
+      } else {
+        break; // All done
+      }
     }
 
     // 4. Logging & Decision
-    const q1State = q1.map(p => `${p.pid}(${p.remaining})`);
-    const q2State = q2.map(p => `${p.pid}(${p.remaining})`);
-    
+    const q1State = q1.map((p) => `${p.pid}(${p.remaining})`);
+    const q2State = q2.map((p) => `${p.pid}(${p.remaining})`);
+
     logDecision(
       currentTime,
       0,
       `Selected ${currentProcess.pid} from ${selectedQueue}`,
-      selectedQueue === 'Q1 (RR)' 
+      selectedQueue === 'Q1 (RR)'
         ? `High priority queue has processes. RR Quantum progress: ${currentRRQuantum}/${quantum}`
         : `High priority queue empty. Running Low priority FCFS.`,
       [`Q1: ${q1State.join(', ')}`, `Q2: ${q2State.join(', ')}`]
@@ -117,37 +136,37 @@ export function runMQ(
     // 5. Context Switch
     // Logic: If switching process (even within RR) or switching queues
     // Note: In RR, if we pick the same process, we don't switch unless quantum expired previously (handled by rotating logic below)
-    
+
     if (
-        contextSwitchOverhead > 0 &&
-        lastPid !== 'IDLE' &&
-        lastPid !== currentProcess.pid &&
-        lastPid !== 'CS'
+      contextSwitchOverhead > 0 &&
+      lastPid !== 'IDLE' &&
+      lastPid !== currentProcess.pid &&
+      lastPid !== 'CS'
     ) {
-        // CS
-        events.push({ pid: 'CS', start: currentTime, end: currentTime + contextSwitchOverhead });
-        currentTime += contextSwitchOverhead;
-        // Reset RR quantum if we switched processes (implicit in logic, but good to be explicit)
-        currentRRQuantum = 0; 
-        
-        // IMPORTANT: Re-check arrivals after CS
-        while (pIndex < totalProcesses && processes[pIndex].arrival <= currentTime) {
-            const p = processes[pIndex];
-            if (p.priority === 1) q1.push(p);
-            else q2.push(p);
-            pIndex++;
-        }
-        
-        // Re-evaluate scheduler? 
-        // If a Q1 process arrived during CS for a Q2 process, we should switch immediately.
-        // For simplicity in this step-based simulation, we continue with the *originally selected* process
-        // for at least 1 tick or handle it in next iteration. 
-        // Let's proceed to execute 1 tick.
+      // CS
+      events.push({ pid: 'CS', start: currentTime, end: currentTime + contextSwitchOverhead });
+      currentTime += contextSwitchOverhead;
+      // Reset RR quantum if we switched processes (implicit in logic, but good to be explicit)
+      currentRRQuantum = 0;
+
+      // IMPORTANT: Re-check arrivals after CS
+      while (pIndex < totalProcesses && processes[pIndex].arrival <= currentTime) {
+        const p = processes[pIndex];
+        if (p.priority === 1) q1.push(p);
+        else q2.push(p);
+        pIndex++;
+      }
+
+      // Re-evaluate scheduler?
+      // If a Q1 process arrived during CS for a Q2 process, we should switch immediately.
+      // For simplicity in this step-based simulation, we continue with the *originally selected* process
+      // for at least 1 tick or handle it in next iteration.
+      // Let's proceed to execute 1 tick.
     }
 
     // 6. Execution (1 Tick for granular control)
     const runTime = 1;
-    
+
     // Create/Extend Event
     const lastEvent = events[events.length - 1];
     if (lastEvent && lastEvent.pid === currentProcess.pid) {
@@ -165,52 +184,51 @@ export function runMQ(
     }
     currentTime += runTime;
     lastPid = currentProcess.pid;
-    
+
     // RR Logic Update
     if (selectedQueue === 'Q1 (RR)') {
-        currentRRQuantum += runTime;
+      currentRRQuantum += runTime;
     } else {
-        // If running Q2, reset RR counter just in case
-        currentRRQuantum = 0;
+      // If running Q2, reset RR counter just in case
+      currentRRQuantum = 0;
     }
 
     // 7. Check Completion or Quantum Expiry
     if (currentProcess.remaining !== undefined && currentProcess.remaining <= 0) {
-        log(`Time ${currentTime}: ${currentProcess.pid} completed`);
-        completedCount++;
-        const completion = currentTime;
-        completionTimes[currentProcess.pid] = completion;
-        turnaroundTimes[currentProcess.pid] = completion - currentProcess.arrival;
-        waitingTimes[currentProcess.pid] = turnaroundTimes[currentProcess.pid] - currentProcess.burst;
-        
-        // Remove from queue
-        if (selectedQueue === 'Q1 (RR)') q1.shift();
-        else q2.shift();
-        
-        // Reset Quantum
-        currentRRQuantum = 0;
+      log(`Time ${currentTime}: ${currentProcess.pid} completed`);
+      completedCount++;
+      const completion = currentTime;
+      completionTimes[currentProcess.pid] = completion;
+      turnaroundTimes[currentProcess.pid] = completion - currentProcess.arrival;
+      waitingTimes[currentProcess.pid] = turnaroundTimes[currentProcess.pid] - currentProcess.burst;
 
+      // Remove from queue
+      if (selectedQueue === 'Q1 (RR)') q1.shift();
+      else q2.shift();
+
+      // Reset Quantum
+      currentRRQuantum = 0;
     } else {
-        // Process still running.
-        
-        // If it was Q1, check Quantum
-        if (selectedQueue === 'Q1 (RR)') {
-            if (currentRRQuantum >= quantum) {
-                log(`Time ${currentTime}: ${currentProcess.pid} quantum expired, moving to back of Q1`);
-                // Move to back
-                const p = q1.shift();
-                if (p) q1.push(p);
-                currentRRQuantum = 0;
-            }
-        } 
-        
-        // If it was Q2, check Preemption
-        else if (selectedQueue === 'Q2 (FCFS)') {
-            // Check if any NEW process arrived in Q1 during this tick
-            // (Arrivals are checked at top of loop, but we need to know if we should stop this FCFS process)
-            // Actually, the loop restarts, and if Q1 has items, it will be picked next iteration.
-            // So implicit preemption works here because we only ran 1 tick.
+      // Process still running.
+
+      // If it was Q1, check Quantum
+      if (selectedQueue === 'Q1 (RR)') {
+        if (currentRRQuantum >= quantum) {
+          log(`Time ${currentTime}: ${currentProcess.pid} quantum expired, moving to back of Q1`);
+          // Move to back
+          const p = q1.shift();
+          if (p) q1.push(p);
+          currentRRQuantum = 0;
         }
+      }
+
+      // If it was Q2, check Preemption
+      else if (selectedQueue === 'Q2 (FCFS)') {
+        // Check if any NEW process arrived in Q1 during this tick
+        // (Arrivals are checked at top of loop, but we need to know if we should stop this FCFS process)
+        // Actually, the loop restarts, and if Q1 has items, it will be picked next iteration.
+        // So implicit preemption works here because we only ran 1 tick.
+      }
     }
   }
 
@@ -220,7 +238,11 @@ export function runMQ(
 
   let contextSwitches = 0;
   for (let i = 0; i < events.length - 1; i++) {
-    if (events[i].pid !== events[i + 1].pid && events[i].pid !== 'IDLE' && events[i + 1].pid !== 'IDLE') {
+    if (
+      events[i].pid !== events[i + 1].pid &&
+      events[i].pid !== 'IDLE' &&
+      events[i + 1].pid !== 'IDLE'
+    ) {
       contextSwitches++;
     }
   }

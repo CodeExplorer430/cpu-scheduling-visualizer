@@ -1,4 +1,11 @@
-import { GanttEvent, Metrics, Process, SimulationResult, SimulationOptions, DecisionLog } from '../types.js';
+import {
+  GanttEvent,
+  Metrics,
+  Process,
+  SimulationResult,
+  SimulationOptions,
+  DecisionLog,
+} from '../types.js';
 import { generateSnapshots } from './utils.js';
 
 export function runPriorityPreemptive(
@@ -13,7 +20,13 @@ export function runPriorityPreemptive(
     if (enableLogging) logs.push(msg);
   };
 
-  const logDecision = (time: number, coreId: number, message: string, reason: string, queueState: string[]) => {
+  const logDecision = (
+    time: number,
+    coreId: number,
+    message: string,
+    reason: string,
+    queueState: string[]
+  ) => {
     if (enableLogging) stepLogs.push({ time, coreId, message, reason, queueState });
   };
 
@@ -48,7 +61,13 @@ export function runPriorityPreemptive(
 
       const nextArrival = Math.min(...pending.map((p) => p.arrival));
       log(`Time ${currentTime}: System IDLE until ${nextArrival}`);
-      logDecision(currentTime, 0, `IDLE until ${nextArrival}`, `No processes ready. Waiting for next arrival at ${nextArrival}.`, []);
+      logDecision(
+        currentTime,
+        0,
+        `IDLE until ${nextArrival}`,
+        `No processes ready. Waiting for next arrival at ${nextArrival}.`,
+        []
+      );
 
       events.push({
         pid: 'IDLE',
@@ -69,16 +88,16 @@ export function runPriorityPreemptive(
       return a.arrival - b.arrival;
     });
 
-    const queueState = readyQueue.map(p => `${p.pid}(Prio:${p.priority}, Rem:${p.remaining})`);
+    const queueState = readyQueue.map((p) => `${p.pid}(Prio:${p.priority}, Rem:${p.remaining})`);
     const currentProcess = readyQueue[0];
 
     // Log Decision
     logDecision(
-        currentTime,
-        0,
-        `Selected ${currentProcess.pid}`,
-        `Selected ${currentProcess.pid} because it has the highest priority (${currentProcess.priority}).`,
-        queueState
+      currentTime,
+      0,
+      `Selected ${currentProcess.pid}`,
+      `Selected ${currentProcess.pid} because it has the highest priority (${currentProcess.priority}).`,
+      queueState
     );
 
     // Context Switch Overhead
@@ -101,7 +120,7 @@ export function runPriorityPreemptive(
     // Run until:
     // 1. Process finishes
     // 2. A higher priority process arrives
-    
+
     const futureArrivals = processes
       .filter((p) => p.arrival > currentTime && p.remaining > 0)
       .sort((a, b) => a.arrival - b.arrival);

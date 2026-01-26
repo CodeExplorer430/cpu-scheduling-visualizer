@@ -1,11 +1,11 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { 
-  PlayIcon, 
-  PauseIcon, 
-  ChevronLeftIcon, 
-  ChevronRightIcon, 
-  ArrowPathIcon 
+import {
+  PlayIcon,
+  PauseIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 
 interface Props {

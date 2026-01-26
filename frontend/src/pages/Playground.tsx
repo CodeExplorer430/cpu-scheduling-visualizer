@@ -98,10 +98,7 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
 
         {/* Step Explainer - WHY things happened */}
         {simulationResult?.stepLogs && (
-          <StepExplainer
-            stepLogs={simulationResult.stepLogs}
-            currentTime={currentTime}
-          />
+          <StepExplainer stepLogs={simulationResult.stepLogs} currentTime={currentTime} />
         )}
 
         {/* Gantt Chart */}

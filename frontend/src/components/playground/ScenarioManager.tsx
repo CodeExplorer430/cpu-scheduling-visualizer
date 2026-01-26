@@ -97,7 +97,10 @@ export const ScenarioManager: React.FC<Props> = ({ processes, onLoad }) => {
                 <CloudArrowUpIcon className="w-6 h-6 text-indigo-600" />
                 Save Scenario
               </h3>
-              <button onClick={() => setShowSaveModal(false)} className="text-gray-400 hover:text-gray-600">
+              <button
+                onClick={() => setShowSaveModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
                 <XMarkIcon className="w-6 h-6" />
               </button>
             </div>
@@ -136,11 +139,14 @@ export const ScenarioManager: React.FC<Props> = ({ processes, onLoad }) => {
                 <FolderOpenIcon className="w-6 h-6 text-indigo-600" />
                 Load Scenario
               </h3>
-              <button onClick={() => setShowLoadModal(false)} className="text-gray-400 hover:text-gray-600">
+              <button
+                onClick={() => setShowLoadModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
                 <XMarkIcon className="w-6 h-6" />
               </button>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto min-h-[200px] py-2">
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-12 gap-3">
@@ -161,9 +167,12 @@ export const ScenarioManager: React.FC<Props> = ({ processes, onLoad }) => {
                       onClick={() => handleLoad(s._id)}
                     >
                       <div>
-                        <p className="font-bold dark:text-white group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors">{s.name}</p>
+                        <p className="font-bold dark:text-white group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors">
+                          {s.name}
+                        </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
-                          <span className="opacity-60">Created:</span> {new Date(s.createdAt).toLocaleDateString()}
+                          <span className="opacity-60">Created:</span>{' '}
+                          {new Date(s.createdAt).toLocaleDateString()}
                         </p>
                       </div>
                       <button className="text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">
@@ -174,7 +183,7 @@ export const ScenarioManager: React.FC<Props> = ({ processes, onLoad }) => {
                 </div>
               )}
             </div>
-            
+
             <div className="mt-6 flex justify-end border-t dark:border-gray-700 pt-4">
               <button
                 onClick={() => setShowLoadModal(false)}

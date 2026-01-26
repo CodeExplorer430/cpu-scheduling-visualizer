@@ -54,7 +54,7 @@ describe('Round Robin (RR) Algorithm', () => {
     // t=4: Ready=[P1, P2]. Run P1 (4-6). rem=0. Done.
     // t=6: Ready=[P2]. Run P2 (6-8). rem=1.
     // t=8: Ready=[P2]. Run P2 (8-9). Done.
-    // Note: The implementation no longer merges consecutive events for the same PID 
+    // Note: The implementation no longer merges consecutive events for the same PID
     // in RR to allow visual stepping of quantums.
 
     expect(events).toHaveLength(5);

@@ -22,7 +22,7 @@ function getPermutations<T>(array: T[]): T[][] {
 function runSequence(processes: Process[]): number {
   let time = 0;
   let totalWait = 0;
-  processes.forEach(p => {
+  processes.forEach((p) => {
     if (time < p.arrival) time = p.arrival;
     const wait = time - p.arrival;
     totalWait += wait;
@@ -45,7 +45,7 @@ describe('SJF Optimality Property Tests', () => {
         ),
         (processesInput) => {
           const processes = processesInput.map((p, i) => ({ ...p, pid: `P${i}` }));
-          
+
           // SJF Result
           const sjfResult = runSJF(processes);
           const sjfAvgWait = sjfResult.metrics.avgWaiting;
@@ -53,10 +53,10 @@ describe('SJF Optimality Property Tests', () => {
           // Brute force all permutations
           const allPerms = getPermutations(processes);
           let minAvgWait = Infinity;
-          
-          allPerms.forEach(perm => {
-             const wait = runSequence(perm);
-             if (wait < minAvgWait) minAvgWait = wait;
+
+          allPerms.forEach((perm) => {
+            const wait = runSequence(perm);
+            if (wait < minAvgWait) minAvgWait = wait;
           });
 
           // Floating point precision margin

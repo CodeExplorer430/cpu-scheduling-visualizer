@@ -1,4 +1,11 @@
-import { GanttEvent, Metrics, Process, SimulationResult, SimulationOptions, DecisionLog } from '../types.js';
+import {
+  GanttEvent,
+  Metrics,
+  Process,
+  SimulationResult,
+  SimulationOptions,
+  DecisionLog,
+} from '../types.js';
 import { generateSnapshots } from './utils.js';
 
 export function runFCFS(
@@ -19,7 +26,13 @@ export function runFCFS(
     if (enableLogging) logs.push(msg);
   };
 
-  const logDecision = (time: number, coreId: number, message: string, reason: string, queueState: string[]) => {
+  const logDecision = (
+    time: number,
+    coreId: number,
+    message: string,
+    reason: string,
+    queueState: string[]
+  ) => {
     if (enableLogging) stepLogs.push({ time, coreId, message, reason, queueState });
   };
 
@@ -102,10 +115,10 @@ export function runFCFS(
         if (timeToJump > availableCore.currentTime) {
           log(`Core ${availableCore.id}: IDLE from ${availableCore.currentTime} to ${timeToJump}`);
           logDecision(
-            availableCore.currentTime, 
-            availableCore.id, 
-            `IDLE until ${timeToJump}`, 
-            `No process available in ready queue. Next arrival at ${nextArrival}.`, 
+            availableCore.currentTime,
+            availableCore.id,
+            `IDLE until ${timeToJump}`,
+            `No process available in ready queue. Next arrival at ${nextArrival}.`,
             []
           );
           events.push({
@@ -136,7 +149,7 @@ export function runFCFS(
 
     // If ready queue has process
     // Capture state before shift
-    const currentQueuePids = readyQueue.map(p => p.pid);
+    const currentQueuePids = readyQueue.map((p) => p.pid);
     const process = readyQueue.shift()!;
     const { pid, arrival, burst } = process;
 

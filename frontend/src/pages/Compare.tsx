@@ -1,9 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Process,
-  SimulationResult,
-  Algorithm,
-} from '@cpu-vis/shared';
+import { Process, SimulationResult, Algorithm } from '@cpu-vis/shared';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { ProcessTable } from '../components/ProcessTable';
@@ -24,7 +20,7 @@ export const Compare: React.FC<Props> = ({ processes, onProcessesChange }) => {
   const handleRunComparison = async () => {
     setIsLoading(true);
     const algorithms: Algorithm[] = ['FCFS', 'SJF', 'SRTF', 'RR', 'PRIORITY'];
-    
+
     try {
       const response = await fetch('http://localhost:3000/api/simulate/batch', {
         method: 'POST',
@@ -32,8 +28,8 @@ export const Compare: React.FC<Props> = ({ processes, onProcessesChange }) => {
         body: JSON.stringify({
           algorithms,
           processes,
-          timeQuantum: quantum
-        })
+          timeQuantum: quantum,
+        }),
       });
 
       if (!response.ok) throw new Error('Failed to run batch simulation');
@@ -44,9 +40,9 @@ export const Compare: React.FC<Props> = ({ processes, onProcessesChange }) => {
     } catch (error: any) {
       console.error('Batch simulation error:', error);
       toast.error(error.message || 'Error communicating with backend');
-      
+
       // Fallback to client-side if backend fails
-      // setResults({ ... }); 
+      // setResults({ ... });
     } finally {
       setIsLoading(false);
     }

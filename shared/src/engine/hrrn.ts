@@ -1,4 +1,11 @@
-import { GanttEvent, Metrics, Process, SimulationResult, SimulationOptions, DecisionLog } from '../types.js';
+import {
+  GanttEvent,
+  Metrics,
+  Process,
+  SimulationResult,
+  SimulationOptions,
+  DecisionLog,
+} from '../types.js';
 import { generateSnapshots } from './utils.js';
 
 /**
@@ -17,7 +24,13 @@ export function runHRRN(
     if (enableLogging) logs.push(msg);
   };
 
-  const logDecision = (time: number, coreId: number, message: string, reason: string, queueState: string[]) => {
+  const logDecision = (
+    time: number,
+    coreId: number,
+    message: string,
+    reason: string,
+    queueState: string[]
+  ) => {
     if (enableLogging) stepLogs.push({ time, coreId, message, reason, queueState });
   };
 
@@ -128,7 +141,11 @@ export function runHRRN(
 
   let contextSwitches = 0;
   for (let i = 0; i < events.length - 1; i++) {
-    if (events[i].pid !== events[i + 1].pid && events[i].pid !== 'IDLE' && events[i + 1].pid !== 'IDLE') {
+    if (
+      events[i].pid !== events[i + 1].pid &&
+      events[i].pid !== 'IDLE' &&
+      events[i + 1].pid !== 'IDLE'
+    ) {
       contextSwitches++;
     }
   }

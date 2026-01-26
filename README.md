@@ -9,7 +9,7 @@ A comprehensive, interactive web-based visualizer for CPU scheduling algorithms,
 
 - **Interactive Gantt Charts**: Visualize process execution, idle times, and context switches in real-time.
 - **Algorithm Comparison**: Run simulations side-by-side to compare metrics like Turnaround Time and Waiting Time.
-- **Step-by-Step Explanations**: Understand *why* a scheduler made a specific decision at any given tick.
+- **Step-by-Step Explanations**: Understand _why_ a scheduler made a specific decision at any given tick.
 - **Multi-Core Support**: Simulate scheduling across multiple CPU cores.
 - **Save & Load**: Persist your custom scenarios using MongoDB (via Google Login or Guest).
 - **Export**: Download results as PNG, PDF, or CSV.
@@ -28,18 +28,21 @@ The project is structured as a Monorepo:
 ## 🛠️ Setup & Installation
 
 ### Prerequisites
+
 - Node.js v18+
-- MongoDB (Local or Atlas) - *Optional for basic usage*
+- MongoDB (Local or Atlas) - _Optional for basic usage_
 
 ### Installation
 
 1.  **Clone the repository:**
+
     ```bash
     git clone https://github.com/CodeExplorer430/cpu-scheduling-visualizer.git
     cd cpu-scheduling-visualizer
     ```
 
 2.  **Install dependencies:**
+
     ```bash
     npm install
     ```
@@ -52,9 +55,11 @@ The project is structured as a Monorepo:
 ### Running Locally
 
 1.  **Start the Frontend (Development):**
+
     ```bash
     npm run dev:frontend
     ```
+
     Access at `http://localhost:5173`
 
 2.  **Start the Backend (Optional):**
@@ -67,15 +72,17 @@ The project is structured as a Monorepo:
 ## 🧠 Implemented Algorithms
 
 ### Preemptive
+
 - **Round Robin (RR)**: Time-slice based scheduling.
 - **Shortest Remaining Time First (SRTF)**: Preempts if a shorter job arrives.
 
 ### Non-Preemptive
+
 - **First-Come, First-Served (FCFS)**: Strict arrival order.
 - **Shortest Job First (SJF)**: Prioritizes shortest burst time.
 - **Priority Scheduling**: Processes executed based on assigned priority (Lower # = Higher Priority).
 
-*(More algorithms like MLFQ, HRRN, and LJF are currently in development)*
+_(More algorithms like MLFQ, HRRN, and LJF are currently in development)_
 
 ## 📚 Documentation
 

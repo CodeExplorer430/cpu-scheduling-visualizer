@@ -1,7 +1,7 @@
 /**
  * Advanced Load & Stress Test Script
  * Usage: node scripts/load-test.js [mode]
- * Modes: 
+ * Modes:
  *   - smoke:  Quick check (10 requests)
  *   - load:   Standard load test (500 requests, 50 concurrent)
  *   - stress: High intensity (2000 requests, 100 concurrent)
@@ -11,9 +11,9 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:3000/api/simulate';
 const mode = process.argv[2] || 'load';
 
 const CONFIG = {
-  smoke:  { total: 10, concurrent: 2, batch: false },
-  load:   { total: 500, concurrent: 50, batch: false },
-  stress: { total: 2000, concurrent: 100, batch: true } // Stress mode tests the expensive batch endpoint
+  smoke: { total: 10, concurrent: 2, batch: false },
+  load: { total: 500, concurrent: 50, batch: false },
+  stress: { total: 2000, concurrent: 100, batch: true }, // Stress mode tests the expensive batch endpoint
 };
 
 const settings = CONFIG[mode] || CONFIG.load;
@@ -23,14 +23,14 @@ const singlePayload = {
   processes: Array.from({ length: 10 }, (_, i) => ({
     pid: `P${i}`,
     arrival: Math.floor(Math.random() * 20),
-    burst: Math.floor(Math.random() * 15) + 1
-  }))
+    burst: Math.floor(Math.random() * 15) + 1,
+  })),
 };
 
 const batchPayload = {
   algorithms: ['FCFS', 'SJF', 'SRTF', 'RR', 'PRIORITY'],
   processes: singlePayload.processes,
-  timeQuantum: 2
+  timeQuantum: 2,
 };
 
 async function runTest() {
@@ -44,7 +44,7 @@ async function runTest() {
   console.log(`Total Req:   ${settings.total}`);
   console.log(`Concurrency: ${settings.concurrent}`);
   console.log(`--------------------------------------------------\n`);
-  
+
   const start = Date.now();
   let completed = 0;
   let failed = 0;
@@ -57,7 +57,7 @@ async function runTest() {
         const res = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
         });
         const end = Date.now();
         latencies.push(end - reqStart);
@@ -78,15 +78,17 @@ async function runTest() {
 
   const duration = (Date.now() - start) / 1000;
   latencies.sort((a, b) => a - b);
-  
+
   const avg = latencies.reduce((a, b) => a + b, 0) / latencies.length;
   const p50 = latencies[Math.floor(latencies.length * 0.5)];
   const p95 = latencies[Math.floor(latencies.length * 0.95)];
   const p99 = latencies[Math.floor(latencies.length * 0.99)];
-  
+
   console.log('\n\n📊 RESULTS');
   console.log('---------------------------');
-  console.log(`Success Rate:   ${((completed / settings.total) * 100).toFixed(2)}% (${completed}/${settings.total})`);
+  console.log(
+    `Success Rate:   ${((completed / settings.total) * 100).toFixed(2)}% (${completed}/${settings.total})`
+  );
   console.log(`Failed:         ${failed}`);
   console.log(`Total Time:     ${duration.toFixed(2)}s`);
   console.log(`Throughput:     ${(settings.total / duration).toFixed(2)} req/s`);

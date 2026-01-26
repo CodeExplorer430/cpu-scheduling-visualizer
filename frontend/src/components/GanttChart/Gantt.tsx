@@ -117,11 +117,11 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
           return `Core ${coreId + 1}: Process ${d.pid} from time ${d.start} to ${d.end}`;
         })
         .on('keydown', (event, _d) => {
-           // Optional: Handle Enter/Space to show details or navigate
-           if (event.key === 'Enter' || event.key === ' ') {
-             // Logic to show details could go here
-             // console.log('Focused:', _d);
-           }
+          // Optional: Handle Enter/Space to show details or navigate
+          if (event.key === 'Enter' || event.key === ' ') {
+            // Logic to show details could go here
+            // console.log('Focused:', _d);
+          }
         });
 
       bars

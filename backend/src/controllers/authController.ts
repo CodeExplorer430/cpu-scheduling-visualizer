@@ -33,7 +33,9 @@ export const register = async (req: Request, res: Response) => {
       expiresIn: '7d',
     });
 
-    res.status(201).json({ token, user: { id: newUser._id, username: newUser.username, email: newUser.email } });
+    res
+      .status(201)
+      .json({ token, user: { id: newUser._id, username: newUser.username, email: newUser.email } });
   } catch (error) {
     console.error('Register error:', error);
     res.status(500).json({ error: 'Internal server error' });

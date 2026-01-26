@@ -3,6 +3,7 @@
 The backend provides a RESTful API for managing user scenarios and offloading heavy simulations.
 
 ## Base URL
+
 Development: `http://localhost:3000/api`
 Production: `https://cpu-scheduling-visualizer-api.onrender.com/api`
 
@@ -14,6 +15,7 @@ All protected routes require a Bearer Token.
 `Authorization: Bearer <jwt_token>`
 
 ### 1. Register
+
 - **Endpoint**: `POST /auth/register`
 - **Body**:
   ```json
@@ -25,6 +27,7 @@ All protected routes require a Bearer Token.
   ```
 
 ### 2. Login
+
 - **Endpoint**: `POST /auth/login`
 - **Body**:
   ```json
@@ -35,6 +38,7 @@ All protected routes require a Bearer Token.
   ```
 
 ### 3. Google OAuth
+
 - **Endpoint**: `GET /auth/google`
 - **Description**: Redirects user to Google Sign-In. Returns to frontend with `?token=<jwt>` on success.
 
@@ -43,15 +47,14 @@ All protected routes require a Bearer Token.
 ## Simulation
 
 ### Run Batch Simulation
+
 - **Endpoint**: `POST /simulate/batch`
 - **Description**: Runs multiple algorithms on the same dataset for comparison.
 - **Body**:
   ```json
   {
     "algorithms": ["FCFS", "RR", "SJF"],
-    "processes": [
-      { "pid": "P1", "arrival": 0, "burst": 5, "priority": 1 }
-    ],
+    "processes": [{ "pid": "P1", "arrival": 0, "burst": 5, "priority": 1 }],
     "options": {
       "timeQuantum": 2
     }
@@ -63,11 +66,13 @@ All protected routes require a Bearer Token.
 ## Scenarios (Persistence)
 
 ### Upload CSV
+
 - **Endpoint**: `POST /scenarios/upload/csv`
 - **Body**: `multipart/form-data` with key `file` (CSV).
 - **Format**: `Process ID, Arrival Time, Burst Time, Priority`
 
 ### Save Scenario
+
 - **Endpoint**: `POST /scenarios`
 - **Auth**: Required
 - **Body**:
@@ -79,6 +84,7 @@ All protected routes require a Bearer Token.
   ```
 
 ### List Scenarios
+
 - **Endpoint**: `GET /scenarios`
 - **Auth**: Required
 - **Description**: Returns all scenarios saved by the logged-in user.

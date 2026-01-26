@@ -1,4 +1,11 @@
-import { GanttEvent, Metrics, Process, SimulationResult, SimulationOptions, DecisionLog } from '../types.js';
+import {
+  GanttEvent,
+  Metrics,
+  Process,
+  SimulationResult,
+  SimulationOptions,
+  DecisionLog,
+} from '../types.js';
 import { generateSnapshots } from './utils.js';
 
 export function runPriority(
@@ -13,7 +20,13 @@ export function runPriority(
     if (enableLogging) logs.push(msg);
   };
 
-  const logDecision = (time: number, coreId: number, message: string, reason: string, queueState: string[]) => {
+  const logDecision = (
+    time: number,
+    coreId: number,
+    message: string,
+    reason: string,
+    queueState: string[]
+  ) => {
     if (enableLogging) stepLogs.push({ time, coreId, message, reason, queueState });
   };
 
@@ -50,7 +63,13 @@ export function runPriority(
       if (pIndex < totalProcesses) {
         const nextArrival = processes[pIndex].arrival;
         log(`Time ${currentTime}: System IDLE until ${nextArrival}`);
-        logDecision(currentTime, 0, `IDLE until ${nextArrival}`, `Ready queue empty. Waiting for next arrival.`, []);
+        logDecision(
+          currentTime,
+          0,
+          `IDLE until ${nextArrival}`,
+          `Ready queue empty. Waiting for next arrival.`,
+          []
+        );
 
         events.push({
           pid: 'IDLE',
@@ -71,16 +90,16 @@ export function runPriority(
       return a.arrival - b.arrival;
     });
 
-    const queueState = readyQueue.map(p => `${p.pid}(Prio:${p.priority})`);
+    const queueState = readyQueue.map((p) => `${p.pid}(Prio:${p.priority})`);
 
     const currentProcess = readyQueue.shift();
 
     if (currentProcess) {
       logDecision(
-        currentTime, 
-        0, 
-        `Selected ${currentProcess.pid}`, 
-        `Selected ${currentProcess.pid} because it has the highest priority (${currentProcess.priority}).`, 
+        currentTime,
+        0,
+        `Selected ${currentProcess.pid}`,
+        `Selected ${currentProcess.pid} because it has the highest priority (${currentProcess.priority}).`,
         queueState
       );
 

@@ -2,12 +2,12 @@ import React, { useRef } from 'react';
 import { Process, generateRandomProcesses, exportToCSV, parseCSV } from '@cpu-vis/shared';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
-import { 
-  PlusIcon, 
-  ArrowUpTrayIcon, 
-  ArrowDownTrayIcon, 
-  SparklesIcon, 
-  TrashIcon 
+import {
+  PlusIcon,
+  ArrowUpTrayIcon,
+  ArrowDownTrayIcon,
+  SparklesIcon,
+  TrashIcon,
 } from '@heroicons/react/24/outline';
 import { ScenarioManager } from './playground/ScenarioManager';
 

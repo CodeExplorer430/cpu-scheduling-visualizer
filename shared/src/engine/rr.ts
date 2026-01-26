@@ -1,4 +1,11 @@
-import { GanttEvent, Metrics, Process, SimulationResult, SimulationOptions, DecisionLog } from '../types.js';
+import {
+  GanttEvent,
+  Metrics,
+  Process,
+  SimulationResult,
+  SimulationOptions,
+  DecisionLog,
+} from '../types.js';
 import { generateSnapshots } from './utils.js';
 
 interface ProcessWithRemaining extends Process {
@@ -20,7 +27,13 @@ export function runRR(
     if (enableLogging) logs.push(msg);
   };
 
-  const logDecision = (time: number, coreId: number, message: string, reason: string, queueState: string[]) => {
+  const logDecision = (
+    time: number,
+    coreId: number,
+    message: string,
+    reason: string,
+    queueState: string[]
+  ) => {
     if (enableLogging) stepLogs.push({ time, coreId, message, reason, queueState });
   };
 
@@ -64,7 +77,13 @@ export function runRR(
       if (arrivalIndex < totalProcesses) {
         const nextArrival = sortedByArrival[arrivalIndex].arrival;
         log(`Time ${currentTime}: System IDLE until ${nextArrival}`);
-        logDecision(currentTime, 0, `IDLE until ${nextArrival}`, `Ready queue empty. Waiting for next arrival.`, []);
+        logDecision(
+          currentTime,
+          0,
+          `IDLE until ${nextArrival}`,
+          `Ready queue empty. Waiting for next arrival.`,
+          []
+        );
 
         events.push({
           pid: 'IDLE',
@@ -78,15 +97,15 @@ export function runRR(
       continue;
     }
 
-    const queueState = readyQueue.map(p => `${p.pid}(Rem:${p.remaining})`);
+    const queueState = readyQueue.map((p) => `${p.pid}(Rem:${p.remaining})`);
     const currentProcess = readyQueue.shift()!;
 
     logDecision(
-        currentTime,
-        0,
-        `Selected ${currentProcess.pid}`,
-        `Selected ${currentProcess.pid} from head of queue. Quantum: ${quantum}.`,
-        queueState
+      currentTime,
+      0,
+      `Selected ${currentProcess.pid}`,
+      `Selected ${currentProcess.pid} from head of queue. Quantum: ${quantum}.`,
+      queueState
     );
 
     // Context Switch Overhead
@@ -119,7 +138,7 @@ export function runRR(
     const runTime = Math.min(currentProcess.remaining, quantum);
     log(`Time ${currentTime}: ${currentProcess.pid} runs for ${runTime}ms (Quantum: ${quantum})`);
 
-    // In Round Robin, we avoid merging events even for the same PID 
+    // In Round Robin, we avoid merging events even for the same PID
     // to allow the user to see the quantum-based preemption steps.
     events.push({
       pid: currentProcess.pid,

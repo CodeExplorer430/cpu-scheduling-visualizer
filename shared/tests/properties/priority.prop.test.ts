@@ -22,29 +22,29 @@ describe('Priority Property Tests', () => {
 
           expect(Object.keys(metrics.completion).length).toBe(processes.length);
 
-          // Priority Invariant: If P1 is picked over P2 at time t, 
+          // Priority Invariant: If P1 is picked over P2 at time t,
           // then P1.priority <= P2.priority (or P1 arrived earlier if priorities equal)
-          
+
           const startTimes: Record<string, number> = {};
-          events.forEach(e => {
+          events.forEach((e) => {
             if (e.pid !== 'IDLE' && e.pid !== 'CS') {
-               if (startTimes[e.pid] === undefined) startTimes[e.pid] = e.start;
+              if (startTimes[e.pid] === undefined) startTimes[e.pid] = e.start;
             }
           });
 
           Object.entries(startTimes).forEach(([pid, start]) => {
-             const p = processes.find(proc => proc.pid === pid)!;
-             processes.forEach(other => {
-                if (other.pid !== pid && other.arrival <= start) {
-                   const otherStart = startTimes[other.pid];
-                   if (otherStart > start) {
-                      // 'other' was ready but 'p' was picked.
-                      const pPrio = p.priority ?? 100;
-                      const oPrio = other.priority ?? 100;
-                      expect(pPrio).toBeLessThanOrEqual(oPrio);
-                   }
+            const p = processes.find((proc) => proc.pid === pid)!;
+            processes.forEach((other) => {
+              if (other.pid !== pid && other.arrival <= start) {
+                const otherStart = startTimes[other.pid];
+                if (otherStart > start) {
+                  // 'other' was ready but 'p' was picked.
+                  const pPrio = p.priority ?? 100;
+                  const oPrio = other.priority ?? 100;
+                  expect(pPrio).toBeLessThanOrEqual(oPrio);
                 }
-             });
+              }
+            });
           });
         }
       )

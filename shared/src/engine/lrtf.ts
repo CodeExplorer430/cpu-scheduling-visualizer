@@ -1,4 +1,11 @@
-import { GanttEvent, Metrics, Process, SimulationResult, SimulationOptions, DecisionLog } from '../types.js';
+import {
+  GanttEvent,
+  Metrics,
+  Process,
+  SimulationResult,
+  SimulationOptions,
+  DecisionLog,
+} from '../types.js';
 import { generateSnapshots } from './utils.js';
 
 /**
@@ -17,7 +24,13 @@ export function runLRTF(
     if (enableLogging) logs.push(msg);
   };
 
-  const logDecision = (time: number, coreId: number, message: string, reason: string, queueState: string[]) => {
+  const logDecision = (
+    time: number,
+    coreId: number,
+    message: string,
+    reason: string,
+    queueState: string[]
+  ) => {
     if (enableLogging) stepLogs.push({ time, coreId, message, reason, queueState });
   };
 
@@ -52,7 +65,13 @@ export function runLRTF(
 
       const nextArrival = Math.min(...pending.map((p) => p.arrival));
       log(`Time ${currentTime}: System IDLE until ${nextArrival}`);
-      logDecision(currentTime, 0, `IDLE until ${nextArrival}`, `No processes ready. Waiting for next arrival at ${nextArrival}.`, []);
+      logDecision(
+        currentTime,
+        0,
+        `IDLE until ${nextArrival}`,
+        `No processes ready. Waiting for next arrival at ${nextArrival}.`,
+        []
+      );
 
       events.push({
         pid: 'IDLE',
@@ -71,16 +90,16 @@ export function runLRTF(
       return a.arrival - b.arrival;
     });
 
-    const queueState = readyQueue.map(p => `${p.pid}(Rem:${p.remaining})`);
+    const queueState = readyQueue.map((p) => `${p.pid}(Rem:${p.remaining})`);
     const currentProcess = readyQueue[0];
 
     // Log Decision
     logDecision(
-        currentTime,
-        0,
-        `Selected ${currentProcess.pid}`,
-        `Selected ${currentProcess.pid} because it has the longest remaining time (${currentProcess.remaining}).`,
-        queueState
+      currentTime,
+      0,
+      `Selected ${currentProcess.pid}`,
+      `Selected ${currentProcess.pid} because it has the longest remaining time (${currentProcess.remaining}).`,
+      queueState
     );
 
     // Context Switch Overhead
@@ -102,27 +121,27 @@ export function runLRTF(
     }
 
     // Determine how long to run
-    // LRTF needs to check at every tick or whenever a new process arrives, 
+    // LRTF needs to check at every tick or whenever a new process arrives,
     // OR whenever the current process's remaining time drops below another process's remaining time.
-    // To keep it simple and accurate for visualization, we can run for 1 time unit at a time, 
-    // or until the next arrival. 
+    // To keep it simple and accurate for visualization, we can run for 1 time unit at a time,
+    // or until the next arrival.
     // Actually, in LRTF, if P1 has 10 and P2 has 8, they might swap multiple times.
-    
+
     let runTime = 1; // Default to 1 unit for accuracy in preemptive sorting
 
     // Find next arrival or next potential "remaining time crossover"
     const nextArrival = processes
-        .filter(p => p.arrival > currentTime && p.remaining > 0)
-        .reduce((min, p) => Math.min(min, p.arrival), Infinity);
-    
+      .filter((p) => p.arrival > currentTime && p.remaining > 0)
+      .reduce((min, p) => Math.min(min, p.arrival), Infinity);
+
     // Time to next arrival
     const timeToArrival = nextArrival - currentTime;
-    
-    // If no one is arriving soon, we still need to check if another ready process 
-    // will catch up in remaining time. But wait, in LRTF, the current one's remaining time 
-    // decreases, so it will only become SMALLER than others. 
+
+    // If no one is arriving soon, we still need to check if another ready process
+    // will catch up in remaining time. But wait, in LRTF, the current one's remaining time
+    // decreases, so it will only become SMALLER than others.
     // Thus, we must re-evaluate if anyone else in the ready queue now has a LARGER remaining time.
-    
+
     // Since we re-run the loop, setting runTime to 1 or timeToArrival (if < 1) is safest.
     runTime = Math.min(1, timeToArrival);
 

@@ -54,7 +54,7 @@ describe('LRTF Scheduling', () => {
     // t=1: P1 (Rem 1), P2 (Rem 2). P2 now has more. P2 runs.
     // t=1-2: P2 runs (Rem 1).
     // t=2: P1 (Rem 1), P2 (Rem 1). Both equal, P1 arrives first. P1 runs.
-    
+
     expect(events.length).toBe(4);
     expect(events[0].pid).toBe('P1');
     expect(events[1].pid).toBe('P2');

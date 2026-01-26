@@ -1,4 +1,11 @@
-import { GanttEvent, Metrics, Process, SimulationResult, SimulationOptions, DecisionLog } from '../types.js';
+import {
+  GanttEvent,
+  Metrics,
+  Process,
+  SimulationResult,
+  SimulationOptions,
+  DecisionLog,
+} from '../types.js';
 import { generateSnapshots } from './utils.js';
 
 interface MLFQProcess extends Process {
@@ -8,7 +15,7 @@ interface MLFQProcess extends Process {
 
 /**
  * MLFQ (Multilevel Feedback Queue)
- * 
+ *
  * Rules:
  * 1. Three Queues:
  *    - Q0 (High Priority): RR, Quantum = 2
@@ -31,7 +38,13 @@ export function runMLFQ(
     if (enableLogging) logs.push(msg);
   };
 
-  const logDecision = (time: number, coreId: number, message: string, reason: string, queueState: string[]) => {
+  const logDecision = (
+    time: number,
+    coreId: number,
+    message: string,
+    reason: string,
+    queueState: string[]
+  ) => {
     if (enableLogging) stepLogs.push({ time, coreId, message, reason, queueState });
   };
 
@@ -86,20 +99,22 @@ export function runMLFQ(
 
     // 3. Handle IDLE
     if (!currentProcess) {
-       if (pIndex < totalProcesses) {
-         const nextArrival = processes[pIndex].arrival;
-         logDecision(currentTime, 0, 'IDLE', `All queues empty. Waiting for next arrival.`, []);
-         events.push({ pid: 'IDLE', start: currentTime, end: nextArrival });
-         currentTime = nextArrival;
-         lastPid = 'IDLE';
-         continue;
-       } else {
-         break;
-       }
+      if (pIndex < totalProcesses) {
+        const nextArrival = processes[pIndex].arrival;
+        logDecision(currentTime, 0, 'IDLE', `All queues empty. Waiting for next arrival.`, []);
+        events.push({ pid: 'IDLE', start: currentTime, end: nextArrival });
+        currentTime = nextArrival;
+        lastPid = 'IDLE';
+        continue;
+      } else {
+        break;
+      }
     }
 
     // 4. Logging
-    const qStates = queues.map((q, i) => `Q${i}: ` + q.map(p => `${p.pid}(${p.remaining})`).join(', '));
+    const qStates = queues.map(
+      (q, i) => `Q${i}: ` + q.map((p) => `${p.pid}(${p.remaining})`).join(', ')
+    );
     logDecision(
       currentTime,
       0,
@@ -110,24 +125,24 @@ export function runMLFQ(
 
     // 5. Context Switch
     if (
-        contextSwitchOverhead > 0 &&
-        lastPid !== 'IDLE' &&
-        lastPid !== currentProcess.pid &&
-        lastPid !== 'CS'
+      contextSwitchOverhead > 0 &&
+      lastPid !== 'IDLE' &&
+      lastPid !== currentProcess.pid &&
+      lastPid !== 'CS'
     ) {
-        events.push({ pid: 'CS', start: currentTime, end: currentTime + contextSwitchOverhead });
-        currentTime += contextSwitchOverhead;
-        
-        // Check arrivals during CS
-        while (pIndex < totalProcesses && processes[pIndex].arrival <= currentTime) {
-            const p = processes[pIndex];
-            queues[0].push(p);
-            pIndex++;
-        }
-        
-        // MLFQ logic: If a new process arrived in Q0 during CS, and we were about to run Q1/Q2,
-        // we should ideally switch.
-        // For simplicity, we proceed 1 tick with the originally selected process.
+      events.push({ pid: 'CS', start: currentTime, end: currentTime + contextSwitchOverhead });
+      currentTime += contextSwitchOverhead;
+
+      // Check arrivals during CS
+      while (pIndex < totalProcesses && processes[pIndex].arrival <= currentTime) {
+        const p = processes[pIndex];
+        queues[0].push(p);
+        pIndex++;
+      }
+
+      // MLFQ logic: If a new process arrived in Q0 during CS, and we were about to run Q1/Q2,
+      // we should ideally switch.
+      // For simplicity, we proceed 1 tick with the originally selected process.
     }
 
     // 6. Execute 1 Tick
@@ -145,7 +160,7 @@ export function runMLFQ(
     }
 
     if (currentProcess.remaining !== undefined) {
-        currentProcess.remaining -= runTime;
+      currentProcess.remaining -= runTime;
     }
     currentProcess.timeInCurrentQuantum += runTime;
     currentTime += runTime;
@@ -155,33 +170,34 @@ export function runMLFQ(
     const quantum = quantums[selectedQueueIdx];
 
     if (currentProcess.remaining !== undefined && currentProcess.remaining <= 0) {
-        log(`Time ${currentTime}: ${currentProcess.pid} completed`);
-        completedCount++;
-        const completion = currentTime;
-        completionTimes[currentProcess.pid] = completion;
-        turnaroundTimes[currentProcess.pid] = completion - currentProcess.arrival;
-        waitingTimes[currentProcess.pid] = turnaroundTimes[currentProcess.pid] - currentProcess.burst;
+      log(`Time ${currentTime}: ${currentProcess.pid} completed`);
+      completedCount++;
+      const completion = currentTime;
+      completionTimes[currentProcess.pid] = completion;
+      turnaroundTimes[currentProcess.pid] = completion - currentProcess.arrival;
+      waitingTimes[currentProcess.pid] = turnaroundTimes[currentProcess.pid] - currentProcess.burst;
 
-        // Remove from queue
-        queues[selectedQueueIdx].shift();
-
+      // Remove from queue
+      queues[selectedQueueIdx].shift();
     } else if (currentProcess.timeInCurrentQuantum >= quantum) {
-        // Quantum Expired -> Demote
-        log(`Time ${currentTime}: ${currentProcess.pid} quantum expired. Demoting from Q${selectedQueueIdx} to Q${Math.min(2, selectedQueueIdx + 1)}`);
-        
-        // Remove from current
-        queues[selectedQueueIdx].shift();
-        
-        // Reset Quantum Counter
-        currentProcess.timeInCurrentQuantum = 0;
-        
-        // Demote (if possible)
-        const nextQueueIdx = Math.min(2, selectedQueueIdx + 1);
-        currentProcess.currentQueue = nextQueueIdx;
-        
-        // Add to new queue
-        queues[nextQueueIdx].push(currentProcess);
-    } 
+      // Quantum Expired -> Demote
+      log(
+        `Time ${currentTime}: ${currentProcess.pid} quantum expired. Demoting from Q${selectedQueueIdx} to Q${Math.min(2, selectedQueueIdx + 1)}`
+      );
+
+      // Remove from current
+      queues[selectedQueueIdx].shift();
+
+      // Reset Quantum Counter
+      currentProcess.timeInCurrentQuantum = 0;
+
+      // Demote (if possible)
+      const nextQueueIdx = Math.min(2, selectedQueueIdx + 1);
+      currentProcess.currentQueue = nextQueueIdx;
+
+      // Add to new queue
+      queues[nextQueueIdx].push(currentProcess);
+    }
     // Implicit preemption case for next iteration:
     // If we are in Q1/Q2 and a new process arrives in Q0, next loop will pick from Q0.
   }
@@ -192,7 +208,11 @@ export function runMLFQ(
 
   let contextSwitches = 0;
   for (let i = 0; i < events.length - 1; i++) {
-    if (events[i].pid !== events[i + 1].pid && events[i].pid !== 'IDLE' && events[i + 1].pid !== 'IDLE') {
+    if (
+      events[i].pid !== events[i + 1].pid &&
+      events[i].pid !== 'IDLE' &&
+      events[i + 1].pid !== 'IDLE'
+    ) {
       contextSwitches++;
     }
   }

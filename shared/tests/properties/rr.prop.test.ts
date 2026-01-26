@@ -18,11 +18,11 @@ describe('RR Property Tests', () => {
         (processesInput, quantum) => {
           const processes = processesInput.map((p, i) => ({ ...p, pid: `${p.pid}-${i}` }));
           const result = runRR(processes, { quantum });
-          
+
           expect(Object.keys(result.metrics.completion).length).toBe(processes.length);
 
           // Invariant: No process runs for more than 'quantum' continuously
-          result.events.forEach(e => {
+          result.events.forEach((e) => {
             if (e.pid !== 'IDLE' && e.pid !== 'CS') {
               expect(e.end - e.start).toBeLessThanOrEqual(quantum);
             }
