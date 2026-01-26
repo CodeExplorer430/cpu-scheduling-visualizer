@@ -1,39 +1,94 @@
 # CPU Scheduling Visualizer
 
-A web-based visualizer for CPU scheduling algorithms.
+A comprehensive, interactive web-based visualizer for CPU scheduling algorithms, designed for students and educators. It features a modern React frontend, a robust Node.js backend for simulations, and a shared core engine.
 
-## Structure
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Status](https://img.shields.io/badge/status-active-success.svg)
 
-- **frontend**: React + TypeScript + Vite application.
-- **backend**: Express + TypeScript API.
-- **shared**: Shared TypeScript library containing the scheduling algorithms and types.
+## 🚀 Features
 
-## Setup
+- **Interactive Gantt Charts**: Visualize process execution, idle times, and context switches in real-time.
+- **Algorithm Comparison**: Run simulations side-by-side to compare metrics like Turnaround Time and Waiting Time.
+- **Step-by-Step Explanations**: Understand *why* a scheduler made a specific decision at any given tick.
+- **Multi-Core Support**: Simulate scheduling across multiple CPU cores.
+- **Save & Load**: Persist your custom scenarios using MongoDB (via Google Login or Guest).
+- **Export**: Download results as PNG, PDF, or CSV.
+- **Internationalization**: Full English and Spanish (Español) support.
+- **PWA Ready**: Installable on desktop and mobile for offline usage.
 
-1. Install dependencies:
+## 🏗️ Architecture
 
-   ```bash
-   npm install
-   ```
+The project is structured as a Monorepo:
 
-2. Build all workspaces:
-   ```bash
-   npm run build
-   ```
+- **`frontend/`**: React 18, Vite, Tailwind CSS, D3.js (Visualization).
+- **`backend/`**: Node.js, Express, MongoDB (API & Persistence).
+- **`shared/`**: TypeScript library containing the core deterministic scheduling algorithms.
+- **`docs/`**: Project documentation.
 
-## Development
+## 🛠️ Setup & Installation
 
-- **Frontend**:
+### Prerequisites
+- Node.js v18+
+- MongoDB (Local or Atlas) - *Optional for basic usage*
 
-  ```bash
-  npm run dev:frontend
-  ```
+### Installation
 
-- **Backend**:
-  ```bash
-  npm run dev:backend
-  ```
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/CodeExplorer430/cpu-scheduling-visualizer.git
+    cd cpu-scheduling-visualizer
+    ```
 
-## Implemented Algorithms
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-- First-Come, First-Served (FCFS)
+3.  **Build shared libraries:**
+    ```bash
+    npm run build
+    ```
+
+### Running Locally
+
+1.  **Start the Frontend (Development):**
+    ```bash
+    npm run dev:frontend
+    ```
+    Access at `http://localhost:5173`
+
+2.  **Start the Backend (Optional):**
+    Create a `.env` file in `backend/` (see `docs/MONGODB_SETUP.md`) and run:
+    ```bash
+    npm run dev:backend
+    ```
+    Access at `http://localhost:3000`
+
+## 🧠 Implemented Algorithms
+
+### Preemptive
+- **Round Robin (RR)**: Time-slice based scheduling.
+- **Shortest Remaining Time First (SRTF)**: Preempts if a shorter job arrives.
+
+### Non-Preemptive
+- **First-Come, First-Served (FCFS)**: Strict arrival order.
+- **Shortest Job First (SJF)**: Prioritizes shortest burst time.
+- **Priority Scheduling**: Processes executed based on assigned priority (Lower # = Higher Priority).
+
+*(More algorithms like MLFQ, HRRN, and LJF are currently in development)*
+
+## 📚 Documentation
+
+- [Architecture Overview](docs/architecture.md)
+- [MongoDB & Auth Setup](docs/MONGODB_SETUP.md)
+- [Feature List](FEATURES.md)
+
+## 🤝 Contributing
+
+Contributions are welcome! Please check out the `FEATURES.md` for planned algorithms and improvements.
+
+1.  Fork the Project
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
