@@ -1,5 +1,15 @@
 {
   "common": {
+    "play": "Reproducir",
+    "pause": "Pausar",
+    "reset": "Reiniciar",
+    "stepForward": "Avanzar",
+    "stepBack": "Retroceder",
+    "time": "Tiempo",
+    "run": "Ejecutar Simulación",
+    "ms": "ms",
+    "watts": "W",
+    "joules": "J",
     "loading": "Cargando...",
     "error": "Error",
     "save": "Guardar",
@@ -14,6 +24,20 @@
     "login": "Iniciar Sesión",
     "register": "Registrarse",
     "logout": "Cerrar Sesión"
+  },
+  "controls": {
+    "title": "Control de Simulación",
+    "algorithm": "Algoritmo",
+    "quantum": "Quantum de Tiempo",
+    "contextSwitch": "Cambio de Contexto",
+    "cores": "Número de Núcleos",
+    "optimize": "Optimizar",
+    "optimizeHint": "Encontrar el quantum óptimo para el tiempo de espera mínimo",
+    "energyTitle": "Ajustes del Modelo de Energía",
+    "activePower": "Potencia Activa",
+    "idlePower": "Potencia Inactiva",
+    "switchCost": "Costo de Cambio",
+    "guide": "Guía de Algoritmos",
     "algorithms": {
       "FCFS": "Primero en llegar, primero en ser servido (FCFS)",
       "SJF": "Trabajo más corto primero (SJF - No expulsivo)",
@@ -28,19 +52,40 @@
       "MLFQ": "Cola Multinivel con Retroalimentación (MLFQ)"
     }
   },
-    "title": "Programación de CPU",
+  "explainer": {
+    "title": "Lógica de Decisión del Algoritmo",
+    "subtitle": "Entendiendo por qué el planificador tomó decisiones específicas hasta el tiempo {{time}}",
+    "reason": "Razón",
+    "queue": "Cola de Listos",
+    "noDecisions": "Aún no se han tomado decisiones.",
+    "core": "Núcleo"
+  },
+  "processTable": {
+    "title": "Lista de Procesos",
     "addProcess": "Añadir Proceso",
-    "reset": "Reiniciar",
-    "simulate": "Simular",
-    "metrics": "Métricas",
-    "ganttChart": "Diagrama de Gantt",
-    "stepExplainer": "Explicación Paso a Paso"
+    "importCSV": "Importar CSV",
+    "pid": "PID",
+    "arrival": "Llegada",
+    "burst": "Ráfaga",
+    "priority": "Prioridad",
+    "actions": "Acciones",
+    "delete": "Eliminar"
   },
   "compare": {
     "title": "Comparar Algoritmos",
     "selectAlgorithms": "Seleccionar Algoritmos",
     "runComparison": "Ejecutar Comparación",
     "export": "Exportar"
+  },
+  "metrics": {
+    "title": "Métricas de Simulación",
+    "avgWait": "Tiempo de Espera Promedio",
+    "avgTurnaround": "Tiempo de Retorno Promedio",
+    "utilization": "Utilización de CPU",
+    "energy": "Consumo Total de Energía",
+    "active": "Activo",
+    "idle": "Inactivo",
+    "switches": "Cambios de Contexto"
   },
   "auth": {
     "email": "Correo Electrónico",
