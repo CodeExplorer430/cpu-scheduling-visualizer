@@ -19,10 +19,22 @@ export const Compare: React.FC<Props> = ({ processes, onProcessesChange }) => {
 
   const handleRunComparison = async () => {
     setIsLoading(true);
-    const algorithms: Algorithm[] = ['FCFS', 'SJF', 'SRTF', 'RR', 'PRIORITY'];
+    const algorithms: Algorithm[] = [
+      'FCFS',
+      'SJF',
+      'LJF',
+      'SRTF',
+      'LRTF',
+      'RR',
+      'PRIORITY',
+      'PRIORITY_PE',
+      'MQ',
+      'MLFQ',
+      'HRRN',
+    ];
 
     try {
-      const response = await fetch('http://localhost:3000/api/simulate/batch', {
+      const response = await fetch('/api/simulate/batch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -49,7 +61,19 @@ export const Compare: React.FC<Props> = ({ processes, onProcessesChange }) => {
     }
   };
 
-  const algorithms: Algorithm[] = ['FCFS', 'SJF', 'SRTF', 'RR', 'PRIORITY'];
+  const algorithms: Algorithm[] = [
+    'FCFS',
+    'SJF',
+    'LJF',
+    'SRTF',
+    'LRTF',
+    'RR',
+    'PRIORITY',
+    'PRIORITY_PE',
+    'MQ',
+    'MLFQ',
+    'HRRN',
+  ];
 
   return (
     <div className="space-y-8">

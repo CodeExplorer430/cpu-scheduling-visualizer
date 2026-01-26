@@ -29,7 +29,13 @@
       "SJF": "Shortest Job First (SJF - Non-Preemptive)",
       "SRTF": "Shortest Remaining Time First (SRTF - Preemptive)",
       "RR": "Round Robin (RR)",
-      "PRIORITY": "Priority (Non-Preemptive)"
+      "PRIORITY": "Priority (Non-Preemptive)",
+      "PRIORITY_PE": "Priority (Preemptive)",
+      "LJF": "Longest Job First (LJF - Non-Preemptive)",
+      "LRTF": "Longest Remaining Time First (LRTF - Preemptive)",
+      "HRRN": "Highest Response Ratio Next (HRRN)",
+      "MQ": "Multilevel Queue (MQ)",
+      "MLFQ": "Multilevel Feedback Queue (MLFQ)"
     }
   },
   "explainer": {

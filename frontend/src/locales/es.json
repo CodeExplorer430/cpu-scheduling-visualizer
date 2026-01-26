@@ -14,8 +14,20 @@
     "login": "Iniciar Sesión",
     "register": "Registrarse",
     "logout": "Cerrar Sesión"
+    "algorithms": {
+      "FCFS": "Primero en llegar, primero en ser servido (FCFS)",
+      "SJF": "Trabajo más corto primero (SJF - No expulsivo)",
+      "SRTF": "Tiempo restante más corto primero (SRTF - Expulsivo)",
+      "RR": "Round Robin (RR)",
+      "PRIORITY": "Prioridad (No expulsivo)",
+      "PRIORITY_PE": "Prioridad (Expulsivo)",
+      "LJF": "Trabajo más largo primero (LJF - No expulsivo)",
+      "LRTF": "Tiempo restante más largo primero (LRTF - Expulsivo)",
+      "HRRN": "Siguiente con mayor tasa de respuesta (HRRN)",
+      "MQ": "Cola Multinivel (MQ)",
+      "MLFQ": "Cola Multinivel con Retroalimentación (MLFQ)"
+    }
   },
-  "playground": {
     "title": "Programación de CPU",
     "addProcess": "Añadir Proceso",
     "reset": "Reiniciar",
