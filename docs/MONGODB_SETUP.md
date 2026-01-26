@@ -1,84 +1,52 @@
-# MongoDB Atlas Setup Guide
+# MongoDB & Environment Setup Guide
 
-This project supports an optional database integration using **MongoDB** to save and load CPU scheduling scenarios. This guide will help you set up a free MongoDB Atlas cluster and connect it to the application.
+This project requires a MongoDB connection for user accounts and scenario persistence. It also uses Google OAuth for optional social login.
 
 ## Prerequisites
 
-- A [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register) account (Free tier is sufficient).
+- **MongoDB Atlas** Account (Free Tier)
+- **Google Cloud Console** Project (for OAuth)
 
 ---
 
-## Step 1: Create a Cluster
+## 1. MongoDB Setup
 
-1.  Log in to your MongoDB Atlas dashboard.
-2.  Click **+ Create** or **Build a Database**.
-3.  Select the **M0 (Free)** tier.
-4.  Choose a **Provider** (AWS, Google Cloud, or Azure) and **Region** closest to you.
-5.  Click **Create**. It may take a few minutes for the cluster to provision.
-
-## Step 2: Configure Security
-
-### 1. Create a Database User
-
-1.  Go to the **Database Access** tab (under Security in the sidebar).
-2.  Click **+ Add New Database User**.
-3.  **Authentication Method**: Password.
-4.  **Username**: Enter a username (e.g., `cpu_admin`).
-5.  **Password**: Click "Autogenerate Secure Password" (copy this!) or enter your own.
-6.  **Built-in Roles**: Select "Read and write to any database" (or restrict it later).
-7.  Click **Add User**.
-
-### 2. Network Access (Allow Connection)
-
-1.  Go to the **Network Access** tab.
-2.  Click **+ Add IP Address**.
-3.  Select **Allow Access from Anywhere** (`0.0.0.0/0`) for easiest development access.
-    - _Note: For production, you should only whitelist your specific server IP._
-4.  Click **Confirm**.
-
-## Step 3: Get Connection String
-
-1.  Go back to the **Database** tab (Deployment).
-2.  Click the **Connect** button on your cluster card.
-3.  Select **Drivers**.
-4.  Under **Step 3**, you will see your connection string. It looks like this:
+1.  Create a Cluster on [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
+2.  **Database Access**: Create a user (e.g., `cpu_admin`) with a strong password.
+3.  **Network Access**: Whitelist `0.0.0.0/0` (for development/Render) or your specific IP.
+4.  **Connection String**: Get the Node.js driver string.
     ```
-    mongodb+srv://<username>:<password>@cluster0.123xy.mongodb.net/?retryWrites=true&w=majority
-    ```
-5.  **Copy this string.**
-
----
-
-## Step 4: Configure the Project
-
-1.  Open your project in the terminal or code editor.
-2.  Navigate to the `backend` directory (or root if using a monorepo `.env`).
-3.  Create a `.env` file in the `backend/` directory if it doesn't exist.
-4.  Add the `MONGODB_URI` variable, replacing `<password>` with the password you created in Step 2.
-
-    **backend/.env**:
-
-    ```env
-    PORT=3000
-    MONGODB_URI=mongodb+srv://cpu_admin:mySecurePassword123@cluster0.123xy.mongodb.net/cpu-visualizer?retryWrites=true&w=majority
+    mongodb+srv://<username>:<password>@cluster0.123xy.mongodb.net/cpu-visualizer?retryWrites=true&w=majority
     ```
 
-    _Note: I added `/cpu-visualizer` after the domain to specify the database name._
+## 2. Google OAuth Setup (Optional)
 
----
+1.  Go to [Google Cloud Console](https://console.cloud.google.com/).
+2.  Create a new project.
+3.  Navigate to **APIs & Services > Credentials**.
+4.  Create **OAuth 2.0 Client IDs**.
+5.  **Authorized JavaScript Origins**: `http://localhost:5173` (Frontend)
+6.  **Authorized Redirect URIs**: `http://localhost:3000/api/auth/google/callback` (Backend)
+7.  Copy the `Client ID` and `Client Secret`.
 
-## Step 5: Verify Connection
+## 3. Environment Variables
 
-1.  Start the backend server:
-    ```bash
-    npm run dev:backend
-    ```
-2.  Check the console output. You should see:
-    ```
-    Server running on port 3000
-    MongoDB Connected...
-    ```
+Create a `.env` file in the `backend/` directory:
 
-## Usage
+```env
+# Server
+PORT=3000
+NODE_ENV=development
+FRONTEND_URL=http://localhost:5173
 
-Once connected, you can use the **"Save Scenario"** and **"Load Scenario"** buttons in the frontend Playground to persist your simulation configurations.
+# Database
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/dbname
+
+# Security
+JWT_SECRET=super-secret-random-string-at-least-32-chars
+
+# Google OAuth (Optional)
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_CALLBACK_URL=http://localhost:3000/api/auth/google/callback
+```

@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import passport from 'passport';
+import './config/passport.js'; // Configure passport strategies
 import simulateRouter from './routes/simulate.js';
 import scenariosRouter from './routes/scenarios.js';
 import authRouter from './routes/auth.js';
@@ -8,6 +10,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(passport.initialize());
 
 app.use('/api/auth', authRouter);
 app.use('/api/simulate', simulateRouter);

@@ -23,33 +23,46 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [isLoading, setIsLoading] = useState(true);
 
+  // Helper to fetch user data
+  const fetchMe = async (authToken: string) => {
+    try {
+      const res = await fetch('/api/auth/me', {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      if (res.ok) {
+        const userData = await res.json();
+        setUser(userData);
+        setToken(authToken);
+        localStorage.setItem('token', authToken);
+      } else {
+        localStorage.removeItem('token');
+        setToken(null);
+        setUser(null);
+      }
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      localStorage.removeItem('token');
+    }
+    setIsLoading(false);
+  };
+
   useEffect(() => {
-    const checkAuth = async () => {
+    // Check for token in URL (OAuth redirect)
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get('token');
+
+    if (urlToken) {
+      // Clear query params to clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      fetchMe(urlToken);
+    } else {
       const storedToken = localStorage.getItem('token');
       if (storedToken) {
-        try {
-          const res = await fetch('/api/auth/me', {
-            headers: { Authorization: `Bearer ${storedToken}` },
-          });
-          if (res.ok) {
-            const userData = await res.json();
-            setUser(userData);
-            setToken(storedToken);
-          } else {
-            // Token invalid or expired
-            localStorage.removeItem('token');
-            setToken(null);
-            setUser(null);
-          }
-        } catch (error) {
-          console.error('Auth check failed:', error);
-          localStorage.removeItem('token');
-        }
+        fetchMe(storedToken);
+      } else {
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    };
-
-    checkAuth();
+    }
   }, []);
 
   const login = (newToken: string, newUser: User) => {

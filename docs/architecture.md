@@ -2,23 +2,47 @@
 
 ## Overview
 
-The CPU Scheduling Visualizer is a monorepo consisting of:
+The CPU Scheduling Visualizer is a full-stack monorepo designed for interactivity and performance.
 
-- **Frontend**: React/Vite SPA for interaction and visualization.
-- **Backend**: Express/Node.js API for heavy simulations (optional offloading) and persistence.
-- **Shared**: Core algorithm logic used by both frontend and backend.
+- **Frontend**: React/Vite SPA (Vercel)
+  - Interactive Gantt charts with D3.js
+  - State management for simulations
+  - Offline-first PWA support
+  - Internationalization (i18n)
+- **Backend**: Express/Node.js API (Render)
+  - Heavy simulation offloading
+  - Batch processing
+  - User authentication (JWT + Google OAuth)
+  - Persistence via MongoDB
+- **Shared**: TypeScript core logic (`@cpu-vis/shared`)
+  - Deterministic scheduling algorithms (FCFS, RR, SJF, etc.)
+  - Property-based tests
+  - Shared types and validation
 
 ## Data Flow
 
-1. User inputs processes in the Frontend.
-2. Frontend calls `shared` engine directly for instant feedback (Client-side simulation).
-3. (Optional) User saves scenario -> Frontend calls Backend -> Backend saves to DB (Future).
-4. (Optional) Batch processing -> Frontend calls Backend with large dataset -> Backend uses `shared` engine -> Returns results.
+1.  **Simulation**:
+    - *Client-side*: Instant feedback for small datasets.
+    - *Server-side*: `/api/simulate/batch` for large-scale comparisons.
+2.  **Persistence**:
+    - Users authenticate via Email/Password or Google.
+    - Scenarios are saved to MongoDB (`Scenario` collection).
+    - `authController` manages sessions via stateless JWTs.
+3.  **Deployment**:
+    - Frontend: Deployed on Vercel (rewrites to backend).
+    - Backend: Deployed on Render (Docker or Node runtime).
 
-## Algorithms
+## Algorithms Supported
 
-- **FCFS**: First-Come, First-Served (Non-preemptive).
-- **SJF**: Shortest Job First (Non-preemptive).
-- **SRTF**: Shortest Remaining Time First (Preemptive).
-- **RR**: Round Robin (Preemptive, Time Quantum).
-- **PRIORITY**: Priority Scheduling (Non-preemptive).
+- **FCFS**: First-Come, First-Served
+- **SJF**: Shortest Job First (Non-preemptive)
+- **SRTF**: Shortest Remaining Time First (Preemptive)
+- **RR**: Round Robin (Time Quantum)
+- **PRIORITY**: Priority Scheduling (Preemptive/Non-preemptive)
+
+## Security
+
+- **Authentication**: JWT (JSON Web Tokens) with 7-day expiration.
+- **Passwords**: Hashed with `bcryptjs`.
+- **OAuth**: Google Strategy via `passport`.
+- **CORS**: Configured for frontend domain.
