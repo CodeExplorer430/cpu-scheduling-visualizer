@@ -74,7 +74,7 @@ export const uploadCSV = async (req: Request, res: Response) => {
       skip_empty_lines: true,
       cast: true,
       trim: true,
-    }) as any[];
+    }) as Record<string, unknown>[];
 
     // Map to Process type with flexible column names
     const processes = records.map((r: Record<string, unknown>, index: number) => ({
