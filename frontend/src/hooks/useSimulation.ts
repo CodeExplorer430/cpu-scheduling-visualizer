@@ -10,6 +10,7 @@ import {
   runHRRN,
   runLRTF,
   runMQ,
+  runMLFQ,
   Process,
   SimulationResult,
   Algorithm,
@@ -73,6 +74,9 @@ export const useSimulation = (processes: Process[]) => {
         break;
       case 'MQ':
         result = runMQ(processes, options);
+        break;
+      case 'MLFQ':
+        result = runMLFQ(processes, options);
         break;
       default:
         result = runFCFS(processes, options);

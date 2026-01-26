@@ -79,6 +79,7 @@ export const SimulationControls: React.FC<Props> = ({
             <option value="HRRN">HRRN (Highest Response Ratio Next)</option>
             <option value="LRTF">LRTF (Longest Remaining Time First)</option>
             <option value="MQ">MQ (Multilevel Queue - Q1:RR, Q2:FCFS)</option>
+            <option value="MLFQ">MLFQ (Multilevel Feedback Queue)</option>
           </select>
         </div>
 

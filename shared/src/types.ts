@@ -38,7 +38,7 @@ export interface Metrics {
   energy?: EnergyMetrics;
 }
 
-export type Algorithm = 'FCFS' | 'SJF' | 'LJF' | 'SRTF' | 'RR' | 'PRIORITY' | 'PRIORITY_PE' | 'HRRN' | 'LRTF' | 'MQ';
+export type Algorithm = 'FCFS' | 'SJF' | 'LJF' | 'SRTF' | 'RR' | 'PRIORITY' | 'PRIORITY_PE' | 'HRRN' | 'LRTF' | 'MQ' | 'MLFQ';
 
 export interface Snapshot {
   time: number;
