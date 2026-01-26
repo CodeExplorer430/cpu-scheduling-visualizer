@@ -19,7 +19,7 @@ router.get(
   passport.authenticate('google', { session: false, failureRedirect: '/login' }),
   (req, res) => {
     // Successful authentication, issue JWT and redirect
-    const user = req.user as IUser;
+    const user = req.user as unknown as IUser;
     const token = jwt.sign({ userId: user._id, username: user.username }, JWT_SECRET, {
       expiresIn: '7d',
     });

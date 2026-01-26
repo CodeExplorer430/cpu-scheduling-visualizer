@@ -3,16 +3,16 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key-change-me';
 
-interface TokenPayload {
+export interface TokenPayload {
   userId: string;
   username: string;
 }
 
-export interface AuthRequest extends Request {
-  user?: TokenPayload;
-}
-
-export const authenticate = (req: AuthRequest, res: Response, next: NextFunction) => {
+/**
+ * Middleware to authenticate requests using JWT.
+ * It attaches the decoded payload to the request object.
+ */
+export const authenticate = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -23,7 +23,8 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as TokenPayload;
-    req.user = decoded;
+    // Using Object.assign to attach property to Request without global declaration issues
+    Object.assign(req, { auth: decoded });
     next();
   } catch (error) {
     return res.status(401).json({ error: 'Invalid or expired token' });
