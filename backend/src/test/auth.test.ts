@@ -45,9 +45,7 @@ describe('Auth API Tests', () => {
   });
 
   it('GET /api/auth/me should return user profile', async () => {
-    const res = await request(app)
-      .get('/api/auth/me')
-      .set('Authorization', `Bearer ${token}`);
+    const res = await request(app).get('/api/auth/me').set('Authorization', `Bearer ${token}`);
 
     expect(res.status).toBe(200);
     expect(res.body.username).toBe(testUser.username);

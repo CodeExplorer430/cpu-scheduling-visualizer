@@ -38,7 +38,9 @@ export const getScenarios = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.userId;
     // Return list with basic info, sorted by newest. Filter by userId if present.
     const query = userId ? { userId } : {};
-    const scenarios = await Scenario.find(query, 'name description createdAt').sort({ createdAt: -1 });
+    const scenarios = await Scenario.find(query, 'name description createdAt').sort({
+      createdAt: -1,
+    });
     return res.json(scenarios);
   } catch (error) {
     console.error('Get scenarios error:', error);
@@ -72,7 +74,7 @@ export const uploadCSV = async (req: Request, res: Response) => {
       skip_empty_lines: true,
       cast: true,
       trim: true,
-    });
+    }) as any[];
 
     // Map to Process type with flexible column names
     const processes = records.map((r: Record<string, unknown>, index: number) => ({

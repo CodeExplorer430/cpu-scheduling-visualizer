@@ -44,9 +44,7 @@ describe('Scenarios API Tests', () => {
   });
 
   it('GET /api/scenarios should list user scenarios', async () => {
-    const res = await request(app)
-      .get('/api/scenarios')
-      .set('Authorization', `Bearer ${token}`);
+    const res = await request(app).get('/api/scenarios').set('Authorization', `Bearer ${token}`);
 
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
