@@ -7,6 +7,7 @@ import {
   runRR,
   runPriority,
   runPriorityPreemptive,
+  runHRRN,
   Process,
   SimulationResult,
   Algorithm,
@@ -61,6 +62,9 @@ export const useSimulation = (processes: Process[]) => {
         break;
       case 'PRIORITY_PE':
         result = runPriorityPreemptive(processes, options);
+        break;
+      case 'HRRN':
+        result = runHRRN(processes, options);
         break;
       default:
         result = runFCFS(processes, options);
