@@ -71,15 +71,15 @@ export const SimulationControls: React.FC<Props> = ({
           >
             <option value="FCFS">{t('controls.algorithms.FCFS')}</option>
             <option value="SJF">{t('controls.algorithms.SJF')}</option>
-            <option value="LJF">LJF (Longest Job First)</option>
+            <option value="LJF">{t('controls.algorithms.LJF')}</option>
             <option value="SRTF">{t('controls.algorithms.SRTF')}</option>
             <option value="RR">{t('controls.algorithms.RR')}</option>
             <option value="PRIORITY">{t('controls.algorithms.PRIORITY')}</option>
-            <option value="PRIORITY_PE">Priority (Preemptive)</option>
-            <option value="HRRN">HRRN (Highest Response Ratio Next)</option>
-            <option value="LRTF">LRTF (Longest Remaining Time First)</option>
-            <option value="MQ">MQ (Multilevel Queue - Q1:RR, Q2:FCFS)</option>
-            <option value="MLFQ">MLFQ (Multilevel Feedback Queue)</option>
+            <option value="PRIORITY_PE">{t('controls.algorithms.PRIORITY_PE')}</option>
+            <option value="HRRN">{t('controls.algorithms.HRRN')}</option>
+            <option value="LRTF">{t('controls.algorithms.LRTF')}</option>
+            <option value="MQ">{t('controls.algorithms.MQ')}</option>
+            <option value="MLFQ">{t('controls.algorithms.MLFQ')}</option>
           </select>
         </div>
 

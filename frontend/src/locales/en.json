@@ -11,6 +11,13 @@
     "watts": "W",
     "joules": "J"
   },
+  "nav": {
+    "playground": "Playground",
+    "compare": "Compare",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout"
+  },
   "controls": {
     "title": "Simulation Control",
     "algorithm": "Algorithm",
@@ -56,6 +63,12 @@
     "priority": "Priority",
     "actions": "Actions",
     "delete": "Delete"
+  },
+  "compare": {
+    "title": "Compare Algorithms",
+    "selectAlgorithms": "Select Algorithms",
+    "runComparison": "Run Comparison",
+    "export": "Export"
   },
   "metrics": {
     "title": "Simulation Metrics",

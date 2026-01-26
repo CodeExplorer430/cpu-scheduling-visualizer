@@ -15,6 +15,8 @@ import { Register } from './pages/Register';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
+import { useTranslation } from 'react-i18next';
+
 // --- Initial Data ---
 const initialProcesses: Process[] = [
   { pid: 'P1', arrival: 0, burst: 4, priority: 1 },
@@ -28,10 +30,11 @@ function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
 
   const tabs = [
-    { name: 'Playground', path: '/' },
-    { name: 'Compare', path: '/compare' },
+    { name: t('nav.playground'), path: '/' },
+    { name: t('nav.compare'), path: '/compare' },
   ];
 
   return (
@@ -42,15 +45,15 @@ function Layout({ children }: { children: React.ReactNode }) {
             <div className="flex items-center overflow-x-auto no-scrollbar">
               <div className="flex-shrink-0 flex items-center mr-4">
                 <Link to="/">
-                  <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white tracking-tight whitespace-nowrap">
-                    CPU Scheduling
+                  <h1 className="text-lg sm:text-xl font-bold text-blue-600 dark:text-blue-400 tracking-tight whitespace-nowrap">
+                    Quantix
                   </h1>
                 </Link>
               </div>
               <div className="flex space-x-4 sm:space-x-8">
                 {tabs.map((tab) => (
                   <Link
-                    key={tab.name}
+                    key={tab.path}
                     to={tab.path}
                     className={`${
                       location.pathname === tab.path
@@ -74,7 +77,7 @@ function Layout({ children }: { children: React.ReactNode }) {
                   <button
                     onClick={logout}
                     className="p-1 rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                    title="Logout"
+                    title={t('nav.logout')}
                   >
                     <ArrowRightOnRectangleIcon className="w-5 h-5" />
                   </button>
@@ -83,7 +86,7 @@ function Layout({ children }: { children: React.ReactNode }) {
                 <Link
                   to="/login"
                   className="p-1 rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                  title="Login"
+                  title={t('nav.login')}
                 >
                   <UserCircleIcon className="w-6 h-6" />
                 </Link>
