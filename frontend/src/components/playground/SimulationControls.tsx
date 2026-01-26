@@ -78,6 +78,7 @@ export const SimulationControls: React.FC<Props> = ({
             <option value="PRIORITY_PE">Priority (Preemptive)</option>
             <option value="HRRN">HRRN (Highest Response Ratio Next)</option>
             <option value="LRTF">LRTF (Longest Remaining Time First)</option>
+            <option value="MQ">MQ (Multilevel Queue - Q1:RR, Q2:FCFS)</option>
           </select>
         </div>
 
