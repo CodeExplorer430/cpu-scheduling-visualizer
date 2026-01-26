@@ -1,4 +1,4 @@
-# CPU Scheduling Visualizer — Project Plan & Structure
+# Quantix — Project Plan & Structure
 
 **Stack:** Frontend — React + TypeScript + Vite + D3.js + TailwindCSS (PWA-ready)
 Backend — Express (Node.js). Optional DB: PostgreSQL or MongoDB.
@@ -8,7 +8,7 @@ Backend — Express (Node.js). Optional DB: PostgreSQL or MongoDB.
 ## 1. Project root (top-level directory tree)
 
 ```
-cpu-scheduling-visualizer/
+quantix/
 ├── README.md
 ├── .gitignore
 ├── package.json            # monorepo root scripts (optional)

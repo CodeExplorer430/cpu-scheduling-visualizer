@@ -23,10 +23,10 @@ describe('Playground Page', () => {
     // Let's check for texts we know exist in the child components or the page structure.
 
     // SimulationControls has 'Algorithm' label
-    expect(screen.getByText('Algorithm')).toBeInTheDocument();
+    expect(screen.getByText('controls.algorithm')).toBeInTheDocument();
 
     // ProcessTable has headers
-    expect(screen.getByText('PID')).toBeInTheDocument();
-    expect(screen.getByText('Burst')).toBeInTheDocument();
+    expect(screen.getByText('processTable.pid')).toBeInTheDocument();
+    expect(screen.getByText('processTable.burst')).toBeInTheDocument();
   });
 });

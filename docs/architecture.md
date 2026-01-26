@@ -2,7 +2,7 @@
 
 ## Overview
 
-The CPU Scheduling Visualizer is a full-stack monorepo designed for interactivity and performance.
+The Quantix is a full-stack monorepo designed for interactivity and performance.
 
 - **Frontend**: React/Vite SPA (Vercel)
   - Interactive Gantt charts with D3.js

@@ -5,7 +5,7 @@ The backend provides a RESTful API for managing user scenarios and offloading he
 ## Base URL
 
 Development: `http://localhost:3000/api`
-Production: `https://cpu-scheduling-visualizer-api.onrender.com/api`
+Production: `https://quantix-api.onrender.com/api`
 
 ## Authentication
 

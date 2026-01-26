@@ -103,7 +103,7 @@ function Layout({ children }: { children: React.ReactNode }) {
               </button>
 
               <a
-                href="https://github.com/CodeExplorer430/cpu-scheduling-visualizer"
+                href="https://github.com/CodeExplorer430/quantix"
                 target="_blank"
                 rel="noreferrer"
                 className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors"

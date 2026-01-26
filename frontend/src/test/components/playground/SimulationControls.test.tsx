@@ -34,8 +34,8 @@ describe('SimulationControls Component', () => {
       />
     );
 
-    expect(screen.getByLabelText('Algorithm')).toBeInTheDocument();
-    expect(screen.getByText('Run Simulation')).toBeInTheDocument();
+    expect(screen.getByLabelText('controls.algorithm')).toBeInTheDocument();
+    expect(screen.getByText('common.run')).toBeInTheDocument();
   });
 
   it('shows quantum input only when RR is selected', () => {
@@ -58,7 +58,7 @@ describe('SimulationControls Component', () => {
       />
     );
 
-    expect(screen.queryByLabelText('Time Quantum')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('controls.quantum')).not.toBeInTheDocument();
 
     rerender(
       <SimulationControls
@@ -79,7 +79,7 @@ describe('SimulationControls Component', () => {
       />
     );
 
-    expect(screen.getByLabelText('Time Quantum')).toBeInTheDocument();
+    expect(screen.getByLabelText('controls.quantum')).toBeInTheDocument();
   });
 
   it('calls onRun when clicking button', () => {
@@ -102,7 +102,7 @@ describe('SimulationControls Component', () => {
       />
     );
 
-    fireEvent.click(screen.getByText('Run Simulation'));
+    fireEvent.click(screen.getByText('common.run'));
     expect(mockOnRun).toHaveBeenCalled();
   });
 });

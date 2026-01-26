@@ -249,7 +249,7 @@ export function runFCFS(
     if (e.pid === 'IDLE') idleTime += duration;
     else if (e.pid === 'CS') {
       // Switch energy is calculated separately using switchJoules
-    } 
+    }
     // Overhead usually counts as active or separate? Let's say separate or active.
     // Spec: active vs idle. Usually CS consumes power. Let's count CS as Active for power?
     // Or define switchJoules separate.

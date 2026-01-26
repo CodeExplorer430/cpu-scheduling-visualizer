@@ -37,7 +37,7 @@ async function runTest() {
   const url = settings.batch ? `${BASE_URL}/batch` : BASE_URL;
   const payload = settings.batch ? batchPayload : singlePayload;
 
-  console.log(`\n🚀 CPU Scheduling Visualizer - ${mode.toUpperCase()} TEST`);
+  console.log(`\n🚀 Quantix - ${mode.toUpperCase()} TEST`);
   console.log(`--------------------------------------------------`);
   console.log(`Target URL:  ${url}`);
   console.log(`Payload:     ${settings.batch ? 'Multi-Algorithm Batch' : 'Single Algorithm'}`);

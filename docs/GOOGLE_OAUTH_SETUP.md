@@ -1,8 +1,9 @@
 # Google OAuth 2.0 Setup Guide
 
-This guide walks you through setting up a Google Cloud Project to enable "Sign in with Google" for the CPU Scheduling Visualizer.
+This guide walks you through setting up a Google Cloud Project to enable "Sign in with Google" for the Quantix.
 
 ## Prerequisites
+
 - A Google Account.
 - Access to the [Google Cloud Console](https://console.cloud.google.com/).
 
@@ -22,10 +23,10 @@ This guide walks you through setting up a Google Cloud Project to enable "Sign i
 1.  In the left sidebar, navigate to **APIs & Services** > **OAuth consent screen**.
 2.  **User Type**:
     - Select **External** (allows any Google user to sign in).
-    - *Note: If you select Internal, only users in your G-Suite organization can log in.*
+    - _Note: If you select Internal, only users in your G-Suite organization can log in._
 3.  Click **Create**.
 4.  **App Information**:
-    - **App Name**: `CPU Scheduling Visualizer`
+    - **App Name**: `Quantix`
     - **User Support Email**: Select your email address.
     - **App Logo**: (Optional) Upload an icon if you wish.
 5.  **Developer Contact Information**:
@@ -34,9 +35,9 @@ This guide walks you through setting up a Google Cloud Project to enable "Sign i
 7.  **Scopes**:
     - Click **Add or Remove Scopes**.
     - Select the checkboxes for:
-        - `.../auth/userinfo.email`
-        - `.../auth/userinfo.profile`
-        - `openid`
+      - `.../auth/userinfo.email`
+      - `.../auth/userinfo.profile`
+      - `openid`
     - Click **Update**, then **Save and Continue**.
 8.  **Test Users**:
     - Since the app is in "Testing" mode, you must add your own email address to log in.
@@ -55,12 +56,12 @@ This guide walks you through setting up a Google Cloud Project to enable "Sign i
     - This validates where the request comes from (your Frontend).
     - Click **+ ADD URI**.
     - Enter: `http://localhost:5173` (for local development).
-    - *For production, add your Vercel URL (e.g., `https://my-cpu-viz.vercel.app`).*
+    - _For production, add your Vercel URL (e.g., `https://my-cpu-viz.vercel.app`)._
 7.  **Authorized Redirect URIs**:
     - This is where Google sends the user back after login (your Backend).
     - Click **+ ADD URI**.
     - Enter: `http://localhost:3000/api/auth/google/callback` (for local development).
-    - *For production, add your Render backend URL (e.g., `https://my-backend.onrender.com/api/auth/google/callback`).*
+    - _For production, add your Render backend URL (e.g., `https://my-backend.onrender.com/api/auth/google/callback`)._
 8.  Click **Create**.
 
 ## Step 4: Get Client ID and Secret
@@ -82,14 +83,14 @@ This guide walks you through setting up a Google Cloud Project to enable "Sign i
     GOOGLE_CALLBACK_URL=http://localhost:3000/api/auth/google/callback
     ```
 
-    *Note: In production (Render), ensure `GOOGLE_CALLBACK_URL` matches the production URL you added in Step 3.*
+    _Note: In production (Render), ensure `GOOGLE_CALLBACK_URL` matches the production URL you added in Step 3._
 
 ---
 
 ## Troubleshooting
 
 - **Error: "redirect_uri_mismatch"**:
-    - Ensure the URL in your browser matches exactly what you entered in "Authorized Redirect URIs".
-    - Check for trailing slashes or `http` vs `https`.
+  - Ensure the URL in your browser matches exactly what you entered in "Authorized Redirect URIs".
+  - Check for trailing slashes or `http` vs `https`.
 - **Error: "Access blocked: App is in testing mode"**:
-    - Ensure you added the email you are trying to log in with to the **Test Users** list in the OAuth Consent Screen configuration.
+  - Ensure you added the email you are trying to log in with to the **Test Users** list in the OAuth Consent Screen configuration.

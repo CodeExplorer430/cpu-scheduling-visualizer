@@ -19,9 +19,9 @@ describe('Compare Page', () => {
     );
 
     // Check for ComparisonSettings title or content
-    expect(screen.getByText('Run Comparison')).toBeInTheDocument();
+    expect(screen.getByText('compare.runComparison')).toBeInTheDocument();
 
     // Check for ProcessTable
-    expect(screen.getByText('PID')).toBeInTheDocument();
+    expect(screen.getByText('processTable.pid')).toBeInTheDocument();
   });
 });

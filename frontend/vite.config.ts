@@ -12,8 +12,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg'],
       manifest: {
-        name: 'CPU Scheduling Visualizer',
-        short_name: 'CPU Viz',
+        name: 'Quantix',
+        short_name: 'Quantix',
         description: 'Interactive CPU scheduling algorithm visualizer',
         theme_color: '#ffffff',
         background_color: '#ffffff',

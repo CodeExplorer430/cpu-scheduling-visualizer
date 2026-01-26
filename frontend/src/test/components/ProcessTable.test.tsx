@@ -28,7 +28,7 @@ describe('ProcessTable Component', () => {
   it('calls onProcessChange when adding a process', () => {
     render(<ProcessTable processes={initialProcesses} onProcessChange={mockProcessChange} />);
 
-    const addButton = screen.getByText('+ Add');
+    const addButton = screen.getByText('processTable.addProcess');
     fireEvent.click(addButton);
 
     expect(mockProcessChange).toHaveBeenCalledTimes(1);
@@ -52,7 +52,7 @@ describe('ProcessTable Component', () => {
   it('calls onProcessChange when removing a process', () => {
     render(<ProcessTable processes={initialProcesses} onProcessChange={mockProcessChange} />);
 
-    const deleteButtons = screen.getAllByText('Delete');
+    const deleteButtons = screen.getAllByText('processTable.delete');
     fireEvent.click(deleteButtons[0]); // Delete P1
 
     expect(mockProcessChange).toHaveBeenCalled();

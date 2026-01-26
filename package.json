@@ -1,5 +1,5 @@
 {
-  "name": "cpu-scheduling-visualizer-monorepo",
+  "name": "quantix-monorepo",
   "version": "1.0.0",
   "private": true,
   "workspaces": [
