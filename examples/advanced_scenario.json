@@ -1,5 +1,7 @@
 [
-  { "pid": "P1", "arrival": 0, "burst": 10, "priority": 1 },
-  { "pid": "P2", "arrival": 2, "burst": 5, "priority": 2 },
-  { "pid": "P3", "arrival": 4, "burst": 8, "priority": 1 }
+  { "pid": "HighPrio_1", "arrival": 0, "burst": 4, "priority": 1 },
+  { "pid": "MidPrio_1", "arrival": 1, "burst": 10, "priority": 2 },
+  { "pid": "HighPrio_2", "arrival": 5, "burst": 2, "priority": 1 },
+  { "pid": "LowPrio_1", "arrival": 2, "burst": 20, "priority": 3 },
+  { "pid": "MidPrio_2", "arrival": 15, "burst": 5, "priority": 2 }
 ]

@@ -1,0 +1,5 @@
+PID,Arrival,Burst,Priority
+Interactive_1,0,8,1
+Interactive_2,1,4,1
+Batch_1,0,10,2
+Batch_2,5,5,2
