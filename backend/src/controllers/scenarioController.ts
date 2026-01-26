@@ -2,11 +2,16 @@ import { Request, Response } from 'express';
 import Scenario from '../models/Scenario.js';
 import { validateProcesses } from '@cpu-vis/shared';
 import { parse } from 'csv-parse/sync';
+import { TokenPayload } from '../middleware/auth.js';
 
-export const createScenario = async (req: Request, res: Response) => {
+interface AuthRequest extends Request {
+  auth?: TokenPayload;
+}
+
+export const createScenario = async (req: AuthRequest, res: Response) => {
   try {
     const { name, description, processes } = req.body;
-    const userId = (req as any).auth?.userId;
+    const userId = req.auth?.userId;
 
     if (!name) {
       return res.status(400).json({ error: 'Name is required' });
@@ -32,9 +37,9 @@ export const createScenario = async (req: Request, res: Response) => {
   }
 };
 
-export const getScenarios = async (req: Request, res: Response) => {
+export const getScenarios = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = (req as any).auth?.userId;
+    const userId = req.auth?.userId;
     // Return list with basic info, sorted by newest. Filter by userId if present.
     const query = userId ? { userId } : {};
     const scenarios = await Scenario.find(query, 'name description createdAt').sort({
