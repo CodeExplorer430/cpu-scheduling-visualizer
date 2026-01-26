@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { SunIcon, MoonIcon } from '@heroicons/react/24/outline';
+import { SunIcon, MoonIcon, UserCircleIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 import { Process } from '@cpu-vis/shared';
 import { Playground } from './pages/Playground';
 import { Compare } from './pages/Compare';
+import { Login } from './pages/Login';
+import { Register } from './pages/Register';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
 // --- Initial Data ---
 const initialProcesses: Process[] = [
@@ -19,6 +22,7 @@ const initialProcesses: Process[] = [
 function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const { user, logout } = useAuth();
 
   const tabs = [
     { name: 'Playground', path: '/' },
@@ -32,9 +36,11 @@ function Layout({ children }: { children: React.ReactNode }) {
           <div className="flex justify-between h-16">
             <div className="flex items-center overflow-x-auto no-scrollbar">
               <div className="flex-shrink-0 flex items-center mr-4">
-                <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white tracking-tight whitespace-nowrap">
-                  CPU Scheduling
-                </h1>
+                <Link to="/">
+                  <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white tracking-tight whitespace-nowrap">
+                    CPU Scheduling
+                  </h1>
+                </Link>
               </div>
               <div className="flex space-x-4 sm:space-x-8">
                 {tabs.map((tab) => (
@@ -54,6 +60,30 @@ function Layout({ children }: { children: React.ReactNode }) {
             </div>
 
             <div className="flex items-center space-x-4 ml-4">
+              {/* Auth Status */}
+              {user ? (
+                <div className="flex items-center space-x-3">
+                  <span className="text-sm text-gray-700 dark:text-gray-300 hidden sm:inline">
+                    {user.username}
+                  </span>
+                  <button
+                    onClick={logout}
+                    className="p-1 rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    title="Logout"
+                  >
+                    <ArrowRightOnRectangleIcon className="w-5 h-5" />
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  to="/login"
+                  className="p-1 rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  title="Login"
+                >
+                  <UserCircleIcon className="w-6 h-6" />
+                </Link>
+              )}
+
               {/* Theme Toggle */}
               <button
                 onClick={toggleTheme}
@@ -100,18 +130,22 @@ function App() {
     <ThemeProvider>
       <Toaster position="bottom-right" reverseOrder={false} />
       <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route
-              path="/"
-              element={<Playground processes={processes} onProcessesChange={setProcesses} />}
-            />
-            <Route
-              path="/compare"
-              element={<Compare processes={processes} onProcessesChange={setProcesses} />}
-            />
-          </Routes>
-        </Layout>
+        <AuthProvider>
+          <Layout>
+            <Routes>
+              <Route
+                path="/"
+                element={<Playground processes={processes} onProcessesChange={setProcesses} />}
+              />
+              <Route
+                path="/compare"
+                element={<Compare processes={processes} onProcessesChange={setProcesses} />}
+              />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+            </Routes>
+          </Layout>
+        </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>
   );

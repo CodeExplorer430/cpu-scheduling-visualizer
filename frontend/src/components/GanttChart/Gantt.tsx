@@ -109,11 +109,19 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
         .enter()
         .append('g') // Group for rect + accessible title
         .attr('role', 'graphics-symbol')
+        .attr('tabindex', '0') // Make focusable
         .attr('aria-label', (d) => {
           if (d.pid === 'IDLE') return `Core ${coreId + 1}: Idle from ${d.start} to ${d.end}`;
           if (d.pid === 'CS')
             return `Core ${coreId + 1}: Context Switch from ${d.start} to ${d.end}`;
           return `Core ${coreId + 1}: Process ${d.pid} from time ${d.start} to ${d.end}`;
+        })
+        .on('keydown', (event, _d) => {
+           // Optional: Handle Enter/Space to show details or navigate
+           if (event.key === 'Enter' || event.key === ' ') {
+             // Logic to show details could go here
+             // console.log('Focused:', _d);
+           }
         });
 
       bars
