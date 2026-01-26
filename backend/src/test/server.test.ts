@@ -33,6 +33,49 @@ describe('Backend Integration Tests', () => {
     expect(res.body.metrics.completion['P1']).toBeDefined();
   });
 
+  it('POST /api/simulate should run simulation for all algorithms', async () => {
+    const processes: Process[] = [{ pid: 'P1', arrival: 0, burst: 5 }];
+    const algorithms = [
+      'FCFS',
+      'SJF',
+      'LJF',
+      'SRTF',
+      'LRTF',
+      'RR',
+      'PRIORITY',
+      'PRIORITY_PE',
+      'MQ',
+      'MLFQ',
+      'HRRN',
+    ];
+
+    for (const algo of algorithms) {
+      const res = await request(app).post('/api/simulate').send({
+        algorithm: algo,
+        processes,
+        timeQuantum: 2,
+      });
+      expect(res.status, `Failed for algorithm: ${algo}`).toBe(200);
+      expect(res.body).toHaveProperty('events');
+    }
+  });
+
+  it('POST /api/simulate/batch should run multiple simulations', async () => {
+    const processes: Process[] = [{ pid: 'P1', arrival: 0, burst: 5 }];
+    const algorithms = ['FCFS', 'RR', 'MLFQ'];
+
+    const res = await request(app).post('/api/simulate/batch').send({
+      algorithms,
+      processes,
+      timeQuantum: 2,
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('FCFS');
+    expect(res.body).toHaveProperty('RR');
+    expect(res.body).toHaveProperty('MLFQ');
+  });
+
   it('POST /api/simulate should handle invalid algorithm', async () => {
     const processes: Process[] = [{ pid: 'P1', arrival: 0, burst: 5 }];
 

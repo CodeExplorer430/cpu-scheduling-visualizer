@@ -2,10 +2,12 @@ import { Request, Response } from 'express';
 import Scenario from '../models/Scenario.js';
 import { validateProcesses } from '@cpu-vis/shared';
 import { parse } from 'csv-parse/sync';
+import { AuthRequest } from '../middleware/auth.js';
 
-export const createScenario = async (req: Request, res: Response) => {
+export const createScenario = async (req: AuthRequest, res: Response) => {
   try {
     const { name, description, processes } = req.body;
+    const userId = req.user?.userId;
 
     if (!name) {
       return res.status(400).json({ error: 'Name is required' });
@@ -17,6 +19,7 @@ export const createScenario = async (req: Request, res: Response) => {
     }
 
     const newScenario = new Scenario({
+      userId,
       name,
       description,
       processes,
@@ -30,10 +33,12 @@ export const createScenario = async (req: Request, res: Response) => {
   }
 };
 
-export const getScenarios = async (req: Request, res: Response) => {
+export const getScenarios = async (req: AuthRequest, res: Response) => {
   try {
-    // Return list with basic info, sorted by newest
-    const scenarios = await Scenario.find({}, 'name description createdAt').sort({ createdAt: -1 });
+    const userId = req.user?.userId;
+    // Return list with basic info, sorted by newest. Filter by userId if present.
+    const query = userId ? { userId } : {};
+    const scenarios = await Scenario.find(query, 'name description createdAt').sort({ createdAt: -1 });
     return res.json(scenarios);
   } catch (error) {
     console.error('Get scenarios error:', error);

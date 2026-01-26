@@ -42,9 +42,9 @@ describe('ComparisonResults Component', () => {
 
   it('renders metrics comparison table', () => {
     renderWithTheme(<ComparisonResults results={mockResults} algorithms={algorithms} />);
-    expect(screen.getByText('Metrics Comparison')).toBeInTheDocument();
+    expect(screen.getByText('metrics.title')).toBeInTheDocument();
     // Use getAllByText as FCFS appears in table and chart headings
-    expect(screen.getAllByText('FCFS').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('controls.algorithms.FCFS').length).toBeGreaterThan(0);
   });
 
   it('renders Gantt charts for each algorithm', () => {
