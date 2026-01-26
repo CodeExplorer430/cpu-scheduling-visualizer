@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: cpu-scheduling-visualizer-api
+    env: node
+    buildCommand: cd backend && npm install && npm run build
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        fromDatabase:
+          name: cpu-scheduling-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true

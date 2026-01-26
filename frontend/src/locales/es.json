@@ -1,0 +1,42 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "close": "Cerrar"
+  },
+  "nav": {
+    "playground": "Área de Pruebas",
+    "compare": "Comparar",
+    "login": "Iniciar Sesión",
+    "register": "Registrarse",
+    "logout": "Cerrar Sesión"
+  },
+  "playground": {
+    "title": "Programación de CPU",
+    "addProcess": "Añadir Proceso",
+    "reset": "Reiniciar",
+    "simulate": "Simular",
+    "metrics": "Métricas",
+    "ganttChart": "Diagrama de Gantt",
+    "stepExplainer": "Explicación Paso a Paso"
+  },
+  "compare": {
+    "title": "Comparar Algoritmos",
+    "selectAlgorithms": "Seleccionar Algoritmos",
+    "runComparison": "Ejecutar Comparación",
+    "export": "Exportar"
+  },
+  "auth": {
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "username": "Nombre de Usuario",
+    "signIn": "Iniciar Sesión",
+    "signUp": "Registrarse",
+    "noAccount": "¿No tienes cuenta? Regístrate",
+    "hasAccount": "¿Ya tienes cuenta? Inicia sesión"
+  }
+}
