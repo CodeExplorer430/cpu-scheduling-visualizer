@@ -31,7 +31,7 @@ vi.mock('@cpu-vis/shared', () => ({
 }));
 
 describe('useSimulation Hook', () => {
-  const mockProcesses = [{ id: 1, arrivalTime: 0, burstTime: 5, priority: 1, color: '#fff' }];
+  const mockProcesses = [{ pid: 'P1', arrival: 0, burst: 5, priority: 1, color: '#fff' }];
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -92,8 +92,7 @@ describe('useSimulation Hook', () => {
     const { result } = renderHook(() => useSimulation(mockProcesses));
     vi.mocked(optimizer.findOptimalQuantum).mockReturnValue({
         optimalQuantum: 5,
-        minAvgWaiting: 2.5,
-        results: []
+        minAvgWaiting: 2.5
     });
 
     act(() => {
