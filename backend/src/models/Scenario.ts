@@ -13,7 +13,14 @@ const ScenarioSchema: Schema = new Schema({
   userId: { type: String, required: false }, // Optional for public/guest scenarios
   name: { type: String, required: true },
   description: { type: String },
-  processes: { type: Array, required: true }, // Storing Process[] as JSON array
+  processes: {
+    type: Array,
+    required: true,
+    validate: {
+      validator: (v: any[]) => Array.isArray(v) && v.length > 0,
+      message: 'Scenario must have at least one process',
+    },
+  },
   createdAt: { type: Date, default: Date.now },
 });
 
