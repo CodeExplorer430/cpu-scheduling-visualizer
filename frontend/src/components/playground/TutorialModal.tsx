@@ -92,6 +92,91 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <em>Cons:</em> Indefinite blocking (starvation) of low priority processes.
             </p>
           </section>
+
+          <section>
+            <h3 className="text-lg font-bold text-red-600 dark:text-red-400">
+              Priority (Preemptive)
+            </h3>
+            <p className="text-sm">
+              Similar to Priority scheduling, but if a new process arrives with a higher priority
+              than the currently running process, the CPU is preempted.
+              <br />
+              <em>Pros:</em> Responsive to high-priority tasks.
+              <br />
+              <em>Cons:</em> Frequent context switching.
+            </p>
+          </section>
+
+          <section>
+            <h3 className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
+              LJF (Longest Job First)
+            </h3>
+            <p className="text-sm">
+              Selects the waiting process with the largest execution time. Non-preemptive.
+              <br />
+              <em>Pros:</em> Prevents short processes from dominating CPU (rarely used).
+              <br />
+              <em>Cons:</em> Convoy effect, reduced system throughput.
+            </p>
+          </section>
+
+          <section>
+            <h3 className="text-lg font-bold text-pink-600 dark:text-pink-400">
+              LRTF (Longest Remaining Time First)
+            </h3>
+            <p className="text-sm">
+              Preemptive version of LJF.
+              <br />
+              <em>Pros:</em> Forces context switches to share CPU among long tasks.
+              <br />
+              <em>Cons:</em> High average waiting time and turnaround time.
+            </p>
+          </section>
+
+          <section>
+            <h3 className="text-lg font-bold text-teal-600 dark:text-teal-400">
+              HRRN (Highest Response Ratio Next)
+            </h3>
+            <p className="text-sm">
+              Non-preemptive. Calculates Response Ratio = (Waiting Time + Burst Time) / Burst Time.
+              Selects highest ratio.
+              <br />
+              <em>Pros:</em> Prevents starvation (aging), balances short and long jobs.
+              <br />
+              <em>Cons:</em> Overhead of calculating ratios at every step.
+            </p>
+          </section>
+
+          <section>
+            <h3 className="text-lg font-bold text-cyan-600 dark:text-cyan-400">
+              MQ (Multilevel Queue)
+            </h3>
+            <p className="text-sm">
+              Partitions the ready queue into separate queues (e.g., Foreground/Interactive,
+              Background/Batch). Processes are permanently assigned to one queue based on
+              properties.
+              <br />
+              <em>Pros:</em> Customized scheduling for different process types.
+              <br />
+              <em>Cons:</em> Inflexible (fixed assignment), potential starvation for lower-level
+              queues.
+            </p>
+          </section>
+
+          <section>
+            <h3 className="text-lg font-bold text-yellow-600 dark:text-yellow-400">
+              MLFQ (Multilevel Feedback Queue)
+            </h3>
+            <p className="text-sm">
+              Processes can move between queues. New processes start at high priority (short
+              quantum). If they use their full quantum, they degrade to lower priority queues.
+              <br />
+              <em>Pros:</em> Flexible, adaptive. Good for interactive tasks (short bursts stay high
+              priority).
+              <br />
+              <em>Cons:</em> Complex to tune (number of queues, quantums, aging rules).
+            </p>
+          </section>
         </div>
 
         <div className="mt-6 flex justify-end">
