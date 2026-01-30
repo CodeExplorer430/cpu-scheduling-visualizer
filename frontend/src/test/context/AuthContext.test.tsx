@@ -1,8 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { AuthProvider, useAuth } from '../../context/AuthContext';
 import { BrowserRouter } from 'react-router-dom';
-import React from 'react';
 
 // Mock component to test AuthContext
 const TestConsumer = () => {

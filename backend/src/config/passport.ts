@@ -30,7 +30,7 @@ const getAuthConfig = (provider: string) => {
 // --- Generic Handler ---
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleOAuthLogin = async (
-  providerKey: keyof typeof User.schema.paths, // e.g., 'googleId', 'githubId'
+  providerKey: string, // e.g., 'googleId', 'githubId'
   profile: any,
   done: (error: any, user?: any) => void
 ) => {
@@ -47,7 +47,7 @@ const handleOAuthLogin = async (
       user = await User.findOne({ email });
       if (user) {
         // Link the new provider to existing user
-        user[providerKey] = profile.id;
+        user.set(providerKey, profile.id);
         await user.save();
         return done(null, user);
       }

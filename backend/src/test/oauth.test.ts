@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
-import app from '../app';
-import { User } from '../models/User';
+import app from '../app.js';
+import { User } from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
-import { connectDB } from '../db/index';
+import { connectDB } from '../db/index.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -63,7 +63,7 @@ describe('OAuth Authentication Logic', () => {
     await User.create({
       username: 'Existing User',
       email: 'link@example.com',
-      password: 'password123'
+      passwordHash: 'hashed_password'
     });
 
     const mockProfile = {
