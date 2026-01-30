@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import { OAuthButtons } from '../components/auth/OAuthButtons';
 
 export const Register: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -111,6 +112,9 @@ export const Register: React.FC = () => {
               {loading ? 'Sign up' : 'Sign up'}
             </button>
           </div>
+
+          <OAuthButtons />
+
           <div className="text-sm text-center">
             <Link
               to="/login"
