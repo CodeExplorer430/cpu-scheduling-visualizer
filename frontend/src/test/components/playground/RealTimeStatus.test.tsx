@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { RealTimeStatus } from '../../../components/playground/RealTimeStatus';
+import { Snapshot } from '@cpu-vis/shared';
 
 describe('RealTimeStatus Component', () => {
   it('should display IDLE when no snapshot and not finished', () => {
@@ -15,27 +16,37 @@ describe('RealTimeStatus Component', () => {
 
   it('should display the running PID from snapshot', () => {
     const snapshot = { runningPid: 'P1', readyQueue: [], completedPids: [], ganttChart: [] };
-    render(<RealTimeStatus snapshot={snapshot as any} currentTime={5} maxTime={10} />);
+    render(<RealTimeStatus snapshot={snapshot as unknown as Snapshot} currentTime={5} maxTime={10} />);
     expect(screen.getByText('P1')).toBeInTheDocument();
   });
 
   it('should display multiple running PIDs (multicore)', () => {
-    const snapshot = { runningPid: ['P1', 'P2'], readyQueue: [], completedPids: [], ganttChart: [] };
-    render(<RealTimeStatus snapshot={snapshot as any} currentTime={5} maxTime={10} />);
+    const snapshot = {
+      runningPid: ['P1', 'P2'],
+      readyQueue: [],
+      completedPids: [],
+      ganttChart: [],
+    };
+    render(<RealTimeStatus snapshot={snapshot as unknown as Snapshot} currentTime={5} maxTime={10} />);
     expect(screen.getByText('P1')).toBeInTheDocument();
     expect(screen.getByText('P2')).toBeInTheDocument();
   });
 
   it('should display PIDs in the ready queue', () => {
-    const snapshot = { runningPid: 'P1', readyQueue: ['P2', 'P3'], completedPids: [], ganttChart: [] };
-    render(<RealTimeStatus snapshot={snapshot as any} currentTime={5} maxTime={10} />);
+    const snapshot = {
+      runningPid: 'P1',
+      readyQueue: ['P2', 'P3'],
+      completedPids: [],
+      ganttChart: [],
+    };
+    render(<RealTimeStatus snapshot={snapshot as unknown as Snapshot} currentTime={5} maxTime={10} />);
     expect(screen.getByText('P2')).toBeInTheDocument();
     expect(screen.getByText('P3')).toBeInTheDocument();
   });
 
   it('should show Empty when ready queue is empty', () => {
     const snapshot = { runningPid: 'P1', readyQueue: [], completedPids: [], ganttChart: [] };
-    render(<RealTimeStatus snapshot={snapshot as any} currentTime={5} maxTime={10} />);
+    render(<RealTimeStatus snapshot={snapshot as unknown as Snapshot} currentTime={5} maxTime={10} />);
     expect(screen.getByText('Empty')).toBeInTheDocument();
   });
 });

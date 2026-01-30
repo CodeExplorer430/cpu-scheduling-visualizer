@@ -58,30 +58,33 @@ describe('useSimulation Hook', () => {
   it('should run simulation and update result', () => {
     const { result } = renderHook(() => useSimulation(mockProcesses));
     const mockResult = { events: [], stats: {} };
-    vi.mocked(shared.runFCFS).mockReturnValue(mockResult as any);
+    vi.mocked(shared.runFCFS).mockReturnValue(mockResult as unknown as shared.SimulationResult);
 
     act(() => {
       result.current.runSimulation();
     });
 
-    expect(shared.runFCFS).toHaveBeenCalledWith(mockProcesses, expect.objectContaining({
+    expect(shared.runFCFS).toHaveBeenCalledWith(
+      mockProcesses,
+      expect.objectContaining({
         quantum: 2,
-        coreCount: 1
-    }));
+        coreCount: 1,
+      })
+    );
     expect(result.current.simulationResult).toBe(mockResult);
   });
 
   it('should run correct algorithm when changed', () => {
     const { result } = renderHook(() => useSimulation(mockProcesses));
     const mockResult = { events: [], stats: {} };
-    vi.mocked(shared.runRR).mockReturnValue(mockResult as any);
+    vi.mocked(shared.runRR).mockReturnValue(mockResult as unknown as shared.SimulationResult);
 
     act(() => {
       result.current.setSelectedAlgorithm('RR');
     });
-    
+
     act(() => {
-        result.current.runSimulation();
+      result.current.runSimulation();
     });
 
     expect(shared.runRR).toHaveBeenCalled();
@@ -91,8 +94,8 @@ describe('useSimulation Hook', () => {
   it('should optimize quantum', () => {
     const { result } = renderHook(() => useSimulation(mockProcesses));
     vi.mocked(optimizer.findOptimalQuantum).mockReturnValue({
-        optimalQuantum: 5,
-        minAvgWaiting: 2.5
+      optimalQuantum: 5,
+      minAvgWaiting: 2.5,
     });
 
     act(() => {

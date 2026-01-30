@@ -17,7 +17,7 @@ const ScenarioSchema: Schema = new Schema({
     type: Array,
     required: true,
     validate: {
-      validator: (v: any[]) => Array.isArray(v) && v.length > 0,
+      validator: (v: Process[]) => Array.isArray(v) && v.length > 0,
       message: 'Scenario must have at least one process',
     },
   },

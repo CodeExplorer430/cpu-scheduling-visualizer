@@ -37,7 +37,10 @@ describe('Simulation Controller', () => {
   describe('runSimulation', () => {
     it('should return 400 if processes are invalid', () => {
       mockRequest.body = { processes: [], algorithm: 'FCFS' };
-      vi.mocked(shared.validateProcesses).mockReturnValue({ valid: false, error: 'Invalid processes' });
+      vi.mocked(shared.validateProcesses).mockReturnValue({
+        valid: false,
+        error: 'Invalid processes',
+      });
 
       runSimulation(mockRequest as Request, mockResponse as Response);
 
@@ -48,7 +51,7 @@ describe('Simulation Controller', () => {
     it('should run FCFS algorithm when specified', () => {
       mockRequest.body = { processes: [{ id: 1 }], algorithm: 'FCFS' };
       vi.mocked(shared.validateProcesses).mockReturnValue({ valid: true });
-      const mockResult = { processes: [], stats: {} } as any;
+      const mockResult = { processes: [], stats: {} } as unknown as shared.SimulationResult;
       vi.mocked(shared.runFCFS).mockReturnValue(mockResult);
 
       runSimulation(mockRequest as Request, mockResponse as Response);
@@ -58,83 +61,89 @@ describe('Simulation Controller', () => {
     });
 
     it('should default to FCFS if algorithm is missing', () => {
-        mockRequest.body = { processes: [{ id: 1 }] }; // No algorithm
-        vi.mocked(shared.validateProcesses).mockReturnValue({ valid: true });
-        const mockResult = { processes: [], stats: {} } as any;
-        vi.mocked(shared.runFCFS).mockReturnValue(mockResult);
-  
-        runSimulation(mockRequest as Request, mockResponse as Response);
-  
-        expect(shared.runFCFS).toHaveBeenCalled();
-        expect(mockResponse.json).toHaveBeenCalledWith(mockResult);
-      });
+      mockRequest.body = { processes: [{ id: 1 }] }; // No algorithm
+      vi.mocked(shared.validateProcesses).mockReturnValue({ valid: true });
+      const mockResult = { processes: [], stats: {} } as unknown as shared.SimulationResult;
+      vi.mocked(shared.runFCFS).mockReturnValue(mockResult);
+
+      runSimulation(mockRequest as Request, mockResponse as Response);
+
+      expect(shared.runFCFS).toHaveBeenCalled();
+      expect(mockResponse.json).toHaveBeenCalledWith(mockResult);
+    });
 
     it('should return 400 for unsupported algorithm', () => {
-        mockRequest.body = { processes: [{ id: 1 }], algorithm: 'UNKNOWN_ALGO' };
-        vi.mocked(shared.validateProcesses).mockReturnValue({ valid: true });
+      mockRequest.body = { processes: [{ id: 1 }], algorithm: 'UNKNOWN_ALGO' };
+      vi.mocked(shared.validateProcesses).mockReturnValue({ valid: true });
 
-        runSimulation(mockRequest as Request, mockResponse as Response);
+      runSimulation(mockRequest as Request, mockResponse as Response);
 
-        expect(mockResponse.status).toHaveBeenCalledWith(400);
-        expect(mockResponse.json).toHaveBeenCalledWith(expect.objectContaining({ error: expect.stringContaining('not supported') }));
+      expect(mockResponse.status).toHaveBeenCalledWith(400);
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({ error: expect.stringContaining('not supported') })
+      );
     });
-    
+
     it('should handle internal errors gracefully', () => {
-        mockRequest.body = { processes: [{ id: 1 }], algorithm: 'FCFS' };
-        vi.mocked(shared.validateProcesses).mockReturnValue({ valid: true });
-        vi.mocked(shared.runFCFS).mockImplementation(() => { throw new Error('Boom'); });
+      mockRequest.body = { processes: [{ id: 1 }], algorithm: 'FCFS' };
+      vi.mocked(shared.validateProcesses).mockReturnValue({ valid: true });
+      vi.mocked(shared.runFCFS).mockImplementation(() => {
+        throw new Error('Boom');
+      });
 
-        runSimulation(mockRequest as Request, mockResponse as Response);
+      runSimulation(mockRequest as Request, mockResponse as Response);
 
-        expect(mockResponse.status).toHaveBeenCalledWith(500);
-        expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Internal simulation error' });
+      expect(mockResponse.status).toHaveBeenCalledWith(500);
+      expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Internal simulation error' });
     });
   });
 
   describe('runBatchSimulation', () => {
-      it('should return 400 if algorithms array is missing', () => {
-          mockRequest.body = { processes: [] }; // No algorithms
-          
-          runBatchSimulation(mockRequest as Request, mockResponse as Response);
+    it('should return 400 if algorithms array is missing', () => {
+      mockRequest.body = { processes: [] }; // No algorithms
 
-          expect(mockResponse.status).toHaveBeenCalledWith(400);
-          expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Algorithms array is required' });
+      runBatchSimulation(mockRequest as Request, mockResponse as Response);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(400);
+      expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Algorithms array is required' });
+    });
+
+    it('should run multiple algorithms and return results', () => {
+      mockRequest.body = {
+        processes: [{ id: 1 }],
+        algorithms: ['FCFS', 'RR'],
+      };
+      vi.mocked(shared.validateProcesses).mockReturnValue({ valid: true });
+      vi.mocked(shared.runFCFS).mockReturnValue({ algo: 'FCFS' } as unknown as shared.SimulationResult);
+      vi.mocked(shared.runRR).mockReturnValue({ algo: 'RR' } as unknown as shared.SimulationResult);
+
+      runBatchSimulation(mockRequest as Request, mockResponse as Response);
+
+      expect(shared.runFCFS).toHaveBeenCalled();
+      expect(shared.runRR).toHaveBeenCalled();
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        FCFS: { algo: 'FCFS' },
+        RR: { algo: 'RR' },
+      });
+    });
+
+    it('should handle errors in individual algorithms within batch', () => {
+      mockRequest.body = {
+        processes: [{ id: 1 }],
+        algorithms: ['FCFS', 'RR'],
+      };
+      vi.mocked(shared.validateProcesses).mockReturnValue({ valid: true });
+      vi.mocked(shared.runFCFS).mockReturnValue({ algo: 'FCFS' } as unknown as shared.SimulationResult);
+      vi.mocked(shared.runRR).mockImplementation(() => {
+        throw new Error('RR Failed');
       });
 
-      it('should run multiple algorithms and return results', () => {
-          mockRequest.body = { 
-              processes: [{ id: 1 }], 
-              algorithms: ['FCFS', 'RR'] 
-          };
-          vi.mocked(shared.validateProcesses).mockReturnValue({ valid: true });
-          vi.mocked(shared.runFCFS).mockReturnValue({ algo: 'FCFS' } as any);
-          vi.mocked(shared.runRR).mockReturnValue({ algo: 'RR' } as any);
+      runBatchSimulation(mockRequest as Request, mockResponse as Response);
 
-          runBatchSimulation(mockRequest as Request, mockResponse as Response);
-
-          expect(shared.runFCFS).toHaveBeenCalled();
-          expect(shared.runRR).toHaveBeenCalled();
-          expect(mockResponse.json).toHaveBeenCalledWith({
-              FCFS: { algo: 'FCFS' },
-              RR: { algo: 'RR' }
-          });
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        FCFS: { algo: 'FCFS' },
+        RR: { error: 'RR Failed' },
       });
-
-      it('should handle errors in individual algorithms within batch', () => {
-        mockRequest.body = { 
-            processes: [{ id: 1 }], 
-            algorithms: ['FCFS', 'RR'] 
-        };
-        vi.mocked(shared.validateProcesses).mockReturnValue({ valid: true });
-        vi.mocked(shared.runFCFS).mockReturnValue({ algo: 'FCFS' } as any);
-        vi.mocked(shared.runRR).mockImplementation(() => { throw new Error('RR Failed'); });
-
-        runBatchSimulation(mockRequest as Request, mockResponse as Response);
-
-        expect(mockResponse.json).toHaveBeenCalledWith({
-            FCFS: { algo: 'FCFS' },
-            RR: { error: 'RR Failed' }
-        });
     });
   });
 });

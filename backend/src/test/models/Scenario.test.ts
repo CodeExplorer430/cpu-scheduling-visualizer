@@ -6,9 +6,9 @@ describe('Scenario Model', () => {
     const scenario = new Scenario({ processes: [] });
     let err: any;
     try {
-        await scenario.validate();
-    } catch (e) {
-        err = e;
+      await scenario.validate();
+    } catch (e: any) {
+      err = e;
     }
     expect(err.errors.name).toBeDefined();
   });
@@ -17,9 +17,9 @@ describe('Scenario Model', () => {
     const scenario = new Scenario({ name: 'Test Scenario', processes: [] });
     let err: any;
     try {
-        await scenario.validate();
-    } catch (e) {
-        err = e;
+      await scenario.validate();
+    } catch (e: any) {
+      err = e;
     }
     expect(err.errors.processes).toBeDefined();
   });
@@ -31,16 +31,16 @@ describe('Scenario Model', () => {
   });
 
   it('should allow optional userId and description', async () => {
-      const scenario = new Scenario({ 
-          name: 'Test Scenario', 
-          processes: [{ pid: 'P1', arrival: 0, burst: 5 }] 
-      });
-      let err: any;
-      try {
-          await scenario.validate();
-      } catch (e) {
-          err = e;
-      }
-      expect(err).toBeUndefined();
+    const scenario = new Scenario({
+      name: 'Test Scenario',
+      processes: [{ pid: 'P1', arrival: 0, burst: 5 }],
+    });
+    let err: any;
+    try {
+      await scenario.validate();
+    } catch (e: any) {
+      err = e;
+    }
+    expect(err).toBeUndefined();
   });
 });

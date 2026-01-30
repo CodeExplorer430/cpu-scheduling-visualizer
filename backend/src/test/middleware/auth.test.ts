@@ -57,9 +57,10 @@ describe('Auth Middleware', () => {
     authenticate(mockRequest as Request, mockResponse as Response, nextFunction);
 
     expect(nextFunction).toHaveBeenCalled();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect((mockRequest as any).auth).toMatchObject({
-        userId: payload.userId,
-        username: payload.username
+      userId: payload.userId,
+      username: payload.username,
     });
     expect(mockResponse.status).not.toHaveBeenCalled();
   });

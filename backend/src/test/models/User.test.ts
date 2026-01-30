@@ -1,5 +1,4 @@
-import { describe, it, expect, vi, beforeAll } from 'vitest';
-import mongoose from 'mongoose';
+import { describe, it, expect } from 'vitest';
 import { User } from '../../models/User.js';
 
 describe('User Model', () => {
@@ -7,9 +6,9 @@ describe('User Model', () => {
     const user = new User({ email: 'test@example.com' });
     let err: any;
     try {
-        await user.validate();
-    } catch (e) {
-        err = e;
+      await user.validate();
+    } catch (e: any) {
+      err = e;
     }
     expect(err.errors.username).toBeDefined();
   });
@@ -18,9 +17,9 @@ describe('User Model', () => {
     const user = new User({ username: 'testuser' });
     let err: any;
     try {
-        await user.validate();
-    } catch (e) {
-        err = e;
+      await user.validate();
+    } catch (e: any) {
+      err = e;
     }
     expect(err.errors.email).toBeDefined();
   });
@@ -32,8 +31,8 @@ describe('User Model', () => {
   });
 
   it('should trim username and email', () => {
-      const user = new User({ username: '  testuser  ', email: '  TEST@example.com  ' });
-      expect(user.username).toBe('testuser');
-      expect(user.email).toBe('test@example.com'); // also lowercased
+    const user = new User({ username: '  testuser  ', email: '  TEST@example.com  ' });
+    expect(user.username).toBe('testuser');
+    expect(user.email).toBe('test@example.com'); // also lowercased
   });
 });
