@@ -3,11 +3,7 @@ import {
   runAutoGrader,
   TestCase,
   AutoGradeReport,
-  Process,
-  Algorithm,
-  SimulationOptions,
 } from '@cpu-vis/shared';
-import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import {
   DocumentCheckIcon,
@@ -18,7 +14,6 @@ import {
 } from '@heroicons/react/24/outline';
 
 export const AutoGrader: React.FC = () => {
-  const { t } = useTranslation();
   const [testCases, setTestCases] = useState<TestCase[]>([]);
   const [report, setReport] = useState<AutoGradeReport | null>(null);
 

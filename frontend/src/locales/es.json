@@ -24,7 +24,8 @@
     "autoGrader": "Calificador Automático",
     "login": "Iniciar Sesión",
     "register": "Registrarse",
-    "logout": "Cerrar Sesión"
+    "logout": "Cerrar Sesión",
+    "about": "Acerca de"
   },
   "controls": {
     "title": "Control de Simulación",

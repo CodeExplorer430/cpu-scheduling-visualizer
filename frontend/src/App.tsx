@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { Process } from '@cpu-vis/shared';
 import { Playground } from './pages/Playground';
 import { Compare } from './pages/Compare';
+import { About } from './pages/About';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { AutoGrader } from './pages/autograder/AutoGrader';
@@ -50,6 +51,7 @@ function App() {
                 element={<Compare processes={processes} onProcessesChange={setProcesses} />}
               />
               <Route path="/autograder" element={<AutoGrader />} />
+              <Route path="/about" element={<About />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
             </Routes>

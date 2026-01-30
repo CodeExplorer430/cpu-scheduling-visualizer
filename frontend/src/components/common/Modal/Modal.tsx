@@ -1,5 +1,4 @@
-import React, { Fragment } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
+import React from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
 // Headless UI is typically used for accessible modals, but since it wasn't in the original package.json,

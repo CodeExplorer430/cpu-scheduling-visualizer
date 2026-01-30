@@ -19,7 +19,8 @@
     "autoGrader": "Auto-Grader",
     "login": "Login",
     "register": "Register",
-    "logout": "Logout"
+    "logout": "Logout",
+    "about": "About"
   },
   "controls": {
     "title": "Simulation Control",

@@ -20,6 +20,7 @@ export const Header: React.FC = () => {
     { name: t('nav.playground'), path: '/' },
     { name: t('nav.compare'), path: '/compare' },
     { name: t('nav.autoGrader'), path: '/autograder' },
+    { name: t('nav.about'), path: '/about' },
   ];
 
   return (
@@ -28,7 +29,8 @@ export const Header: React.FC = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center overflow-x-auto no-scrollbar">
             <div className="flex-shrink-0 flex items-center mr-4">
-              <Link to="/">
+              <Link to="/" className="flex items-center">
+                <img src="/logo.svg" alt="Quantix Logo" className="h-8 w-8 mr-2" />
                 <h1 className="text-lg sm:text-xl font-bold text-blue-600 dark:text-blue-400 tracking-tight whitespace-nowrap">
                   Quantix
                 </h1>
