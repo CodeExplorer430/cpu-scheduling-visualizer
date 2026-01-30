@@ -102,10 +102,18 @@ export const About: React.FC = () => {
       <Card>
         <div className="text-center space-y-4">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Author & Open Source</h2>
-          <p className="text-gray-600 dark:text-gray-300">
-            Quantix is an open-source project developed by <strong>Miguel Harvey Velasco</strong>. 
-            Miguel is a BSIT student with over 4 years of coding experience and a passion for 
-            problem-solving and tech exploration. We believe in free, accessible education tools for everyone.
+          <p className="text-gray-600 dark:text-gray-300 leading-relaxed max-w-3xl mx-auto">
+            I am <strong>Miguel Harvey Velasco</strong>, a third-year BSIT student. I originally
+            developed Quantix to streamline the complex manual computations required for my{' '}
+            <strong>CCS 112: Operating System & Application</strong> course. While traditional
+            pen-and-paper calculations are essential for learning, I saw an opportunity to build a
+            tool that lessens the "manual labor" for myself and my classmates.
+          </p>
+          <p className="text-gray-600 dark:text-gray-300 leading-relaxed max-w-3xl mx-auto">
+            What started as a personal project to solve my own challenges soon became a mission to
+            help others. By open-sourcing Quantix, I hope to provide students and tech enthusiasts
+            worldwide with a clear, interactive way to visualize and truly master the inner workings
+            of CPU scheduling algorithms.
           </p>
           <div className="flex flex-wrap justify-center gap-4 pt-4">
             <a
