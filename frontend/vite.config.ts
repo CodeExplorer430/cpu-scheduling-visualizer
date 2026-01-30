@@ -10,7 +10,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon.svg'],
+      includeAssets: ['logo.svg', 'logo-192.png', 'logo-512.png', 'favicon.ico'],
       manifest: {
         name: 'Quantix',
         short_name: 'Quantix',
@@ -19,10 +19,20 @@ export default defineConfig({
         background_color: '#ffffff',
         icons: [
           {
-            src: 'icon.svg',
+            src: 'logo.svg',
             sizes: 'any',
             type: 'image/svg+xml',
             purpose: 'any maskable',
+          },
+          {
+            src: 'logo-192.png',
+            sizes: '192x192',
+            type: 'image/png',
+          },
+          {
+            src: 'logo-512.png',
+            sizes: '512x512',
+            type: 'image/png',
           },
         ],
       },
