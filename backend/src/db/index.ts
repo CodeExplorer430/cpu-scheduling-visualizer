@@ -14,7 +14,8 @@ export const connectDB = async () => {
     }
 
     await mongoose.connect(mongoURI);
-    console.log('MongoDB Connected...');
+    const connectionInfo = `${mongoose.connection.host}/${mongoose.connection.name}`;
+    console.log(`MongoDB Connected: ${connectionInfo}`);
   } catch (err) {
     console.error('MongoDB connection error:', err);
     console.error('Make sure your IP is whitelisted in MongoDB Atlas.');

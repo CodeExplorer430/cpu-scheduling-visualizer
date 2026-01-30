@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Process } from '@cpu-vis/shared';
 import toast from 'react-hot-toast';
 import { CloudArrowUpIcon, FolderOpenIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { useAuth } from '../../context/AuthContext';
 
 interface Props {
   processes: Process[];
@@ -22,29 +23,46 @@ export const ScenarioManager: React.FC<Props> = ({ processes, onLoad }) => {
   const [name, setName] = useState('');
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [loading, setLoading] = useState(false);
+  const { token, isAuthenticated } = useAuth();
+
+  // On production, VITE_API_URL might be set to the backend Render URL
+  const API_BASE = import.meta.env.VITE_API_URL || '';
 
   const handleSave = async () => {
+    if (!isAuthenticated) return toast.error('Please login to save scenarios');
     if (!name.trim()) return toast.error('Name is required');
+    
     try {
-      const res = await fetch('/api/scenarios', {
+      const res = await fetch(`${API_BASE}/api/scenarios`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ name, processes }),
       });
-      if (!res.ok) throw new Error('Failed to save');
+      
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to save');
+      
       toast.success('Scenario saved');
       setShowSaveModal(false);
       setName('');
     } catch (error) {
-      toast.error('Error saving scenario');
+      toast.error(error instanceof Error ? error.message : 'Error saving scenario');
       console.error(error);
     }
   };
 
   const fetchScenarios = async () => {
+    if (!isAuthenticated) return;
     setLoading(true);
     try {
-      const res = await fetch('/api/scenarios');
+      const res = await fetch(`${API_BASE}/api/scenarios`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
       setScenarios(data);
@@ -57,7 +75,11 @@ export const ScenarioManager: React.FC<Props> = ({ processes, onLoad }) => {
 
   const handleLoad = async (id: string) => {
     try {
-      const res = await fetch(`/api/scenarios/${id}`);
+      const res = await fetch(`${API_BASE}/api/scenarios/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
       onLoad(data.processes);
