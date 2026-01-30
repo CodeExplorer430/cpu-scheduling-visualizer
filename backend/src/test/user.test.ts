@@ -9,7 +9,6 @@ dotenv.config();
 
 describe('User API Tests', () => {
   let token = '';
-  let userId = '';
 
   beforeAll(async () => {
     await connectDB();
@@ -20,7 +19,6 @@ describe('User API Tests', () => {
     };
     const res = await request(app).post('/api/auth/register').send(testUser);
     token = res.body.token;
-    userId = res.body.user.id;
   }, 30000);
 
   afterAll(async () => {

@@ -15,8 +15,20 @@ interface Stat {
   avgTurnaroundTime: number;
 }
 
+interface SimulationHistoryItem {
+  _id: string;
+  algorithm: string;
+  processesCount: number;
+  metrics: {
+    avgWaitTime: number;
+    avgTurnaroundTime: number;
+    cpuUtilization: number;
+  };
+  createdAt: string;
+}
+
 interface AnalyticsData {
-  history: any[];
+  history: SimulationHistoryItem[];
   stats: Stat[];
 }
 

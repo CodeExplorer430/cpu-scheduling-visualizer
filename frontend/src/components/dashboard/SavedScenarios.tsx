@@ -1,7 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
-import { TrashIcon, PlayIcon, PencilSquareIcon, CalendarIcon } from '@heroicons/react/24/outline';
+import { 
+  TrashIcon, 
+  PlayIcon, 
+  CalendarIcon
+} from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 
@@ -18,7 +22,7 @@ export const SavedScenarios: React.FC = () => {
   const [scenarios, setScenarios] = useState<ScenarioSummary[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchScenarios = async () => {
+  const fetchScenarios = useCallback(async () => {
     try {
       const res = await fetch('/api/scenarios', {
         headers: { Authorization: `Bearer ${token}` },
@@ -35,13 +39,13 @@ export const SavedScenarios: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, t]);
 
   useEffect(() => {
     if (token) {
       fetchScenarios();
     }
-  }, [token]);
+  }, [token, fetchScenarios]);
 
   const handleDelete = async (id: string) => {
     if (!window.confirm(t('dashboard.confirmDelete'))) return;
