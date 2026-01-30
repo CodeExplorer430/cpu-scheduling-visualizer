@@ -21,7 +21,6 @@ export const ComparisonSettings: React.FC<Props> = ({ quantum, setQuantum, onRun
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow space-y-4 transition-colors duration-200">
         <NumberInput
           id="quantum-input"
-          label={t('controls.quantum')}
           value={quantum}
           onChange={setQuantum}
           min={1}

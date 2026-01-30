@@ -70,7 +70,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
     setLocalValue(parsed.toString());
   };
 
-  const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
+  const handleBlur = () => {
     commit();
   };
 
