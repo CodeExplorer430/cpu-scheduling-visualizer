@@ -31,9 +31,10 @@ interface OAuthProfile {
   displayName?: string;
   username?: string;
   emails?: Array<{ value: string }>;
-  [key: string]: any; // Changed from unknown to any for compatibility with various library Profile types
+  [key: string]: unknown;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type PassportDone = (error: Error | null | unknown, user?: any) => void;
 
 // --- Generic Handler ---
@@ -141,6 +142,7 @@ if (discordConfig) {
         clientSecret: discordConfig.clientSecret,
         callbackURL: discordConfig.callbackURL,
         scope: ['identify', 'email'],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any,
       (_accessToken: string, _refreshToken: string, profile: OAuthProfile, done: PassportDone) =>
         handleOAuthLogin('discordId', profile, done)
