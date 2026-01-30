@@ -1,6 +1,7 @@
 import { EnergyConfig, Algorithm } from '@cpu-vis/shared';
 import { useTranslation } from 'react-i18next';
 import { InformationCircleIcon, ChevronRightIcon, PlayIcon } from '@heroicons/react/24/outline';
+import { NumberInput } from '../common/NumberInput';
 
 interface Props {
   selectedAlgorithm: Algorithm;
@@ -83,62 +84,38 @@ export const SimulationControls: React.FC<Props> = ({
           </select>
         </div>
 
-        <div>
-          <label
-            htmlFor="core-count-input"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            {t('controls.cores')}
-          </label>
-          <input
-            id="core-count-input"
-            type="number"
-            min="1"
-            max="8"
-            value={coreCount}
-            onChange={(e) => setCoreCount(Math.max(1, parseInt(e.target.value) || 1))}
-            className="w-full bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors"
-          />
-        </div>
+        <NumberInput
+          id="core-count-input"
+          label={t('controls.cores')}
+          value={coreCount}
+          onChange={setCoreCount}
+          min={1}
+          max={8}
+        />
 
-        <div>
-          <label
-            htmlFor="context-switch-input"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >
-            {t('controls.contextSwitch')} ({t('common.ms')})
-          </label>
-          <input
-            id="context-switch-input"
-            type="number"
-            min="0"
-            value={contextSwitch}
-            onChange={(e) => setContextSwitch(Math.max(0, parseInt(e.target.value) || 0))}
-            className="w-full bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors"
-          />
-        </div>
+        <NumberInput
+          id="context-switch-input"
+          label={`${t('controls.contextSwitch')} (${t('common.ms')})`}
+          value={contextSwitch}
+          onChange={setContextSwitch}
+          min={0}
+        />
 
         {selectedAlgorithm === 'RR' && (
           <div className="col-span-1 md:col-span-2">
-            <label
-              htmlFor="quantum-input"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >
-              {t('controls.quantum')}
-            </label>
-            <div className="flex gap-2">
-              <input
+            <div className="flex gap-2 items-end">
+              <NumberInput
                 id="quantum-input"
-                type="number"
-                min="1"
+                label={t('controls.quantum')}
                 value={quantum}
-                onChange={(e) => setQuantum(Math.max(1, parseInt(e.target.value) || 1))}
-                className="w-full bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors"
+                onChange={setQuantum}
+                min={1}
+                className="flex-grow"
               />
               {onOptimizeQuantum && (
                 <button
                   onClick={onOptimizeQuantum}
-                  className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 rounded whitespace-nowrap"
+                  className="mb-[2px] bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-2 rounded-md h-[38px] flex items-center"
                   title={t('controls.optimizeHint')}
                 >
                   {t('controls.optimize')}
@@ -155,48 +132,33 @@ export const SimulationControls: React.FC<Props> = ({
           {t('controls.energyTitle')}
         </summary>
         <div className="grid grid-cols-2 gap-4 mt-2 p-4 bg-gray-50 dark:bg-gray-900 rounded-md border border-gray-100 dark:border-gray-700">
-          <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase">
-              {t('controls.activePower')} ({t('common.watts')})
-            </label>
-            <input
-              type="number"
-              value={energyConfig.activeWatts}
-              onChange={(e) =>
-                setEnergyConfig({ ...energyConfig, activeWatts: parseFloat(e.target.value) || 0 })
-              }
-              className="w-full text-sm bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-blue-500 outline-none py-1 dark:text-white"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase">
-              {t('controls.idlePower')} ({t('common.watts')})
-            </label>
-            <input
-              type="number"
-              value={energyConfig.idleWatts}
-              onChange={(e) =>
-                setEnergyConfig({ ...energyConfig, idleWatts: parseFloat(e.target.value) || 0 })
-              }
-              className="w-full text-sm bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-blue-500 outline-none py-1 dark:text-white"
-            />
-          </div>
+          <NumberInput
+            id="energy-active"
+            label={`${t('controls.activePower')} (${t('common.watts')})`}
+            value={energyConfig.activeWatts}
+            onChange={(val) => setEnergyConfig({ ...energyConfig, activeWatts: val })}
+            min={0}
+          />
+          <NumberInput
+            id="energy-idle"
+            label={`${t('controls.idlePower')} (${t('common.watts')})`}
+            value={energyConfig.idleWatts}
+            onChange={(val) => setEnergyConfig({ ...energyConfig, idleWatts: val })}
+            min={0}
+          />
           <div className="col-span-2">
-            <label className="block text-xs font-bold text-gray-500 uppercase">
-              {t('controls.switchCost')} ({t('common.joules')})
-            </label>
-            <input
-              type="number"
-              step="0.01"
+            <NumberInput
+              id="energy-switch"
+              label={`${t('controls.switchCost')} (${t('common.joules')})`}
               value={energyConfig.switchJoules}
-              onChange={(e) =>
-                setEnergyConfig({ ...energyConfig, switchJoules: parseFloat(e.target.value) || 0 })
-              }
-              className="w-full text-sm bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-blue-500 outline-none py-1 dark:text-white"
+              onChange={(val) => setEnergyConfig({ ...energyConfig, switchJoules: val })}
+              min={0}
+              step={0.01}
             />
           </div>
         </div>
       </details>
+
 
       <button
         onClick={onRun}
