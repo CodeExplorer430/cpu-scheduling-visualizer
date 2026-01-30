@@ -17,11 +17,13 @@ describe('OAuth Authentication Logic', () => {
   });
 
   it('should create a new user on successful handleOAuthLogin', async () => {
-    const email = `oauth-user-${Date.now()}@example.com`;
+    const timestamp = Date.now();
+    const email = `oauth-user-${timestamp}@example.com`;
+    const oauthId = `id-${timestamp}`;
     const mockProfile = {
-      id: '12345',
+      id: oauthId,
       emails: [{ value: email }],
-      displayName: 'OAuth User',
+      displayName: `OAuth User ${timestamp}`,
     };
 
     const done = vi.fn();
@@ -31,7 +33,7 @@ describe('OAuth Authentication Logic', () => {
       null,
       expect.objectContaining({
         email: email,
-        googleId: '12345',
+        googleId: oauthId,
       })
     );
 
@@ -40,25 +42,28 @@ describe('OAuth Authentication Logic', () => {
   });
 
   it('should link accounts if the email already exists', async () => {
-    const email = `link-${Date.now()}@example.com`;
+    const timestamp = Date.now();
+    const email = `link-${timestamp}@example.com`;
+    const username = `Existing User ${timestamp}`;
     await User.create({
-      username: 'Existing User',
+      username: username,
       email: email,
       passwordHash: 'hashed_password',
     });
 
+    const oauthId = `gh-${timestamp}`;
     const mockProfile = {
-      id: 'gh-678',
+      id: oauthId,
       emails: [{ value: email }],
-      username: 'githubuser',
+      username: `githubuser-${timestamp}`,
     };
 
     const done = vi.fn();
     await handleOAuthLogin('githubId', mockProfile as Parameters<typeof handleOAuthLogin>[1], done);
 
     const updatedUser = await User.findOne({ email });
-    expect(updatedUser?.githubId).toBe('gh-678');
-    expect(updatedUser?.username).toBe('Existing User');
+    expect(updatedUser?.githubId).toBe(oauthId);
+    expect(updatedUser?.username).toBe(username);
   });
 
   it('should fail if no email is provided', async () => {
