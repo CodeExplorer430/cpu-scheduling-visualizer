@@ -241,6 +241,22 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose }) => {
                   convert to JSON or Text first.
                 </p>
               </div>
+
+              <div>
+                <h4 className="font-bold text-purple-600 dark:text-purple-400">
+                  5. Event Trace Log (ETL)
+                </h4>
+                <p className="text-sm">
+                  Used primarily in the Windows ecosystem. Native format for Event Tracing for
+                  Windows (ETW).
+                  <br />
+                  <em>Properties:</em> Binary files (.etl) recording system or application events.
+                  Viewable with Windows Performance Analyzer.
+                  <br />
+                  <em>Note:</em> Like CTF, this is a binary format. Please convert to JSON/Text for
+                  use here.
+                </p>
+              </div>
             </div>
           </section>
         </div>
