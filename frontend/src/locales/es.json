@@ -21,6 +21,7 @@
   "nav": {
     "playground": "Área de Pruebas",
     "compare": "Comparar",
+    "autoGrader": "Calificador Automático",
     "login": "Iniciar Sesión",
     "register": "Registrarse",
     "logout": "Cerrar Sesión"
