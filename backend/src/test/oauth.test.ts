@@ -16,14 +16,11 @@ describe('OAuth Authentication Logic', () => {
     await mongoose.connection.close();
   });
 
-  beforeEach(async () => {
-    await User.deleteMany({});
-  });
-
   it('should create a new user on successful handleOAuthLogin', async () => {
+    const email = `oauth-user-${Date.now()}@example.com`;
     const mockProfile = {
       id: '12345',
-      emails: [{ value: 'oauth-user@example.com' }],
+      emails: [{ value: email }],
       displayName: 'OAuth User',
     };
 
@@ -33,32 +30,33 @@ describe('OAuth Authentication Logic', () => {
     expect(done).toHaveBeenCalledWith(
       null,
       expect.objectContaining({
-        email: 'oauth-user@example.com',
+        email: email,
         googleId: '12345',
       })
     );
 
-    const user = await User.findOne({ email: 'oauth-user@example.com' });
+    const user = await User.findOne({ email });
     expect(user).toBeDefined();
   });
 
   it('should link accounts if the email already exists', async () => {
+    const email = `link-${Date.now()}@example.com`;
     await User.create({
       username: 'Existing User',
-      email: 'link@example.com',
+      email: email,
       passwordHash: 'hashed_password',
     });
 
     const mockProfile = {
       id: 'gh-678',
-      emails: [{ value: 'link@example.com' }],
+      emails: [{ value: email }],
       username: 'githubuser',
     };
 
     const done = vi.fn();
     await handleOAuthLogin('githubId', mockProfile as Parameters<typeof handleOAuthLogin>[1], done);
 
-    const updatedUser = await User.findOne({ email: 'link@example.com' });
+    const updatedUser = await User.findOne({ email });
     expect(updatedUser?.githubId).toBe('gh-678');
     expect(updatedUser?.username).toBe('Existing User');
   });
