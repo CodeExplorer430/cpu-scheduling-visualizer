@@ -19,7 +19,14 @@ export function runRR(
   const options: SimulationOptions =
     typeof optionsOrQuantum === 'number' ? { quantum: optionsOrQuantum } : optionsOrQuantum;
 
-  const { quantum = 2, contextSwitchOverhead = 0, enableLogging = false } = options;
+  const {
+    quantum = 2,
+    contextSwitchOverhead = 0,
+    enableLogging = false,
+    coreCount = 1,
+    energyConfig = { activeWatts: 20, idleWatts: 5, switchJoules: 0.1 },
+  } = options;
+
   const logs: string[] = [];
   const stepLogs: DecisionLog[] = [];
 
@@ -46,148 +53,184 @@ export function runRR(
   // Sort by arrival initially
   const sortedByArrival = [...processes].sort((a, b) => a.arrival - b.arrival);
 
-  let currentTime = 0;
-  let completedCount = 0;
-  const totalProcesses = processes.length;
   const events: GanttEvent[] = [];
-
   const completionTimes: Record<string, number> = {};
   const turnaroundTimes: Record<string, number> = {};
   const waitingTimes: Record<string, number> = {};
 
   const readyQueue: ProcessWithRemaining[] = [];
-  let arrivalIndex = 0;
-  let lastPid: string | 'IDLE' | 'CS' = 'IDLE';
+  let pIndex = 0;
+  let completedCount = 0;
+  const totalProcesses = processes.length;
 
-  // Helper to enqueue newly arrived processes
-  const enqueueArrivals = (time: number) => {
-    while (arrivalIndex < totalProcesses && sortedByArrival[arrivalIndex].arrival <= time) {
-      const p = sortedByArrival[arrivalIndex];
-      readyQueue.push(p);
-      log(`Time ${time}: Process ${p.pid} arrived and queued`);
-      arrivalIndex++;
-    }
-  };
+  interface CoreState {
+    id: number;
+    currentTime: number;
+    lastPid: string | 'IDLE' | 'CS';
+  }
 
-  // Initial fill
-  enqueueArrivals(currentTime);
+  const cores: CoreState[] = Array.from({ length: coreCount }, (_, i) => ({
+    id: i,
+    currentTime: 0,
+    lastPid: 'IDLE',
+  }));
+
+  // Simulation Clock
+  let systemTime = 0;
 
   while (completedCount < totalProcesses) {
-    if (readyQueue.length === 0) {
-      if (arrivalIndex < totalProcesses) {
-        const nextArrival = sortedByArrival[arrivalIndex].arrival;
-        log(`Time ${currentTime}: System IDLE until ${nextArrival}`);
+    // 1. Enqueue arrivals up to systemTime
+    while (pIndex < totalProcesses && sortedByArrival[pIndex].arrival <= systemTime) {
+      readyQueue.push(sortedByArrival[pIndex]);
+      log(`Time ${systemTime}: Process ${sortedByArrival[pIndex].pid} arrived`);
+      pIndex++;
+    }
+
+    // 2. Assign available cores to processes in readyQueue
+    // Sort cores by currentTime to always pick earliest available
+    cores.sort((a, b) => a.currentTime - b.currentTime || a.id - b.id);
+
+    let assignedThisStep = false;
+    for (const core of cores) {
+      // If core is free and queue not empty
+      if (core.currentTime <= systemTime && readyQueue.length > 0) {
+        const currentProcess = readyQueue.shift()!;
+        const queueState = [currentProcess.pid, ...readyQueue.map((p) => p.pid)];
+
         logDecision(
-          currentTime,
-          0,
-          `IDLE until ${nextArrival}`,
-          `Ready queue empty. Waiting for next arrival.`,
-          []
+          core.currentTime,
+          core.id,
+          `Selected ${currentProcess.pid}`,
+          `Selected ${currentProcess.pid} from head of queue. Quantum: ${quantum}.`,
+          queueState
         );
 
+        // Context Switch
+        if (
+          contextSwitchOverhead > 0 &&
+          core.lastPid !== 'IDLE' &&
+          core.lastPid !== currentProcess.pid &&
+          core.lastPid !== 'CS'
+        ) {
+          events.push({
+            pid: 'CS',
+            start: core.currentTime,
+            end: core.currentTime + contextSwitchOverhead,
+            coreId: core.id,
+          });
+          core.currentTime += contextSwitchOverhead;
+        }
+
+        const runTime = Math.min(currentProcess.remaining, quantum);
+        const start = core.currentTime;
+        const end = start + runTime;
+
         events.push({
-          pid: 'IDLE',
-          start: currentTime,
-          end: nextArrival,
+          pid: currentProcess.pid,
+          start,
+          end,
+          coreId: core.id,
         });
-        currentTime = nextArrival;
-        lastPid = 'IDLE';
-        enqueueArrivals(currentTime);
+
+        core.currentTime = end;
+        currentProcess.remaining -= runTime;
+        core.lastPid = currentProcess.pid;
+        assignedThisStep = true;
+
+        if (currentProcess.remaining > 0) {
+          (currentProcess as any).nextAvailableAt = end;
+        } else {
+          completedCount++;
+          completionTimes[currentProcess.pid] = end;
+          turnaroundTimes[currentProcess.pid] = end - currentProcess.arrival;
+          waitingTimes[currentProcess.pid] = turnaroundTimes[currentProcess.pid] - currentProcess.burst;
+        }
       }
-      continue;
     }
 
-    const queueState = readyQueue.map((p) => `${p.pid}(Rem:${p.remaining})`);
-    const currentProcess = readyQueue.shift()!;
-
-    logDecision(
-      currentTime,
-      0,
-      `Selected ${currentProcess.pid}`,
-      `Selected ${currentProcess.pid} from head of queue. Quantum: ${quantum}.`,
-      queueState
+    // 3. Advance system time
+    const nextArrival = pIndex < totalProcesses ? sortedByArrival[pIndex].arrival : Infinity;
+    
+    // Core available times
+    const nextCoreFree = Math.min(...cores.map((c) => c.currentTime));
+    
+    // Check processes that were running and now need re-queueing
+    const sliceFinishedProcesses = processes.filter(p => 
+      p.remaining > 0 && 
+      (p as any).nextAvailableAt !== undefined
     );
+    const nextSliceFinish = sliceFinishedProcesses.length > 0 
+      ? Math.min(...sliceFinishedProcesses.map(p => (p as any).nextAvailableAt))
+      : Infinity;
 
-    // Context Switch Overhead
-    // We switch if the new process is different from the last one
-    // AND the last one wasn't IDLE (unless we treat IDLE->Process as switch, usually we don't count overhead there, but maybe?)
-    // Usually overhead is "saving old state, loading new state".
-    // From IDLE means no old state to save (maybe).
-    // Let's stick to: if lastPid != IDLE && lastPid != current.pid -> Overhead.
-    if (
-      contextSwitchOverhead > 0 &&
-      lastPid !== 'IDLE' &&
-      lastPid !== currentProcess.pid &&
-      lastPid !== 'CS'
-    ) {
-      log(`Time ${currentTime}: Context Switch from ${lastPid} to ${currentProcess.pid}`);
-      events.push({
-        pid: 'CS',
-        start: currentTime,
-        end: currentTime + contextSwitchOverhead,
-      });
-      currentTime += contextSwitchOverhead;
+    // Next event time
+    const nextEventTime = Math.min(nextArrival, nextCoreFree, nextSliceFinish);
 
-      // Arrivals might happen DURING context switch?
-      // Let's assume queue is frozen during switch or arrivals can happen.
-      // For simplicity, check arrivals after switch time.
-      enqueueArrivals(currentTime);
-    }
+    if (nextEventTime === Infinity && readyQueue.length === 0) break;
 
-    // Determine run time
-    const runTime = Math.min(currentProcess.remaining, quantum);
-    log(`Time ${currentTime}: ${currentProcess.pid} runs for ${runTime}ms (Quantum: ${quantum})`);
-
-    // In Round Robin, we avoid merging events even for the same PID
-    // to allow the user to see the quantum-based preemption steps.
-    events.push({
-      pid: currentProcess.pid,
-      start: currentTime,
-      end: currentTime + runTime,
-    });
-
-    currentTime += runTime;
-    currentProcess.remaining -= runTime;
-    lastPid = currentProcess.pid;
-
-    // Check for new arrivals BEFORE re-queueing
-    enqueueArrivals(currentTime);
-
-    if (currentProcess.remaining > 0) {
-      log(`Time ${currentTime}: ${currentProcess.pid} time slice expired, re-queuing`);
-      readyQueue.push(currentProcess);
+    // Handle IDLE time if all cores are busy or queue is empty
+    if (readyQueue.length === 0 && pIndex < totalProcesses && nextArrival > systemTime && cores.every(c => c.currentTime <= systemTime)) {
+        // Find if any core idled
+        for (const core of cores) {
+            if (core.currentTime <= systemTime) {
+                events.push({
+                    pid: 'IDLE',
+                    start: core.currentTime,
+                    end: nextArrival,
+                    coreId: core.id
+                });
+                core.currentTime = nextArrival;
+                core.lastPid = 'IDLE';
+            }
+        }
+        systemTime = nextArrival;
+    } else if (nextEventTime > systemTime) {
+      systemTime = nextEventTime;
+    } else if (!assignedThisStep && readyQueue.length === 0 && pIndex >= totalProcesses && sliceFinishedProcesses.length > 0) {
+        // If we are waiting for a slice to finish
+        systemTime = nextSliceFinish;
+    } else if (!assignedThisStep && readyQueue.length === 0 && pIndex < totalProcesses) {
+        systemTime = nextArrival;
     } else {
-      // Completed
-      log(`Time ${currentTime}: ${currentProcess.pid} completed`);
-      completedCount++;
-      const completion = currentTime;
-      completionTimes[currentProcess.pid] = completion;
-      turnaroundTimes[currentProcess.pid] = completion - currentProcess.arrival;
-      waitingTimes[currentProcess.pid] = turnaroundTimes[currentProcess.pid] - currentProcess.burst;
+      // Avoid infinite loop if we can't advance
+      const earliestBusyCoreFinish = Math.min(...cores.filter(c => c.currentTime > systemTime).map(c => c.currentTime));
+      systemTime = earliestBusyCoreFinish !== Infinity ? earliestBusyCoreFinish : systemTime + 1;
     }
+
+    // Rounding
+    systemTime = Math.round(systemTime * 100) / 100;
+
+    // Re-queue processes whose slice finished up to systemTime
+    processes.forEach(p => {
+      if (p.remaining > 0 && (p as any).nextAvailableAt !== undefined && (p as any).nextAvailableAt <= systemTime) {
+        readyQueue.push(p);
+        delete (p as any).nextAvailableAt;
+      }
+    });
   }
 
   // Aggregate Metrics
   const totalTurnaround = Object.values(turnaroundTimes).reduce((sum, val) => sum + val, 0);
   const totalWaiting = Object.values(waitingTimes).reduce((sum, val) => sum + val, 0);
 
-  // Count context switches
   let contextSwitches = 0;
   if (contextSwitchOverhead > 0) {
     contextSwitches = events.filter((e) => e.pid === 'CS').length;
   } else {
-    for (let i = 0; i < events.length - 1; i++) {
-      if (
-        events[i].pid !== events[i + 1].pid &&
-        events[i].pid !== 'IDLE' &&
-        events[i + 1].pid !== 'IDLE'
-      ) {
-        contextSwitches++;
+    for (let c = 0; c < coreCount; c++) {
+      const coreEvents = events.filter((e) => (e.coreId ?? 0) === c).sort((a, b) => a.start - b.start);
+      for (let i = 0; i < coreEvents.length - 1; i++) {
+        if (
+          coreEvents[i].pid !== coreEvents[i + 1].pid &&
+          coreEvents[i].pid !== 'IDLE' &&
+          coreEvents[i + 1].pid !== 'IDLE'
+        ) {
+          contextSwitches++;
+        }
       }
     }
   }
 
-  // Calculate Active Time for Energy & Utilization
   let activeTime = 0;
   let idleTime = 0;
   events.forEach((e) => {
@@ -196,12 +239,9 @@ export function runRR(
     else if (e.pid !== 'CS') activeTime += duration;
   });
 
-  const totalEnergy =
-    activeTime * (options.energyConfig?.activeWatts ?? 20) +
-    idleTime * (options.energyConfig?.idleWatts ?? 5) +
-    contextSwitches * (options.energyConfig?.switchJoules ?? 0.1);
-  const totalTime = events.length > 0 ? events[events.length - 1].end : 1;
-  const cpuUtilization = (activeTime / totalTime) * 100;
+  const globalMaxTime = events.length > 0 ? Math.max(...events.map((e) => e.end)) : 0;
+  const totalTime = globalMaxTime > 0 ? globalMaxTime : 1;
+  const cpuUtilization = (activeTime / (totalTime * coreCount)) * 100;
 
   const metrics: Metrics = {
     completion: completionTimes,
@@ -212,17 +252,22 @@ export function runRR(
     contextSwitches,
     cpuUtilization,
     energy: {
-      totalEnergy,
-      activeEnergy: activeTime * (options.energyConfig?.activeWatts ?? 20),
-      idleEnergy: idleTime * (options.energyConfig?.idleWatts ?? 5),
-      switchEnergy: contextSwitches * (options.energyConfig?.switchJoules ?? 0.1),
+      totalEnergy: activeTime * energyConfig.activeWatts + idleTime * energyConfig.idleWatts + contextSwitches * energyConfig.switchJoules,
+      activeEnergy: activeTime * energyConfig.activeWatts,
+      idleEnergy: idleTime * energyConfig.idleWatts,
+      switchEnergy: contextSwitches * energyConfig.switchJoules,
     },
   };
+
+  // Clean up coreId for single-core to keep tests happy
+  if (coreCount === 1) {
+    events.forEach(e => delete e.coreId);
+  }
 
   return {
     events,
     metrics,
-    snapshots: generateSnapshots(events, inputProcesses),
+    snapshots: generateSnapshots(events, inputProcesses, coreCount),
     logs: enableLogging ? logs : undefined,
     stepLogs: enableLogging ? stepLogs : undefined,
   };

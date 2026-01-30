@@ -12,7 +12,13 @@ export function runSRTF(
   inputProcesses: Process[],
   options: SimulationOptions = {}
 ): SimulationResult {
-  const { contextSwitchOverhead = 0, enableLogging = false } = options;
+  const {
+    contextSwitchOverhead = 0,
+    enableLogging = false,
+    coreCount = 1,
+    energyConfig = { activeWatts: 20, idleWatts: 5, switchJoules: 0.1 },
+  } = options;
+
   const logs: string[] = [];
   const stepLogs: DecisionLog[] = [];
 
@@ -36,7 +42,7 @@ export function runSRTF(
     remaining: p.burst,
   }));
 
-  let currentTime = 0;
+  let systemTime = 0;
   let completedCount = 0;
   const totalProcesses = processes.length;
   const events: GanttEvent[] = [];
@@ -45,119 +51,129 @@ export function runSRTF(
   const turnaroundTimes: Record<string, number> = {};
   const waitingTimes: Record<string, number> = {};
 
-  let lastPid: string | 'IDLE' | 'CS' = 'IDLE';
+  interface CoreState {
+    id: number;
+    currentTime: number;
+    lastPid: string | 'IDLE' | 'CS';
+    currentProcessPid?: string;
+  }
 
-  // Helper to get ready processes
-  const getReadyProcesses = (time: number) =>
-    processes.filter((p) => p.arrival <= time && p.remaining > 0);
+  const cores: CoreState[] = Array.from({ length: coreCount }, (_, i) => ({
+    id: i,
+    currentTime: 0,
+    lastPid: 'IDLE',
+  }));
+
+  // Helper to get ready processes (not currently running on any core)
+  const getReadyQueue = (time: number, currentlyRunningPids: string[]) =>
+    processes.filter((p) => p.arrival <= time && p.remaining > 0 && !currentlyRunningPids.includes(p.pid));
 
   while (completedCount < totalProcesses) {
-    const readyQueue = getReadyProcesses(currentTime);
+    // 1. Assign or Preempt cores
+    cores.sort((a, b) => a.id - b.id);
 
-    // If nothing is ready, jump to the next arrival
-    if (readyQueue.length === 0) {
-      const pending = processes.filter((p) => p.remaining > 0);
-      if (pending.length === 0) break;
+    for (const core of cores) {
+      if (core.currentTime <= systemTime) {
+        const currentlyRunningPids = cores.filter(c => c.currentProcessPid && c.currentProcessPid !== 'CS').map(c => c.currentProcessPid!);
+        let readyQueue = getReadyQueue(systemTime, currentlyRunningPids);
+        
+        // If core is running something, check for preemption
+        if (core.currentProcessPid && core.currentProcessPid !== 'CS') {
+          const current = processes.find(p => p.pid === core.currentProcessPid)!;
+          readyQueue.sort((a, b) => (a.remaining !== b.remaining ? a.remaining - b.remaining : a.arrival - b.arrival));
+          
+          if (readyQueue.length > 0 && readyQueue[0].remaining < current.remaining) {
+            // Preempt!
+            const preemptedPid = current.pid;
+            const selected = readyQueue[0];
+            
+            logDecision(systemTime, core.id, `Preempting ${preemptedPid} for ${selected.pid}`, `New process has shorter remaining time (${selected.remaining} < ${current.remaining})`, readyQueue.map(p => p.pid));
+            
+            core.currentProcessPid = undefined; // Will trigger re-selection below
+          }
+        }
 
-      const nextArrival = Math.min(...pending.map((p) => p.arrival));
-      log(`Time ${currentTime}: System IDLE until ${nextArrival}`);
-      logDecision(
-        currentTime,
-        0,
-        `IDLE until ${nextArrival}`,
-        `No processes ready. Waiting for next arrival at ${nextArrival}.`,
-        []
-      );
+        // If core is free (or just preempted)
+        if (!core.currentProcessPid) {
+          readyQueue = getReadyQueue(systemTime, cores.filter(c => c.currentProcessPid && c.currentProcessPid !== 'CS').map(c => c.currentProcessPid!));
+          if (readyQueue.length > 0) {
+            readyQueue.sort((a, b) => (a.remaining !== b.remaining ? a.remaining - b.remaining : a.arrival - b.arrival));
+            const selected = readyQueue[0];
 
-      events.push({
-        pid: 'IDLE',
-        start: currentTime,
-        end: nextArrival,
-      });
-      currentTime = nextArrival;
-      lastPid = 'IDLE';
-      continue;
+            // Context Switch
+            if (contextSwitchOverhead > 0 && core.lastPid !== 'IDLE' && core.lastPid !== selected.pid && core.lastPid !== 'CS') {
+              events.push({ pid: 'CS', start: systemTime, end: systemTime + contextSwitchOverhead, coreId: core.id });
+              core.currentTime = systemTime + contextSwitchOverhead;
+              core.currentProcessPid = 'CS';
+              core.lastPid = 'CS';
+            } else {
+              core.currentProcessPid = selected.pid;
+            }
+          }
+        }
+      }
     }
 
-    // Select process with shortest remaining time
-    // Tie-breaker: Arrival time (FCFS for ties)
-    readyQueue.sort((a, b) => {
-      if (a.remaining !== b.remaining) return a.remaining - b.remaining;
-      return a.arrival - b.arrival;
-    });
+    // 2. Determine next event
+    const nextArrival = processes.filter(p => p.arrival > systemTime).length > 0
+      ? Math.min(...processes.filter(p => p.arrival > systemTime).map(p => p.arrival))
+      : Infinity;
+    
+    const nextCompletion = cores.filter(c => c.currentProcessPid && c.currentProcessPid !== 'CS').length > 0
+      ? Math.min(...cores.filter(c => c.currentProcessPid && c.currentProcessPid !== 'CS').map(c => {
+          const p = processes.find(p => p.pid === c.currentProcessPid)!;
+          return systemTime + p.remaining;
+        }))
+      : Infinity;
 
-    const queueState = readyQueue.map((p) => `${p.pid}(Rem:${p.remaining})`);
+    const nextCSFinish = cores.filter(c => c.currentProcessPid === 'CS').length > 0
+      ? Math.min(...cores.filter(c => c.currentProcessPid === 'CS').map(c => c.currentTime))
+      : Infinity;
 
-    const currentProcess = readyQueue[0];
+    const nextEventTime = Math.min(nextArrival, nextCompletion, nextCSFinish);
 
-    // Log Decision
-    logDecision(
-      currentTime,
-      0,
-      `Selected ${currentProcess.pid}`,
-      `Selected ${currentProcess.pid} because it has the shortest remaining time (${currentProcess.remaining}).`,
-      queueState
-    );
+    if (nextEventTime === Infinity) break;
 
-    // Context Switch Overhead
-    if (
-      contextSwitchOverhead > 0 &&
-      lastPid !== 'IDLE' &&
-      lastPid !== currentProcess.pid &&
-      lastPid !== 'CS'
-    ) {
-      log(`Time ${currentTime}: Context Switch from ${lastPid} to ${currentProcess.pid}`);
-      events.push({
-        pid: 'CS',
-        start: currentTime,
-        end: currentTime + contextSwitchOverhead,
-      });
-      currentTime += contextSwitchOverhead;
-      // Re-evaluate ready queue after overhead?
-      // In preemptive, a new process might arrive DURING the switch.
-      // Standard SRTF usually decides at t, if switch occurs, it takes delta t.
-      // The process starts AFTER overhead.
-      // Let's continue with the *selected* process, assuming switch is atomic-ish.
-    }
-
-    // Determine how long to run
-    const futureArrivals = processes
-      .filter((p) => p.arrival > currentTime && p.remaining > 0)
-      .map((p) => p.arrival);
-
-    const nextInterruption = futureArrivals.length > 0 ? Math.min(...futureArrivals) : Infinity;
-
-    const timeToNextArrival = nextInterruption - currentTime;
-    const runTime = Math.min(currentProcess.remaining, timeToNextArrival);
-
-    log(
-      `Time ${currentTime}: ${currentProcess.pid} runs for ${runTime}ms (Rem: ${currentProcess.remaining})`
-    );
-
-    // Create Event
-    const lastEvent = events[events.length - 1];
-    if (lastEvent && lastEvent.pid === currentProcess.pid) {
-      lastEvent.end += runTime;
+    const duration = nextEventTime - systemTime;
+    
+    if (duration > 0) {
+      for (const core of cores) {
+        if (core.currentProcessPid && core.currentProcessPid !== 'CS') {
+          const p = processes.find(p => p.pid === core.currentProcessPid)!;
+          const lastEvent = events.filter(e => (e.coreId ?? 0) === core.id).pop();
+          if (lastEvent && lastEvent.pid === p.pid && lastEvent.end === systemTime) {
+            lastEvent.end = nextEventTime;
+          } else {
+            events.push({ pid: p.pid, start: systemTime, end: nextEventTime, coreId: core.id });
+          }
+          p.remaining -= duration;
+          core.currentTime = nextEventTime;
+          core.lastPid = p.pid;
+          if (p.remaining <= 0) {
+            completedCount++;
+            completionTimes[p.pid] = nextEventTime;
+            turnaroundTimes[p.pid] = nextEventTime - p.arrival;
+            waitingTimes[p.pid] = turnaroundTimes[p.pid] - p.burst;
+            core.currentProcessPid = undefined;
+          }
+        } else if (!core.currentProcessPid) {
+          const lastEvent = events.filter(e => (e.coreId ?? 0) === core.id).pop();
+          if (lastEvent && lastEvent.pid === 'IDLE' && lastEvent.end === systemTime) {
+            lastEvent.end = nextEventTime;
+          } else {
+            events.push({ pid: 'IDLE', start: systemTime, end: nextEventTime, coreId: core.id });
+          }
+          core.currentTime = nextEventTime;
+          core.lastPid = 'IDLE';
+        } else if (core.currentProcessPid === 'CS') {
+          if (core.currentTime <= nextEventTime) core.currentProcessPid = undefined;
+        }
+      }
+      systemTime = nextEventTime;
     } else {
-      events.push({
-        pid: currentProcess.pid,
-        start: currentTime,
-        end: currentTime + runTime,
-      });
+      systemTime += 0.1;
     }
-
-    currentProcess.remaining -= runTime;
-    currentTime += runTime;
-    lastPid = currentProcess.pid;
-
-    if (currentProcess.remaining === 0) {
-      log(`Time ${currentTime}: ${currentProcess.pid} completed`);
-      completedCount++;
-      const completion = currentTime;
-      completionTimes[currentProcess.pid] = completion;
-      turnaroundTimes[currentProcess.pid] = completion - currentProcess.arrival;
-      waitingTimes[currentProcess.pid] = turnaroundTimes[currentProcess.pid] - currentProcess.burst;
-    }
+    systemTime = Math.round(systemTime * 100) / 100;
   }
 
   // Aggregate Metrics
@@ -168,18 +184,16 @@ export function runSRTF(
   if (contextSwitchOverhead > 0) {
     contextSwitches = events.filter((e) => e.pid === 'CS').length;
   } else {
-    for (let i = 0; i < events.length - 1; i++) {
-      if (
-        events[i].pid !== events[i + 1].pid &&
-        events[i].pid !== 'IDLE' &&
-        events[i + 1].pid !== 'IDLE'
-      ) {
-        contextSwitches++;
+    for (let c = 0; c < coreCount; c++) {
+      const coreEvents = events.filter((e) => (e.coreId ?? 0) === c).sort((a, b) => a.start - b.start);
+      for (let i = 0; i < coreEvents.length - 1; i++) {
+        if (coreEvents[i].pid !== coreEvents[i + 1].pid && coreEvents[i].pid !== 'IDLE' && coreEvents[i + 1].pid !== 'IDLE') {
+          contextSwitches++;
+        }
       }
     }
   }
 
-  // Calculate Active Time
   let activeTime = 0;
   let idleTime = 0;
   events.forEach((e) => {
@@ -188,12 +202,9 @@ export function runSRTF(
     else if (e.pid !== 'CS') activeTime += duration;
   });
 
-  const totalEnergy =
-    activeTime * (options.energyConfig?.activeWatts ?? 20) +
-    idleTime * (options.energyConfig?.idleWatts ?? 5) +
-    contextSwitches * (options.energyConfig?.switchJoules ?? 0.1);
-  const totalTime = events.length > 0 ? events[events.length - 1].end : 1;
-  const cpuUtilization = (activeTime / totalTime) * 100;
+  const globalMaxTime = events.length > 0 ? Math.max(...events.map((e) => e.end)) : 0;
+  const totalTime = globalMaxTime > 0 ? globalMaxTime : 1;
+  const cpuUtilization = (activeTime / (totalTime * coreCount)) * 100;
 
   const metrics: Metrics = {
     completion: completionTimes,
@@ -204,17 +215,19 @@ export function runSRTF(
     contextSwitches,
     cpuUtilization,
     energy: {
-      totalEnergy,
-      activeEnergy: activeTime * (options.energyConfig?.activeWatts ?? 20),
-      idleEnergy: idleTime * (options.energyConfig?.idleWatts ?? 5),
-      switchEnergy: contextSwitches * (options.energyConfig?.switchJoules ?? 0.1),
+      totalEnergy: activeTime * energyConfig.activeWatts + idleTime * energyConfig.idleWatts + contextSwitches * energyConfig.switchJoules,
+      activeEnergy: activeTime * energyConfig.activeWatts,
+      idleEnergy: idleTime * energyConfig.idleWatts,
+      switchEnergy: contextSwitches * energyConfig.switchJoules,
     },
   };
+
+  if (coreCount === 1) events.forEach(e => delete e.coreId);
 
   return {
     events,
     metrics,
-    snapshots: generateSnapshots(events, inputProcesses),
+    snapshots: generateSnapshots(events, inputProcesses, coreCount),
     logs: enableLogging ? logs : undefined,
     stepLogs: enableLogging ? stepLogs : undefined,
   };
