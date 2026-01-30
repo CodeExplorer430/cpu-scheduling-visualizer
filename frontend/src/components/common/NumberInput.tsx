@@ -1,4 +1,4 @@
-import React, { useState, useEffect, FocusEvent, KeyboardEvent } from 'react';
+import React, { useState, useEffect, KeyboardEvent } from 'react';
 
 interface NumberInputProps {
   value: number;
