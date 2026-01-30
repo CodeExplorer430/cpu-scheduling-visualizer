@@ -1,6 +1,4 @@
-import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest';
-import request from 'supertest';
-import app from '../app.js';
+import { describe, it, expect, beforeEach, beforeAll, afterAll } from 'vitest';
 import { User } from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
@@ -76,7 +74,7 @@ describe('OAuth Authentication Logic', () => {
     };
 
     // Simulate handleOAuthLogin logic
-    let user = await User.findOne({
+    const user = await User.findOne({
       $or: [{ githubId: mockProfile.id }, { email: mockProfile.emails[0].value }],
     });
 

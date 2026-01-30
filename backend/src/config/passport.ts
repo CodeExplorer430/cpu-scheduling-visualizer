@@ -26,12 +26,21 @@ const getAuthConfig = (provider: string) => {
   return { clientID, clientSecret, callbackURL };
 };
 
+interface OAuthProfile {
+  id: string;
+  displayName?: string;
+  username?: string;
+  emails?: Array<{ value: string }>;
+  [key: string]: unknown;
+}
+
+type PassportDone = (error: Error | null | unknown, user?: Express.User | false | unknown) => void;
+
 // --- Generic Handler ---
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleOAuthLogin = async (
   providerKey: string, // e.g., 'googleId', 'githubId'
-  profile: any,
-  done: (error: any, user?: any) => void
+  profile: OAuthProfile,
+  done: PassportDone
 ) => {
   try {
     // 1. Check if user exists with this provider ID
@@ -100,7 +109,7 @@ if (githubConfig) {
         callbackURL: githubConfig.callbackURL,
         scope: ['user:email'],
       },
-      (accessToken: string, refreshToken: string, profile: any, done: any) =>
+      (_accessToken: string, _refreshToken: string, profile: OAuthProfile, done: PassportDone) =>
         handleOAuthLogin('githubId', profile, done)
     )
   );
@@ -117,7 +126,7 @@ if (gitlabConfig) {
         callbackURL: gitlabConfig.callbackURL,
         scope: ['read_user'],
       },
-      (accessToken: string, refreshToken: string, profile: any, done: any) =>
+      (_accessToken: string, _refreshToken: string, profile: OAuthProfile, done: PassportDone) =>
         handleOAuthLogin('gitlabId', profile, done)
     )
   );
@@ -134,7 +143,7 @@ if (discordConfig) {
         callbackURL: discordConfig.callbackURL,
         scope: ['identify', 'email'],
       },
-      (accessToken: string, refreshToken: string, profile: any, done: any) =>
+      (_accessToken: string, _refreshToken: string, profile: OAuthProfile, done: PassportDone) =>
         handleOAuthLogin('discordId', profile, done)
     )
   );
@@ -151,7 +160,7 @@ if (linkedinConfig) {
         callbackURL: linkedinConfig.callbackURL,
         scope: ['r_emailaddress', 'r_liteprofile'],
       },
-      (accessToken: string, refreshToken: string, profile: any, done: any) =>
+      (_accessToken: string, _refreshToken: string, profile: OAuthProfile, done: PassportDone) =>
         handleOAuthLogin('linkedinId', profile, done)
     )
   );

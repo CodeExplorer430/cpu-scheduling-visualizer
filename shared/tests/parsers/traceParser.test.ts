@@ -5,7 +5,6 @@ import {
   TraceEventParser,
   FtraceParser,
 } from '../../src/parsers/traceParser.js';
-import { SimulationResult } from '../../src/types.js';
 
 describe('Trace Parsers', () => {
   describe('QuantixParser (Native JSON)', () => {
