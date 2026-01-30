@@ -8,6 +8,9 @@ import authRouter from './routes/auth.js';
 
 const app = express();
 
+// Trust proxy is required for secure cookies and correct protocol detection on Render
+app.set('trust proxy', 1);
+
 app.use(cors());
 app.use(express.json());
 app.use(passport.initialize());
