@@ -179,26 +179,69 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </section>
 
           <section className="border-t dark:border-gray-700 pt-4 mt-4">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Trace Playback</h3>
-            <p className="text-sm mb-2">
-              You can import real-world scheduling traces to visualize execution flow.
-            </p>
-            <ul className="list-disc list-inside text-sm space-y-1">
-              <li>
-                <strong>Quantix Native (JSON):</strong> The default format exported by this
-                application.
-              </li>
-              <li>
-                <strong>Trace Event Format (JSON):</strong> Standard format used by Chrome Tracing
-                and Perfetto. Looks for <code>"ph": "X"</code> (Complete) or{' '}
-                <code>"ph": "B/E"</code> (Begin/End) events.
-              </li>
-              <li>
-                <strong>Linux ftrace (Text):</strong> Raw text logs containing{' '}
-                <code>sched_switch</code> events. Generated via{' '}
-                <code>cat /sys/kernel/debug/tracing/trace</code>.
-              </li>
-            </ul>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Trace Playback</h3>
+
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-bold text-blue-600 dark:text-blue-400">
+                  1. Perfetto (Protobuf) – Top Priority
+                </h4>
+                <p className="text-sm">
+                  The modern standard for system-wide profiling on Android (10+), Linux, and Chrome.
+                  <br />
+                  <em>Why it's good:</em> Captures high-frequency scheduling activity, task
+                  switching latency, and CPU frequency.
+                  <br />
+                  <em>Implementation:</em> Uses a protocol buffer binary stream. Please use
+                  Perfetto’s Trace Processor to convert these into JSON/CSV for this visualizer.
+                </p>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-green-600 dark:text-green-400">
+                  2. Trace Event Format (JSON)
+                </h4>
+                <p className="text-sm">
+                  Originally created for the Chrome Tracing tool, this is the easiest format to
+                  implement for a web app.
+                  <br />
+                  <em>Why it's good:</em> Human-readable and structured as a JSON array.
+                  <br />
+                  <em>Key Events:</em> Visualizes <code>ph: "B"</code> (begin) /{' '}
+                  <code>"E"</code> (end) or <code>"X"</code> (complete) events with duration.
+                </p>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-orange-600 dark:text-orange-400">
+                  3. Linux ftrace (Textual/Raw)
+                </h4>
+                <p className="text-sm">
+                  Internal tracer for the Linux kernel, available on almost every Linux
+                  distribution.
+                  <br />
+                  <em>Why it's good:</em> Generate logs without extra tools via{' '}
+                  <code>cat /sys/kernel/debug/tracing/trace</code>.
+                  <br />
+                  <em>Parsing:</em> Parses lines containing <code>sched_switch</code> events to show
+                  task preemption.
+                </p>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-gray-600 dark:text-gray-400">
+                  4. Common Trace Format (CTF)
+                </h4>
+                <p className="text-sm">
+                  Binary format designed for extremely low overhead (LTTng, Zephyr RTOS).
+                  <br />
+                  <em>Why it's good:</em> Standard for high-performance tracing in non-Android Linux.
+                  <br />
+                  <em>Note:</em> This is a binary format requiring metadata to decode. Please
+                  convert to JSON or Text first.
+                </p>
+              </div>
+            </div>
           </section>
         </div>
 
