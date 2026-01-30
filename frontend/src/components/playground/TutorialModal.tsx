@@ -177,6 +177,29 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <em>Cons:</em> Complex to tune (number of queues, quantums, aging rules).
             </p>
           </section>
+
+          <section className="border-t dark:border-gray-700 pt-4 mt-4">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Trace Playback</h3>
+            <p className="text-sm mb-2">
+              You can import real-world scheduling traces to visualize execution flow.
+            </p>
+            <ul className="list-disc list-inside text-sm space-y-1">
+              <li>
+                <strong>Quantix Native (JSON):</strong> The default format exported by this
+                application.
+              </li>
+              <li>
+                <strong>Trace Event Format (JSON):</strong> Standard format used by Chrome Tracing
+                and Perfetto. Looks for <code>"ph": "X"</code> (Complete) or{' '}
+                <code>"ph": "B/E"</code> (Begin/End) events.
+              </li>
+              <li>
+                <strong>Linux ftrace (Text):</strong> Raw text logs containing{' '}
+                <code>sched_switch</code> events. Generated via{' '}
+                <code>cat /sys/kernel/debug/tracing/trace</code>.
+              </li>
+            </ul>
+          </section>
         </div>
 
         <div className="mt-6 flex justify-end">

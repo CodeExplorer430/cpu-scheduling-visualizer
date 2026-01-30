@@ -1,4 +1,4 @@
-import { EnergyConfig, Algorithm, SimulationResult } from '@cpu-vis/shared';
+import { EnergyConfig, Algorithm, SimulationResult, parseTrace } from '@cpu-vis/shared';
 import { useTranslation } from 'react-i18next';
 import {
   InformationCircleIcon,
@@ -54,12 +54,7 @@ export const SimulationControls: React.FC<Props> = ({
     reader.onload = (event) => {
       try {
         const content = event.target?.result as string;
-        const result = JSON.parse(content) as SimulationResult;
-        
-        // Basic validation
-        if (!result.events || !result.metrics) {
-          throw new Error('Invalid trace format: missing events or metrics');
-        }
+        const result = parseTrace(content); // Use the smart parser
 
         if (onImportTrace) {
           onImportTrace(result);
@@ -67,7 +62,8 @@ export const SimulationControls: React.FC<Props> = ({
         }
       } catch (error) {
         console.error('Trace load error:', error);
-        toast.error('Failed to load trace: Invalid JSON format');
+        const msg = error instanceof Error ? error.message : 'Invalid trace format';
+        toast.error(`Failed to load trace: ${msg}`);
       }
     };
     reader.readAsText(file);
