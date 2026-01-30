@@ -20,6 +20,7 @@ export const Header: React.FC = () => {
     { name: t('nav.playground'), path: '/' },
     { name: t('nav.compare'), path: '/compare' },
     { name: t('nav.autoGrader'), path: '/autograder' },
+    { name: t('nav.guide'), path: '/guide' },
     { name: t('nav.about'), path: '/about' },
   ];
 

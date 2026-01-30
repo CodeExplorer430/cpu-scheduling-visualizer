@@ -12,6 +12,12 @@ export const Footer: React.FC = () => {
         <div className="md:flex md:items-center md:justify-between">
           <div className="flex justify-center space-x-6 md:order-2">
             <Link
+              to="/guide"
+              className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
+            >
+              {t('nav.guide')}
+            </Link>
+            <Link
               to="/about"
               className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
             >

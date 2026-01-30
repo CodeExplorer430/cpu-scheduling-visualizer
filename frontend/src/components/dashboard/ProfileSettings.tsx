@@ -138,27 +138,30 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ mode }) => {
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
           {t('dashboard.language')}
         </h3>
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={() => changeLanguage('en')}
-            className={`px-4 py-2 rounded-md text-sm font-medium ${
-              i18n.language === 'en'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200'
-            }`}
-          >
-            English
-          </button>
-          <button
-            onClick={() => changeLanguage('es')}
-            className={`px-4 py-2 rounded-md text-sm font-medium ${
-              i18n.language === 'es'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200'
-            }`}
-          >
-            Español
-          </button>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {[
+            { code: 'en', name: 'English' },
+            { code: 'es', name: 'Español' },
+            { code: 'fil', name: 'Filipino' },
+            { code: 'fr', name: 'Français' },
+            { code: 'de', name: 'Deutsch' },
+            { code: 'ko', name: '한국어' },
+            { code: 'ja', name: '日本語' },
+            { code: 'zh', name: '中文' },
+            { code: 'pt', name: 'Português' },
+          ].map((lang) => (
+            <button
+              key={lang.code}
+              onClick={() => changeLanguage(lang.code)}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                i18n.language.startsWith(lang.code)
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              {lang.name}
+            </button>
+          ))}
         </div>
       </div>
     </div>

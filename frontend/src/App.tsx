@@ -8,12 +8,19 @@ import { About } from './pages/About';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Dashboard } from './pages/Dashboard';
+import { Guide } from './pages/Guide';
 import { AutoGrader } from './pages/autograder/AutoGrader';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { Layout } from './components/layout/Layout';
 
 // --- Initial Data ---
+const initialProcesses: Process[] = [
+  { pid: 'P1', arrival: 0, burst: 4, priority: 1 },
+  { pid: 'P2', arrival: 1, burst: 3, priority: 2 },
+  { pid: 'P3', arrival: 2, burst: 1, priority: 3 },
+  { pid: 'P4', arrival: 5, burst: 2, priority: 1 },
+];
 
 function App() {
   const [processes, setProcesses] = useState<Process[]>(initialProcesses);
@@ -38,6 +45,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/guide" element={<Guide />} />
             </Routes>
           </Layout>
         </AuthProvider>
