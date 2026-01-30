@@ -45,7 +45,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
 
   const handleBlur = () => {
     let parsed = parseFloat(inputValue);
-    
+
     // If empty or invalid, revert to last valid prop value
     if (isNaN(parsed)) {
       setInputValue(value.toString());

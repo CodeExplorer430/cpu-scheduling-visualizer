@@ -102,7 +102,9 @@ export const runBatchSimulation = (req: Request, res: Response) => {
   const options = { quantum };
   const results: Record<string, SimulationResult | { error: string }> = {};
 
-  console.log(`[BatchSim] Starting simulation for ${algorithms.length} algorithms. Process count: ${processes?.length}`);
+  console.log(
+    `[BatchSim] Starting simulation for ${algorithms.length} algorithms. Process count: ${processes?.length}`
+  );
 
   algorithms.forEach((algoName: string) => {
     try {

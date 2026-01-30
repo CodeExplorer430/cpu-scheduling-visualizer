@@ -159,7 +159,6 @@ export const SimulationControls: React.FC<Props> = ({
         </div>
       </details>
 
-
       <button
         onClick={onRun}
         className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center justify-center gap-2"

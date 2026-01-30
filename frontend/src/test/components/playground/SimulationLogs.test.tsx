@@ -11,7 +11,7 @@ describe('SimulationLogs Component', () => {
   it('should render logs when provided', () => {
     const logs = ['Process P1 started', 'Process P1 finished'];
     render(<SimulationLogs logs={logs} />);
-    
+
     expect(screen.getByText('Execution Log')).toBeInTheDocument();
     expect(screen.getByText('Process P1 started')).toBeInTheDocument();
     expect(screen.getByText('Process P1 finished')).toBeInTheDocument();

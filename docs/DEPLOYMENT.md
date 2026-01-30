@@ -3,6 +3,7 @@
 This guide details how to deploy the Quantix application (Frontend, Backend, and Database) to a production environment.
 
 **Architecture:**
+
 - **Frontend**: Vercel (React/Vite)
 - **Backend**: Render (Node.js/Express via Docker)
 - **Database**: MongoDB Atlas
@@ -28,10 +29,12 @@ Before deploying the code, ensure your database is ready.
 We will deploy the backend as a **Docker Container** on Render. This ensures the monorepo structure (specifically the `@cpu-vis/shared` dependency) is handled correctly during the build.
 
 ### Prerequisites
+
 - A [Render](https://render.com/) account.
 - Your code pushed to a GitHub repository.
 
 ### Steps
+
 1.  **New Web Service**:
     - Go to the Render Dashboard and click **New +** -> **Web Service**.
 2.  **Connect Repository**: Select your repository.
@@ -63,9 +66,11 @@ Wait for the build to finish. Once live, copy your backend URL (e.g., `https://q
 The frontend is a Vite application deployed on Vercel.
 
 ### Prerequisites
+
 - A [Vercel](https://vercel.com/) account.
 
 ### Steps
+
 1.  **Add New Project**:
     - Go to Vercel Dashboard -> **Add New...** -> **Project**.
 2.  **Import Repository**: Select your Git repository.
@@ -80,7 +85,7 @@ The frontend is a Vite application deployed on Vercel.
     Add the following:
     - `VITE_API_URL`: (Paste your **Render Backend URL**)
       - Example: `https://quantix-backend.onrender.com/api`
-        *(Note: Ensure you include `/api` if your backend routes are prefixed with it)*
+        _(Note: Ensure you include `/api` if your backend routes are prefixed with it)_
 6.  **Deploy**: Click **Deploy**.
 
 Vercel will build the application. If it succeeds, you will get a production URL (e.g., `https://quantix-frontend.vercel.app`).

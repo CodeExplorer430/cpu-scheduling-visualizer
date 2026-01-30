@@ -8,7 +8,9 @@ const CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL;
 
 if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
   if (process.env.NODE_ENV === 'production') {
-    throw new Error('Missing Google OAuth credentials. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.');
+    throw new Error(
+      'Missing Google OAuth credentials. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.'
+    );
   } else {
     console.warn('Missing Google OAuth credentials. OAuth will not work.');
   }
@@ -16,7 +18,9 @@ if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
 
 if (!CALLBACK_URL) {
   if (process.env.NODE_ENV === 'production') {
-    throw new Error('Missing GOOGLE_CALLBACK_URL. Please set it to your backend URL + /api/auth/google/callback (e.g., https://your-app.onrender.com/api/auth/google/callback)');
+    throw new Error(
+      'Missing GOOGLE_CALLBACK_URL. Please set it to your backend URL + /api/auth/google/callback (e.g., https://your-app.onrender.com/api/auth/google/callback)'
+    );
   } else {
     console.warn('Missing GOOGLE_CALLBACK_URL. Defaulting to localhost.');
   }

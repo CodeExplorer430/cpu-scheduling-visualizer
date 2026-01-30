@@ -20,8 +20,8 @@
   }
 
   /* Force display of spin buttons on number inputs for mobile consistency */
-  input[type=number]::-webkit-inner-spin-button, 
-  input[type=number]::-webkit-outer-spin-button { 
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
     opacity: 1;
   }
 }
