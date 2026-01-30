@@ -1,19 +1,23 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import toast from 'react-hot-toast';
 
+export interface UserSettings {
+  theme: 'light' | 'dark' | 'system';
+  language: string;
+  defaultAlgorithm?: string;
+}
+
+export interface UserProfile {
+  avatarUrl?: string;
+  bio?: string;
+}
+
 export interface User {
   id: string;
   username: string;
   email: string;
-  settings?: {
-    theme: 'light' | 'dark' | 'system';
-    language: string;
-    defaultAlgorithm?: string;
-  };
-  profile?: {
-    avatarUrl?: string;
-    bio?: string;
-  };
+  settings?: UserSettings;
+  profile?: UserProfile;
 }
 
 interface AuthContextType {

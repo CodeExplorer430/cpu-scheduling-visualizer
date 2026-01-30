@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
-import { useAuth, User } from '../../context/AuthContext';
+import { useAuth, User, UserSettings } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { handleApiResponse } from '../../lib/api';
 
@@ -9,7 +9,7 @@ interface ProfileSettingsProps {
   mode: 'profile' | 'settings';
 }
 
-interface UserSettings {
+interface UpdateSettingsRequest {
   theme?: 'light' | 'dark' | 'system';
   language?: string;
   defaultAlgorithm?: string;
@@ -48,7 +48,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ mode }) => {
     }
   };
 
-  const handleUpdateSettings = async (newSettings: UserSettings) => {
+  const handleUpdateSettings = async (newSettings: UpdateSettingsRequest) => {
     try {
       const res = await fetch('/api/user/settings', {
         method: 'PATCH',
