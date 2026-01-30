@@ -16,7 +16,11 @@
     "delete": "Supprimer",
     "username": "Nom d'utilisateur",
     "saveChanges": "Enregistrer les modifications",
-    "saving": "Enregistrement..."
+    "saving": "Enregistrement...",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "edit": "Modifier",
+    "close": "Fermer"
   },
   "nav": {
     "playground": "Playground",
@@ -90,6 +94,15 @@
     "active": "Actif",
     "idle": "Repos",
     "switches": "Changements de contexte"
+  },
+  "auth": {
+    "email": "Adresse e-mail",
+    "password": "Mot de passe",
+    "username": "Nom d'utilisateur",
+    "signIn": "Se connecter",
+    "signUp": "S'inscrire",
+    "noAccount": "Pas de compte ? Inscrivez-vous",
+    "hasAccount": "Déjà un compte ? Connectez-vous"
   },
   "dashboard": {
     "title": "Tableau de bord utilisateur",

@@ -16,7 +16,11 @@
     "delete": "削除",
     "username": "ユーザー名",
     "saveChanges": "変更を保存",
-    "saving": "保存中..."
+    "saving": "保存中...",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "edit": "編集",
+    "close": "閉じる"
   },
   "nav": {
     "playground": "プレイグラウンド",
@@ -90,6 +94,15 @@
     "active": "アクティブ",
     "idle": "アイドル",
     "switches": "コンテキストスイッチ"
+  },
+  "auth": {
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "username": "ユーザー名",
+    "signIn": "ログイン",
+    "signUp": "新規登録",
+    "noAccount": "アカウントをお持ちでないですか？ 新規登録",
+    "hasAccount": "既にアカウントをお持ちですか？ ログイン"
   },
   "dashboard": {
     "title": "ユーザーダッシュボード",

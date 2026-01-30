@@ -16,7 +16,11 @@
     "delete": "I-delete",
     "username": "Username",
     "saveChanges": "I-save ang mga pagbabago",
-    "saving": "Nagse-save..."
+    "saving": "Nagse-save...",
+    "save": "I-save",
+    "cancel": "I-cancel",
+    "edit": "I-edit",
+    "close": "Isara"
   },
   "nav": {
     "playground": "Playground",
@@ -90,6 +94,15 @@
     "active": "Active",
     "idle": "Idle",
     "switches": "Context Switches"
+  },
+  "auth": {
+    "email": "Email Address",
+    "password": "Password",
+    "username": "Username",
+    "signIn": "Mag-log in",
+    "signUp": "Mag-register",
+    "noAccount": "Wala pang account? Mag-register",
+    "hasAccount": "May account na? Mag-log in"
   },
   "dashboard": {
     "title": "User Dashboard",

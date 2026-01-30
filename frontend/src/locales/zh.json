@@ -16,7 +16,11 @@
     "delete": "删除",
     "username": "用户名",
     "saveChanges": "保存更改",
-    "saving": "保存中..."
+    "saving": "保存中...",
+    "save": "保存",
+    "cancel": "取消",
+    "edit": "编辑",
+    "close": "关闭"
   },
   "nav": {
     "playground": "游乐场",
@@ -90,6 +94,15 @@
     "active": "活动",
     "idle": "空闲",
     "switches": "上下文切换"
+  },
+  "auth": {
+    "email": "电子邮件地址",
+    "password": "密码",
+    "username": "用户名",
+    "signIn": "登录",
+    "signUp": "注册",
+    "noAccount": "没有账号？点击注册",
+    "hasAccount": "已有账号？点击登录"
   },
   "dashboard": {
     "title": "用户仪表板",

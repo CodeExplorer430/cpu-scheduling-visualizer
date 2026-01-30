@@ -16,7 +16,11 @@
     "delete": "삭제",
     "username": "사용자 이름",
     "saveChanges": "변경사항 저장",
-    "saving": "저장 중..."
+    "saving": "저장 중...",
+    "save": "저장",
+    "cancel": "취소",
+    "edit": "수정",
+    "close": "닫기"
   },
   "nav": {
     "playground": "플레이그라운드",
@@ -90,6 +94,15 @@
     "active": "활성",
     "idle": "유휴",
     "switches": "문맥 교환"
+  },
+  "auth": {
+    "email": "이메일 주소",
+    "password": "비밀번호",
+    "username": "사용자 이름",
+    "signIn": "로그인",
+    "signUp": "회원가입",
+    "noAccount": "계정이 없으신가요? 회원가입",
+    "hasAccount": "이미 계정이 있으신가요? 로그인"
   },
   "dashboard": {
     "title": "사용자 대시보드",

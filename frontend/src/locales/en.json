@@ -16,7 +16,11 @@
     "delete": "Delete",
     "username": "Username",
     "saveChanges": "Save Changes",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "close": "Close"
   },
   "nav": {
     "playground": "Playground",
@@ -26,7 +30,8 @@
     "register": "Register",
     "logout": "Logout",
     "dashboard": "Dashboard",
-    "about": "About"
+    "about": "About",
+    "guide": "Guide"
   },
   "controls": {
     "title": "Simulation Control",
@@ -89,6 +94,15 @@
     "active": "Active",
     "idle": "Idle",
     "switches": "Context Switches"
+  },
+  "auth": {
+    "email": "Email Address",
+    "password": "Password",
+    "username": "Username",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "noAccount": "Don't have an account? Sign up",
+    "hasAccount": "Already have an account? Sign in"
   },
   "dashboard": {
     "title": "User Dashboard",

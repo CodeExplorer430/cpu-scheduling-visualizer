@@ -26,7 +26,8 @@
     "register": "Registrarse",
     "logout": "Cerrar Sesión",
     "dashboard": "Panel",
-    "about": "Acerca de"
+    "about": "Acerca de",
+    "guide": "Guía"
   },
   "controls": {
     "title": "Control de Simulación",
