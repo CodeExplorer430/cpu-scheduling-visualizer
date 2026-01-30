@@ -152,7 +152,7 @@ export const ScenarioManager: React.FC<Props> = ({ processes, onLoad }) => {
       {/* Load Modal */}
       {showLoadModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-2xl w-full max-lg max-h-[80vh] flex flex-col transform transition-all">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col transform transition-all">
             <div className="flex justify-between items-center mb-4 border-b dark:border-gray-700 pb-3">
               <h3 className="text-xl font-bold dark:text-white flex items-center gap-2">
                 <FolderOpenIcon className="w-6 h-6 text-indigo-600" />
