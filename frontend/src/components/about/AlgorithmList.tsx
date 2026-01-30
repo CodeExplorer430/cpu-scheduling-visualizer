@@ -17,9 +17,7 @@ export const AlgorithmList: React.FC = () => {
 
   return (
     <Card>
-      <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
-        Supported Algorithms
-      </h3>
+      <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Supported Algorithms</h3>
       <div className="flex flex-wrap gap-2">
         {algorithms.map((algo) => (
           <span

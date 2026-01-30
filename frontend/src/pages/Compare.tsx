@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  Process,
-  Algorithm,
-} from '@cpu-vis/shared';
+import { Process, Algorithm } from '@cpu-vis/shared';
 import { ProcessTable } from '../components/ProcessTable';
 import { ComparisonSettings } from '../components/compare/ComparisonSettings';
 import { ComparisonResults } from '../components/compare/ComparisonResults';
@@ -14,13 +11,7 @@ interface Props {
 }
 
 export const Compare: React.FC<Props> = ({ processes, onProcessesChange }) => {
-  const {
-    quantum,
-    setQuantum,
-    results,
-    isLoading,
-    runComparison,
-  } = useComparison(processes);
+  const { quantum, setQuantum, results, isLoading, runComparison } = useComparison(processes);
 
   const algorithms: Algorithm[] = [
     'FCFS',
@@ -41,11 +32,7 @@ export const Compare: React.FC<Props> = ({ processes, onProcessesChange }) => {
       {/* Top: Controls & Input */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         <div className="lg:col-span-4">
-          <ComparisonSettings
-            quantum={quantum}
-            setQuantum={setQuantum}
-            onRun={runComparison}
-          />
+          <ComparisonSettings quantum={quantum} setQuantum={setQuantum} onRun={runComparison} />
           {isLoading && (
             <div className="mt-2 text-center text-sm text-blue-600 animate-pulse">
               Computing batch results...

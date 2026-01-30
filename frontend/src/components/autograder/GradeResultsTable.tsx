@@ -1,9 +1,6 @@
 import React from 'react';
 import { AutoGradeReport, TestCase } from '@cpu-vis/shared';
-import { 
-  CheckCircleIcon, 
-  XCircleIcon 
-} from '@heroicons/react/24/outline';
+import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
 interface Props {
   report: AutoGradeReport;
@@ -64,9 +61,7 @@ export const GradeResultsTable: React.FC<Props> = ({ report, testCases }) => {
                   <div className="text-sm text-gray-500 dark:text-gray-400">
                     {testCases.find((tc) => tc.id === result.testCaseId)?.description}
                   </div>
-                  {result.error && (
-                    <div className="text-xs text-red-600 mt-1">{result.error}</div>
-                  )}
+                  {result.error && <div className="text-xs text-red-600 mt-1">{result.error}</div>}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-300">
                   {testCases.find((tc) => tc.id === result.testCaseId)?.algorithm}

@@ -142,12 +142,14 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ mode }) => {
           {[
             { code: 'en', name: 'English' },
             { code: 'es', name: 'Español' },
+            { code: 'zh', name: 'Mandarin Chinese' },
+            { code: 'ar', name: 'العربية' },
+            { code: 'hi', name: 'हिन्दी' },
             { code: 'fil', name: 'Filipino' },
             { code: 'fr', name: 'Français' },
             { code: 'de', name: 'Deutsch' },
             { code: 'ko', name: '한국어' },
             { code: 'ja', name: '日本語' },
-            { code: 'zh', name: '中文' },
             { code: 'pt', name: 'Português' },
           ].map((lang) => (
             <button

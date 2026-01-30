@@ -21,7 +21,7 @@ export const AutoGrader: React.FC = () => {
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
-      <TestUploader 
+      <TestUploader
         onTestCasesLoad={(cases) => {
           setTestCases(cases);
           setReport(null);
@@ -30,12 +30,7 @@ export const AutoGrader: React.FC = () => {
         testCasesCount={testCases.length}
       />
 
-      {report && (
-        <GradeResultsTable 
-          report={report}
-          testCases={testCases}
-        />
-      )}
+      {report && <GradeResultsTable report={report} testCases={testCases} />}
     </div>
   );
 };

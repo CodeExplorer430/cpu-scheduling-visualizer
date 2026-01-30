@@ -1,9 +1,9 @@
 import React from 'react';
 import toast from 'react-hot-toast';
-import { 
-  DocumentCheckIcon, 
-  ArrowUpTrayIcon, 
-  ClipboardDocumentCheckIcon 
+import {
+  DocumentCheckIcon,
+  ArrowUpTrayIcon,
+  ClipboardDocumentCheckIcon,
 } from '@heroicons/react/24/outline';
 import { TestCase } from '@cpu-vis/shared';
 
@@ -78,8 +78,8 @@ export const TestUploader: React.FC<Props> = ({ onTestCasesLoad, onRunTests, tes
         Auto-Grader
       </h2>
       <p className="text-gray-600 dark:text-gray-300 mb-6">
-        Upload a JSON file containing test cases to verify algorithm correctness. Great for
-        students or verifying implementation details.
+        Upload a JSON file containing test cases to verify algorithm correctness. Great for students
+        or verifying implementation details.
       </p>
 
       <div className="flex flex-wrap gap-4">
