@@ -32,7 +32,12 @@ export const ComparisonResults: React.FC<Props> = ({ results, algorithms }) => {
     if (!exportRef.current) return;
 
     const exportPromise = (async () => {
-      const canvas = await html2canvas(exportRef.current!);
+      const canvas = await html2canvas(exportRef.current!, {
+        scale: 2, // Higher resolution
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff', // Force white background
+      });
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.href = dataUrl;
@@ -51,7 +56,12 @@ export const ComparisonResults: React.FC<Props> = ({ results, algorithms }) => {
     if (!exportRef.current) return;
 
     const exportPromise = (async () => {
-      const canvas = await html2canvas(exportRef.current!);
+      const canvas = await html2canvas(exportRef.current!, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      });
       const imgData = canvas.toDataURL('image/png');
 
       // A4 size: 210 x 297 mm
