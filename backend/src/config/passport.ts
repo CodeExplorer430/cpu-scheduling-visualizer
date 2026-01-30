@@ -1,5 +1,5 @@
 import passport from 'passport';
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { Strategy as GoogleStrategy, Profile as GoogleProfile } from 'passport-google-oauth20';
 import { Strategy as GitHubStrategy } from 'passport-github2';
 import { Strategy as GitLabStrategy } from 'passport-gitlab2';
 import { Strategy as DiscordStrategy } from 'passport-discord';
@@ -31,10 +31,10 @@ interface OAuthProfile {
   displayName?: string;
   username?: string;
   emails?: Array<{ value: string }>;
-  [key: string]: unknown;
+  [key: string]: any; // Changed from unknown to any for compatibility with various library Profile types
 }
 
-type PassportDone = (error: Error | null | unknown, user?: Express.User | false | unknown) => void;
+type PassportDone = (error: Error | null | unknown, user?: any) => void;
 
 // --- Generic Handler ---
 const handleOAuthLogin = async (
@@ -62,8 +62,6 @@ const handleOAuthLogin = async (
     }
 
     // 3. Create new user
-    // Some providers might not return emails (e.g. GitHub if private), handle gracefully?
-    // For now we require email for our schema.
     if (!email) {
       return done(new Error(`No email found in ${String(providerKey)} profile`), undefined);
     }
@@ -93,7 +91,8 @@ if (googleConfig) {
         clientSecret: googleConfig.clientSecret,
         callbackURL: googleConfig.callbackURL,
       },
-      (accessToken, refreshToken, profile, done) => handleOAuthLogin('googleId', profile, done)
+      (_accessToken, _refreshToken, profile: GoogleProfile, done) =>
+        handleOAuthLogin('googleId', profile as OAuthProfile, done)
     )
   );
 }
@@ -142,7 +141,7 @@ if (discordConfig) {
         clientSecret: discordConfig.clientSecret,
         callbackURL: discordConfig.callbackURL,
         scope: ['identify', 'email'],
-      },
+      } as any,
       (_accessToken: string, _refreshToken: string, profile: OAuthProfile, done: PassportDone) =>
         handleOAuthLogin('discordId', profile, done)
     )
