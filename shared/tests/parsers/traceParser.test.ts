@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { parseTrace, QuantixParser, TraceEventParser, FtraceParser } from '../../src/parsers/traceParser.js';
+import {
+  parseTrace,
+  QuantixParser,
+  TraceEventParser,
+  FtraceParser,
+} from '../../src/parsers/traceParser.js';
 import { SimulationResult } from '../../src/types.js';
 
 describe('Trace Parsers', () => {
@@ -91,21 +96,21 @@ describe('Trace Parsers', () => {
       // 1. bash-1001 starts at 12345.000 (switch from idle)
       // 2. bash-1001 ends at 12345.005 (switch to nginx) -> Event 1: dur 5ms
       // 3. nginx-1002 ends at 12345.010 (switch to idle) -> Event 2: dur 5ms
-      
+
       // Note: The parser logic records an event when it *closes* (next switch on same CPU)
       // So line 1 starts bash. Line 2 closes bash, starts nginx. Line 3 closes nginx, starts idle.
-      
+
       expect(result.events.length).toBeGreaterThanOrEqual(2);
-      
-      const bashEvent = result.events.find(e => e.pid === 'bash-1001');
-      const nginxEvent = result.events.find(e => e.pid === 'nginx-1002');
+
+      const bashEvent = result.events.find((e) => e.pid === 'bash-1001');
+      const nginxEvent = result.events.find((e) => e.pid === 'nginx-1002');
 
       expect(bashEvent).toBeDefined();
       expect(nginxEvent).toBeDefined();
 
       // Check durations (approximate due to floating point and normalization)
       // bash: 0.005 - 0.000 = 0.005s = 5ms
-      expect(bashEvent?.end).toBeCloseTo(5, 1); 
+      expect(bashEvent?.end).toBeCloseTo(5, 1);
     });
   });
 

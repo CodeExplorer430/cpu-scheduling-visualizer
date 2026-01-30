@@ -79,7 +79,7 @@ You need to configure the environment variables for the backend to function corr
     LINKEDIN_CALLBACK_URL=http://localhost:3000/api/auth/linkedin/callback
     ```
 
-    *Note: Replace placeholders like `your_google_client_id` with actual values obtained from the respective provider's developer console.*
+    _Note: Replace placeholders like `your_google_client_id` with actual values obtained from the respective provider's developer console._
 
 ## 4. Documentation Maintenance
 

@@ -48,9 +48,7 @@ export const Login: React.FC = () => {
           <h2 className="mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
             Sign in to your account
           </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Enter your details below.
-          </p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Enter your details below.</p>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>

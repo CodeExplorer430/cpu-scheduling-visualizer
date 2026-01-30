@@ -1,9 +1,5 @@
 import React, { useState } from 'react';
-import {
-  runAutoGrader,
-  TestCase,
-  AutoGradeReport,
-} from '@cpu-vis/shared';
+import { runAutoGrader, TestCase, AutoGradeReport } from '@cpu-vis/shared';
 import toast from 'react-hot-toast';
 import {
   DocumentCheckIcon,

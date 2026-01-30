@@ -150,7 +150,8 @@ export const FtraceParser: TraceParser = {
     // Example: bash-1234 [001] d... 12345.678900: sched_switch: prev_comm=bash prev_pid=1234 ... ==> next_comm=nginx next_pid=5678
     // Matches: [cpu] timestamp prev_pid next_comm next_pid
     // Updated to match task-pid at start
-    const regex = /.*?\[(\d+)\]\s+.*?\s+(\d+\.\d+):\s+sched_switch:.*?prev_pid=(\d+).*?==>\s+next_comm=(.*?)\s+next_pid=(\d+)/;
+    const regex =
+      /.*?\[(\d+)\]\s+.*?\s+(\d+\.\d+):\s+sched_switch:.*?prev_pid=(\d+).*?==>\s+next_comm=(.*?)\s+next_pid=(\d+)/;
 
     lines.forEach((line) => {
       const match = line.match(regex);
@@ -192,12 +193,12 @@ export const FtraceParser: TraceParser = {
     Object.entries(activeTasks).forEach(([cpuStr, task]) => {
       const cpu = parseInt(cpuStr);
       if (task.pid !== '0' && task.pid !== 'IDLE' && task.pid !== 'swapper') {
-         ganttEvents.push({
-            pid: task.pid,
-            start: task.start,
-            end: maxTime,
-            coreId: cpu,
-         });
+        ganttEvents.push({
+          pid: task.pid,
+          start: task.start,
+          end: maxTime,
+          coreId: cpu,
+        });
       }
     });
 
@@ -231,5 +232,7 @@ export const parseTrace = (content: string | ArrayBuffer): SimulationResult => {
       return parser.parse(content);
     }
   }
-  throw new Error('Unsupported trace format. Please use JSON (Quantix/TraceEvent) or text (ftrace).');
+  throw new Error(
+    'Unsupported trace format. Please use JSON (Quantix/TraceEvent) or text (ftrace).'
+  );
 };

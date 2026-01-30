@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (urlToken) {
       // Clear query params to clean up URL
       window.history.replaceState({}, document.title, window.location.pathname);
-      
+
       if (urlUser) {
         try {
           const parsedUser = JSON.parse(decodeURIComponent(urlUser));

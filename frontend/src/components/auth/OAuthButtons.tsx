@@ -91,9 +91,7 @@ export const OAuthButtons: React.FC = () => {
         {PROVIDERS.map((provider) => (
           <a
             key={provider.id}
-            href={`${(
-              import.meta.env.VITE_API_URL || 'https://quantix-backend.onrender.com'
-            )
+            href={`${(import.meta.env.VITE_API_URL || 'https://quantix-backend.onrender.com')
               .replace(/\/api\/?$/, '')
               .replace(/\/$/, '')}/api/auth/${provider.id}`}
             className={`flex items-center justify-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus-visible:ring-transparent dark:bg-gray-700 dark:text-white dark:ring-gray-600 transition-colors ${provider.color}`}

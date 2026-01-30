@@ -39,7 +39,7 @@ describe('AuthContext', () => {
     const mockUser = { username: 'OAuthUser', email: 'oauth@test.com' };
     const mockToken = 'fake-jwt-token';
     const userParam = encodeURIComponent(JSON.stringify(mockUser));
-    
+
     // Simulate redirect from backend: /?token=...&user=...
     window.history.pushState({}, '', `/?token=${mockToken}&user=${userParam}`);
 

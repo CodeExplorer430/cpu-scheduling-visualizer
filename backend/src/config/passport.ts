@@ -12,8 +12,7 @@ const getAuthConfig = (provider: string) => {
   const clientID = process.env[`${upper}_CLIENT_ID`];
   const clientSecret = process.env[`${upper}_CLIENT_SECRET`];
   const callbackURL =
-    process.env[`${upper}_CALLBACK_URL`] ||
-    `http://localhost:3000/api/auth/${provider}/callback`;
+    process.env[`${upper}_CALLBACK_URL`] || `http://localhost:3000/api/auth/${provider}/callback`;
 
   if (!clientID || !clientSecret) {
     if (provider === 'google' && process.env.NODE_ENV === 'production') {
@@ -85,8 +84,7 @@ if (googleConfig) {
         clientSecret: googleConfig.clientSecret,
         callbackURL: googleConfig.callbackURL,
       },
-      (accessToken, refreshToken, profile, done) =>
-        handleOAuthLogin('googleId', profile, done)
+      (accessToken, refreshToken, profile, done) => handleOAuthLogin('googleId', profile, done)
     )
   );
 }

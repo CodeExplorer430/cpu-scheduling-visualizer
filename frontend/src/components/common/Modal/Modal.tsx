@@ -27,15 +27,13 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div 
+      <div
         className={`bg-white dark:bg-gray-800 p-6 rounded-lg shadow-2xl w-full ${maxWidth} max-h-[90vh] flex flex-col transform transition-all scale-100`}
         role="dialog"
         aria-modal="true"
       >
         <div className="flex justify-between items-center mb-4 border-b dark:border-gray-700 pb-3">
-          <h3 className="text-xl font-bold dark:text-white flex items-center gap-2">
-            {title}
-          </h3>
+          <h3 className="text-xl font-bold dark:text-white flex items-center gap-2">{title}</h3>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -45,9 +43,7 @@ export const Modal: React.FC<ModalProps> = ({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto min-h-0">
-          {children}
-        </div>
+        <div className="flex-1 overflow-y-auto min-h-0">{children}</div>
 
         {footer && (
           <div className="mt-6 flex justify-end border-t dark:border-gray-700 pt-4 gap-3">

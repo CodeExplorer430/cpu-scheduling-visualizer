@@ -27,19 +27,19 @@ describe('OAuth Authentication Logic', () => {
   });
 
   it('should create a new user and return a token on successful OAuth callback logic simulation', async () => {
-    // This is more of a unit test for the handleOAuthLogin logic if it were exported, 
+    // This is more of a unit test for the handleOAuthLogin logic if it were exported,
     // but we can simulate the outcome by checking how the database is populated.
-    
+
     const mockProfile = {
       id: '12345',
       emails: [{ value: 'oauth-user@example.com' }],
       displayName: 'OAuth User',
-      provider: 'google'
+      provider: 'google',
     };
 
     // Simulate the behavior of handleOAuthLogin
-    let user = await User.findOne({ 
-      $or: [{ googleId: mockProfile.id }, { email: mockProfile.emails[0].value }] 
+    let user = await User.findOne({
+      $or: [{ googleId: mockProfile.id }, { email: mockProfile.emails[0].value }],
     });
 
     if (!user) {
@@ -54,7 +54,9 @@ describe('OAuth Authentication Logic', () => {
     expect(user.email).toBe('oauth-user@example.com');
     expect(user.googleId).toBe('12345');
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '1d' });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret', {
+      expiresIn: '1d',
+    });
     expect(token).toBeDefined();
   });
 
@@ -63,19 +65,19 @@ describe('OAuth Authentication Logic', () => {
     await User.create({
       username: 'Existing User',
       email: 'link@example.com',
-      passwordHash: 'hashed_password'
+      passwordHash: 'hashed_password',
     });
 
     const mockProfile = {
       id: 'gh-678',
       emails: [{ value: 'link@example.com' }],
       displayName: 'GitHub User',
-      provider: 'github'
+      provider: 'github',
     };
 
     // Simulate handleOAuthLogin logic
-    let user = await User.findOne({ 
-      $or: [{ githubId: mockProfile.id }, { email: mockProfile.emails[0].value }] 
+    let user = await User.findOne({
+      $or: [{ githubId: mockProfile.id }, { email: mockProfile.emails[0].value }],
     });
 
     if (user) {

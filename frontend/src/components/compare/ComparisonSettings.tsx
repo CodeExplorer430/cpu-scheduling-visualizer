@@ -30,7 +30,8 @@ export const ComparisonSettings: React.FC<Props> = ({ quantum, setQuantum, onRun
             <div className="group relative flex items-center">
               <InformationCircleIcon className="w-4 h-4 text-gray-400 hover:text-blue-500 cursor-help" />
               <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                The time slice assigned to each process in Round Robin scheduling. Smaller values mean more responsiveness but higher overhead.
+                The time slice assigned to each process in Round Robin scheduling. Smaller values
+                mean more responsiveness but higher overhead.
               </span>
             </div>
           </div>

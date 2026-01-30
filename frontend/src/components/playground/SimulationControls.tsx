@@ -90,12 +90,7 @@ export const SimulationControls: React.FC<Props> = ({
           {onImportTrace && (
             <label className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer group">
               <DocumentArrowUpIcon className="w-4 h-4" /> Import Trace
-              <input
-                type="file"
-                accept=".json"
-                onChange={handleTraceUpload}
-                className="hidden"
-              />
+              <input type="file" accept=".json" onChange={handleTraceUpload} className="hidden" />
             </label>
           )}
         </div>
