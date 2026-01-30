@@ -43,8 +43,8 @@ export const NumberInput: React.FC<NumberInputProps> = ({
 
   const commit = () => {
     if (localValue === '') {
-      // Allow empty state (don't revert to old value immediately)
-      // This lets the user clear the field and see the placeholder
+      // Revert to parent's value if field is left empty
+      setLocalValue(value.toString());
       return;
     }
 

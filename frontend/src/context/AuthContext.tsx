@@ -47,14 +47,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    // Check for token in URL (OAuth redirect)
+    // Check for token and optional user in URL (OAuth redirect)
     const params = new URLSearchParams(window.location.search);
     const urlToken = params.get('token');
+    const urlUser = params.get('user');
 
     if (urlToken) {
       // Clear query params to clean up URL
       window.history.replaceState({}, document.title, window.location.pathname);
-      fetchMe(urlToken);
+      
+      if (urlUser) {
+        try {
+          const parsedUser = JSON.parse(decodeURIComponent(urlUser));
+          login(urlToken, parsedUser);
+          setIsLoading(false);
+        } catch (e) {
+          console.error('Failed to parse user from URL', e);
+          fetchMe(urlToken);
+        }
+      } else {
+        fetchMe(urlToken);
+      }
     } else {
       const storedToken = localStorage.getItem('token');
       if (storedToken) {
