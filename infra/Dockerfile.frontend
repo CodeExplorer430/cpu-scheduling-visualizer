@@ -11,7 +11,7 @@ COPY backend/package.json ./backend/
 COPY shared/package.json ./shared/
 
 # Install dependencies
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 # Copy source code
 COPY . .
