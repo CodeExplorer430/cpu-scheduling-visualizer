@@ -30,7 +30,7 @@ const providers = [
   { name: 'github', scope: ['user:email'] },
   { name: 'gitlab', scope: ['read_user'] },
   { name: 'discord', scope: ['identify', 'email'] },
-  { name: 'linkedin', scope: ['r_emailaddress', 'r_liteprofile'] },
+  { name: 'linkedin', scope: ['openid', 'profile', 'email'] },
 ];
 
 // --- OAuth Routes ---
