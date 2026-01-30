@@ -11,6 +11,7 @@ import { AutoGrader } from './pages/autograder/AutoGrader';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { Header } from './components/layout/Header';
+import { Footer } from './components/layout/Footer';
 
 // --- Initial Data ---
 const initialProcesses: Process[] = [
@@ -28,6 +29,7 @@ function Layout({ children }: { children: React.ReactNode }) {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {children}
       </main>
+      <Footer />
     </div>
   );
 }
