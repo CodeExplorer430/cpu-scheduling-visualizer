@@ -56,10 +56,10 @@ export const getScenarioById = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const userId = req.auth?.userId;
-    
+
     const query = userId ? { _id: id, userId } : { _id: id };
     const scenario = await Scenario.findOne(query);
-    
+
     if (!scenario) {
       return res.status(404).json({ error: 'Scenario not found' });
     }

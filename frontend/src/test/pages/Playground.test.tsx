@@ -2,11 +2,16 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Playground } from '../../pages/Playground';
 import { ThemeProvider } from '../../context/ThemeContext';
+import { AuthProvider } from '../../context/AuthContext';
 import { Process } from '@cpu-vis/shared';
 import React from 'react';
 
-const renderWithTheme = (component: React.ReactNode) => {
-  return render(<ThemeProvider>{component}</ThemeProvider>);
+const renderWithContexts = (component: React.ReactNode) => {
+  return render(
+    <ThemeProvider>
+      <AuthProvider>{component}</AuthProvider>
+    </ThemeProvider>
+  );
 };
 
 describe('Playground Page', () => {
@@ -14,7 +19,7 @@ describe('Playground Page', () => {
     const mockProcesses: Process[] = [{ pid: 'P1', arrival: 0, burst: 5 }];
     const mockOnProcessChange = vi.fn();
 
-    renderWithTheme(
+    renderWithContexts(
       <Playground processes={mockProcesses} onProcessesChange={mockOnProcessChange} />
     );
 

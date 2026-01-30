@@ -31,20 +31,20 @@ export const ScenarioManager: React.FC<Props> = ({ processes, onLoad }) => {
   const handleSave = async () => {
     if (!isAuthenticated) return toast.error('Please login to save scenarios');
     if (!name.trim()) return toast.error('Name is required');
-    
+
     try {
       const res = await fetch(`${API_BASE}/api/scenarios`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ name, processes }),
       });
-      
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to save');
-      
+
       toast.success('Scenario saved');
       setShowSaveModal(false);
       setName('');
@@ -60,8 +60,8 @@ export const ScenarioManager: React.FC<Props> = ({ processes, onLoad }) => {
     try {
       const res = await fetch(`${API_BASE}/api/scenarios`, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
       if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
@@ -77,8 +77,8 @@ export const ScenarioManager: React.FC<Props> = ({ processes, onLoad }) => {
     try {
       const res = await fetch(`${API_BASE}/api/scenarios/${id}`, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
       if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();

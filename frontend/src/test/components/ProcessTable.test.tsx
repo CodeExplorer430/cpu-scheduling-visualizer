@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ProcessTable } from '../../components/ProcessTable';
 import { Process } from '@cpu-vis/shared';
-
-// Mock matchMedia if not already globally mocked, but setup.ts should handle it.
+import { AuthProvider } from '../../context/AuthContext';
+import React from 'react';
 
 describe('ProcessTable Component', () => {
   const mockProcessChange = vi.fn();
@@ -12,12 +12,18 @@ describe('ProcessTable Component', () => {
     { pid: 'P2', arrival: 2, burst: 3 },
   ];
 
+  const renderWithAuth = (ui: React.ReactElement) => {
+    return render(<AuthProvider>{ui}</AuthProvider>);
+  };
+
   beforeEach(() => {
     mockProcessChange.mockClear();
   });
 
   it('renders correctly with initial processes', () => {
-    render(<ProcessTable processes={initialProcesses} onProcessChange={mockProcessChange} />);
+    renderWithAuth(
+      <ProcessTable processes={initialProcesses} onProcessChange={mockProcessChange} />
+    );
 
     expect(screen.getByDisplayValue('P1')).toBeInTheDocument();
     expect(screen.getByDisplayValue('P2')).toBeInTheDocument();
@@ -26,7 +32,9 @@ describe('ProcessTable Component', () => {
   });
 
   it('calls onProcessChange when adding a process', () => {
-    render(<ProcessTable processes={initialProcesses} onProcessChange={mockProcessChange} />);
+    renderWithAuth(
+      <ProcessTable processes={initialProcesses} onProcessChange={mockProcessChange} />
+    );
 
     const addButton = screen.getByText('processTable.addProcess');
     fireEvent.click(addButton);
@@ -38,7 +46,9 @@ describe('ProcessTable Component', () => {
   });
 
   it('calls onProcessChange when updating a process', () => {
-    render(<ProcessTable processes={initialProcesses} onProcessChange={mockProcessChange} />);
+    renderWithAuth(
+      <ProcessTable processes={initialProcesses} onProcessChange={mockProcessChange} />
+    );
 
     // Burst inputs are the second number inputs in each row
     // P1 is first row.
@@ -55,7 +65,9 @@ describe('ProcessTable Component', () => {
   });
 
   it('calls onProcessChange when removing a process', () => {
-    render(<ProcessTable processes={initialProcesses} onProcessChange={mockProcessChange} />);
+    renderWithAuth(
+      <ProcessTable processes={initialProcesses} onProcessChange={mockProcessChange} />
+    );
 
     const deleteButtons = screen.getAllByText('processTable.delete');
     fireEvent.click(deleteButtons[0]); // Delete P1
