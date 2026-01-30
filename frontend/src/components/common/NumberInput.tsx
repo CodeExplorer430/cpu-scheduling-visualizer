@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MinusIcon, PlusIcon } from '@heroicons/react/24/outline';
 
 interface NumberInputProps {
