@@ -44,3 +44,14 @@ LINKEDIN_CLIENT_ID=your_client_id
 LINKEDIN_CLIENT_SECRET=your_client_secret
 LINKEDIN_CALLBACK_URL=http://localhost:3000/api/auth/linkedin/callback
 ```
+
+---
+
+## Troubleshooting
+
+### "TrackingTwo" or "icons.svg 404" errors
+If you see JavaScript errors like `TrackingTwo requires an initialPageInstance` or 404 errors for LinkedIn static assets during the sign-in process:
+1.  Ensure you have enabled the **"Sign In with LinkedIn using OpenID Connect"** product in the LinkedIn Developer Portal.
+2.  Ensure you are **NOT** using the deprecated "Sign In with LinkedIn" product.
+3.  The application code is configured to use the modern `openid`, `profile`, and `email` scopes. Requesting older scopes like `r_liteprofile` on a new app will cause LinkedIn's login page to crash.
+4.  Clear your browser cache and cookies for LinkedIn.

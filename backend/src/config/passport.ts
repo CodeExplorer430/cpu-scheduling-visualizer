@@ -157,7 +157,8 @@ if (linkedinConfig) {
         clientID: linkedinConfig.clientID,
         clientSecret: linkedinConfig.clientSecret,
         callbackURL: linkedinConfig.callbackURL,
-        scope: ['r_emailaddress', 'r_liteprofile'],
+        scope: ['openid', 'profile', 'email'],
+        userProfileURL: 'https://api.linkedin.com/v2/userinfo',
       },
       (_accessToken: string, _refreshToken: string, profile: OAuthProfile, done: PassportDone) =>
         handleOAuthLogin('linkedinId', profile, done)
