@@ -10,6 +10,7 @@ import {
   TrashIcon,
 } from '@heroicons/react/24/outline';
 import { ScenarioManager } from './playground/ScenarioManager';
+import { NumberInput } from './common/NumberInput';
 
 interface Props {
   processes: Process[];
@@ -170,32 +171,33 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
                   />
                 </td>
                 <td className="px-3 sm:px-4 py-4 whitespace-nowrap">
-                  <input
-                    type="number"
-                    min="0"
+                  <NumberInput
+                    id={`arrival-${index}`}
+                    label=""
                     value={process.arrival}
-                    onChange={(e) => updateProcess(index, 'arrival', parseInt(e.target.value) || 0)}
-                    className="bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white border rounded px-2 py-1 w-20 sm:w-full max-w-[6rem] text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    onChange={(val) => updateProcess(index, 'arrival', val)}
+                    min={0}
+                    className="w-24 sm:w-full min-w-[6rem]"
                   />
                 </td>
                 <td className="px-3 sm:px-4 py-4 whitespace-nowrap">
-                  <input
-                    type="number"
-                    min="1"
+                  <NumberInput
+                    id={`burst-${index}`}
+                    label=""
                     value={process.burst}
-                    onChange={(e) => updateProcess(index, 'burst', parseInt(e.target.value) || 1)}
-                    className="bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white border rounded px-2 py-1 w-20 sm:w-full max-w-[6rem] text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    onChange={(val) => updateProcess(index, 'burst', val)}
+                    min={1}
+                    className="w-24 sm:w-full min-w-[6rem]"
                   />
                 </td>
                 <td className="px-3 sm:px-4 py-4 whitespace-nowrap">
-                  <input
-                    type="number"
-                    min="1"
+                  <NumberInput
+                    id={`priority-${index}`}
+                    label=""
                     value={process.priority || 1}
-                    onChange={(e) =>
-                      updateProcess(index, 'priority', parseInt(e.target.value) || 1)
-                    }
-                    className="bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white border rounded px-2 py-1 w-20 sm:w-full max-w-[6rem] text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    onChange={(val) => updateProcess(index, 'priority', val)}
+                    min={1}
+                    className="w-24 sm:w-full min-w-[6rem]"
                   />
                 </td>
                 <td className="px-3 sm:px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
