@@ -26,18 +26,19 @@ interface AuthRequest extends Request {
 const recordHistory = async (
   userId: string | undefined,
   algorithm: string,
-  result: SimulationResult
+  result: SimulationResult,
+  processesCount: number
 ) => {
-  if (!userId || !result || 'error' in result) return;
+  if (!userId || !result) return;
   try {
     await SimulationHistory.create({
       userId,
       algorithm,
-      processesCount: result.processes.length,
+      processesCount,
       metrics: {
-        avgWaitTime: result.stats.averageWaitTime,
-        avgTurnaroundTime: result.stats.averageTurnaroundTime,
-        cpuUtilization: result.stats.cpuUtilization,
+        avgWaitTime: result.metrics.avgWaiting,
+        avgTurnaroundTime: result.metrics.avgTurnaround,
+        cpuUtilization: result.metrics.cpuUtilization || 0,
       },
     });
   } catch (error) {
@@ -105,7 +106,7 @@ export const runSimulation = async (req: AuthRequest, res: Response) => {
     }
 
     if (userId) {
-      recordHistory(userId, algo || 'FCFS', result);
+      recordHistory(userId, algo || 'FCFS', result, (processes as Process[]).length);
     }
 
     return res.json(result);
@@ -137,8 +138,9 @@ export const runBatchSimulation = async (req: AuthRequest, res: Response) => {
   const options = { quantum };
   const results: Record<string, SimulationResult | { error: string }> = {};
 
+  const processCount = (processes as Process[]).length;
   console.log(
-    `[BatchSim] Starting simulation for ${algorithms.length} algorithms. Process count: ${processes?.length}`
+    `[BatchSim] Starting simulation for ${algorithms.length} algorithms. Process count: ${processCount}`
   );
 
   for (const algoName of algorithms) {
@@ -185,7 +187,7 @@ export const runBatchSimulation = async (req: AuthRequest, res: Response) => {
       }
       results[algoName] = result;
       if (userId) {
-        recordHistory(userId, algo, result);
+        recordHistory(userId, algo, result, processCount);
       }
     } catch (error) {
       console.error(`Batch simulation error for ${algoName}:`, error);
