@@ -9,7 +9,9 @@
     "run": "Run Simulation",
     "ms": "ms",
     "watts": "W",
-    "joules": "J"
+    "joules": "J",
+    "loading": "Loading...",
+    "error": "Error"
   },
   "nav": {
     "playground": "Playground",
