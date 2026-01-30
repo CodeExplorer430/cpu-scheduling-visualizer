@@ -108,7 +108,7 @@ export const Login: React.FC = () => {
 
           <div>
             <a
-              href="/api/auth/google"
+              href={`${import.meta.env.VITE_API_URL || 'https://quantix-backend.onrender.com'}/api/auth/google`}
               className="flex w-full items-center justify-center gap-3 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:ring-transparent dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-600"
             >
               <svg className="h-5 w-5" viewBox="0 0 24 24">
