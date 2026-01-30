@@ -4,7 +4,12 @@ export const connectDB = async () => {
   try {
     const mongoURI = process.env.MONGODB_URI;
     if (!mongoURI) {
-      console.warn('MONGODB_URI is not defined in .env. Skipping DB connection.');
+      const msg = 'MONGODB_URI is not defined in .env.';
+      if (process.env.NODE_ENV === 'production') {
+        console.error(msg + ' Exiting.');
+        process.exit(1);
+      }
+      console.warn(msg + ' Skipping DB connection.');
       return;
     }
 
@@ -12,6 +17,7 @@ export const connectDB = async () => {
     console.log('MongoDB Connected...');
   } catch (err) {
     console.error('MongoDB connection error:', err);
+    console.error('Make sure your IP is whitelisted in MongoDB Atlas.');
     process.exit(1);
   }
 };

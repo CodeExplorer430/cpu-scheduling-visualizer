@@ -85,6 +85,8 @@ export const runSimulation = (req: Request, res: Response) => {
 export const runBatchSimulation = (req: Request, res: Response) => {
   const { algorithms, processes, timeQuantum } = req.body;
 
+  console.log(`[BatchSim] Request received for algorithms: ${algorithms?.join(', ')}`);
+
   if (!Array.isArray(algorithms) || algorithms.length === 0) {
     return res.status(400).json({ error: 'Algorithms array is required' });
   }
@@ -92,12 +94,15 @@ export const runBatchSimulation = (req: Request, res: Response) => {
   // Validate input
   const validation = validateProcesses(processes);
   if (!validation.valid) {
+    console.warn(`[BatchSim] Validation failed: ${validation.error}`);
     return res.status(400).json({ error: validation.error });
   }
 
   const quantum = typeof timeQuantum === 'number' ? timeQuantum : 2;
   const options = { quantum };
   const results: Record<string, SimulationResult | { error: string }> = {};
+
+  console.log(`[BatchSim] Starting simulation for ${algorithms.length} algorithms. Process count: ${processes?.length}`);
 
   algorithms.forEach((algoName: string) => {
     try {
