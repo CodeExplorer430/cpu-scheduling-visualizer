@@ -13,7 +13,7 @@ export const QuantixParser: TraceParser = {
     if (typeof content !== 'string') return false;
     try {
       const json = JSON.parse(content);
-      return json.events && Array.isArray(json.events) && json.metrics;
+      return !!(json.events && Array.isArray(json.events) && json.metrics);
     } catch {
       return false;
     }
@@ -114,8 +114,6 @@ export const TraceEventParser: TraceParser = {
     }));
 
     // Calculate basic metrics from the trace
-    // Note: Accurate TAT/WT requires knowledge of arrival time, which traces often lack.
-    // We will estimate based on first appearance or just zero.
     const metrics: Metrics = {
       completion: {},
       turnaround: {},
@@ -146,10 +144,13 @@ export const FtraceParser: TraceParser = {
     const ganttEvents: GanttEvent[] = [];
     const activeTasks: Record<number, { pid: string; start: number }> = {}; // cpu -> current task
     let minTime = Infinity;
+    let maxTime = 0;
 
     // Regex to parse sched_switch line
     // Example: bash-1234 [001] d... 12345.678900: sched_switch: prev_comm=bash prev_pid=1234 ... ==> next_comm=nginx next_pid=5678
-    const regex = / \[(\d+)\]\s+.*?\s+(\d+\.\d+):\s+sched_switch:.*?prev_pid=(\d+).*?==>\s+next_comm=(.*?)\s+next_pid=(\d+)/;
+    // Matches: [cpu] timestamp prev_pid next_comm next_pid
+    // Updated to match task-pid at start
+    const regex = /.*?\[(\d+)\]\s+.*?\s+(\d+\.\d+):\s+sched_switch:.*?prev_pid=(\d+).*?==>\s+next_comm=(.*?)\s+next_pid=(\d+)/;
 
     lines.forEach((line) => {
       const match = line.match(regex);
@@ -161,6 +162,7 @@ export const FtraceParser: TraceParser = {
         const nextPid = match[5];
 
         if (timestamp < minTime) minTime = timestamp;
+        if (timestamp > maxTime) maxTime = timestamp;
 
         // Close previous event on this CPU
         if (activeTasks[cpu]) {
@@ -182,6 +184,20 @@ export const FtraceParser: TraceParser = {
           pid: nextPid === '0' ? 'IDLE' : `${nextComm}-${nextPid}`,
           start: timestamp,
         };
+      }
+    });
+
+    // Flush active tasks (assume they end at maxTime found in trace)
+    // This handles the last event on each CPU
+    Object.entries(activeTasks).forEach(([cpuStr, task]) => {
+      const cpu = parseInt(cpuStr);
+      if (task.pid !== '0' && task.pid !== 'IDLE' && task.pid !== 'swapper') {
+         ganttEvents.push({
+            pid: task.pid,
+            start: task.start,
+            end: maxTime,
+            coreId: cpu,
+         });
       }
     });
 
