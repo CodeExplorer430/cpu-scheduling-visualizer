@@ -46,7 +46,9 @@ export const TraceEventParser: TraceParser = {
       const events = Array.isArray(json) ? json : json.traceEvents;
       if (!Array.isArray(events)) return false;
       // Check for at least one event with common fields
-      return (events as TraceEvent[]).some((e) => e.ph && e.ts !== undefined && e.pid !== undefined);
+      return (events as TraceEvent[]).some(
+        (e) => e.ph && e.ts !== undefined && e.pid !== undefined
+      );
     } catch {
       return false;
     }
