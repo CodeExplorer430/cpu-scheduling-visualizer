@@ -33,6 +33,7 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
     energyConfig,
     setEnergyConfig,
     simulationResult,
+    setSimulationResult,
     currentTime,
     setCurrentTime,
     isPlaying,
@@ -68,6 +69,7 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
             onRun={runSimulation}
             onOptimizeQuantum={optimizeQuantum}
             onShowTutorial={() => setIsTutorialOpen(true)}
+            onImportTrace={setSimulationResult}
           />
         </div>
 

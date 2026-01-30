@@ -1,7 +1,13 @@
-import { EnergyConfig, Algorithm } from '@cpu-vis/shared';
+import { EnergyConfig, Algorithm, SimulationResult } from '@cpu-vis/shared';
 import { useTranslation } from 'react-i18next';
-import { InformationCircleIcon, ChevronRightIcon, PlayIcon } from '@heroicons/react/24/outline';
+import {
+  InformationCircleIcon,
+  ChevronRightIcon,
+  PlayIcon,
+  DocumentArrowUpIcon,
+} from '@heroicons/react/24/outline';
 import { NumberInput } from '../common/NumberInput';
+import toast from 'react-hot-toast';
 
 interface Props {
   selectedAlgorithm: Algorithm;
@@ -19,6 +25,7 @@ interface Props {
   onRun: () => void;
   onOptimizeQuantum?: () => void;
   onShowTutorial?: () => void;
+  onImportTrace?: (result: SimulationResult) => void;
 }
 
 export const SimulationControls: React.FC<Props> = ({
@@ -35,8 +42,37 @@ export const SimulationControls: React.FC<Props> = ({
   onRun,
   onOptimizeQuantum,
   onShowTutorial,
+  onImportTrace,
 }) => {
   const { t } = useTranslation();
+
+  const handleTraceUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const content = event.target?.result as string;
+        const result = JSON.parse(content) as SimulationResult;
+        
+        // Basic validation
+        if (!result.events || !result.metrics) {
+          throw new Error('Invalid trace format: missing events or metrics');
+        }
+
+        if (onImportTrace) {
+          onImportTrace(result);
+          toast.success('Trace loaded successfully');
+        }
+      } catch (error) {
+        console.error('Trace load error:', error);
+        toast.error('Failed to load trace: Invalid JSON format');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = ''; // Reset input
+  };
 
   return (
     <div
@@ -46,14 +82,27 @@ export const SimulationControls: React.FC<Props> = ({
     >
       <div className="flex justify-between items-center mb-2">
         <span className="sr-only">Controls</span>
-        {onShowTutorial && (
-          <button
-            onClick={onShowTutorial}
-            className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 group"
-          >
-            <InformationCircleIcon className="w-4 h-4" /> {t('controls.guide')}
-          </button>
-        )}
+        <div className="flex gap-3">
+          {onShowTutorial && (
+            <button
+              onClick={onShowTutorial}
+              className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 group"
+            >
+              <InformationCircleIcon className="w-4 h-4" /> {t('controls.guide')}
+            </button>
+          )}
+          {onImportTrace && (
+            <label className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer group">
+              <DocumentArrowUpIcon className="w-4 h-4" /> Import Trace
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleTraceUpload}
+                className="hidden"
+              />
+            </label>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

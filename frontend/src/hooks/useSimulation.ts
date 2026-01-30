@@ -130,6 +130,7 @@ export const useSimulation = (processes: Process[]) => {
     energyConfig,
     setEnergyConfig,
     simulationResult,
+    setSimulationResult, // Expose for manual trace loading
     currentTime,
     setCurrentTime,
     isPlaying,
