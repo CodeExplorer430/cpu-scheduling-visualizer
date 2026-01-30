@@ -12,6 +12,7 @@ import { Playground } from './pages/Playground';
 import { Compare } from './pages/Compare';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
+import { AutoGrader } from './pages/autograder/AutoGrader';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
@@ -35,6 +36,7 @@ function Layout({ children }: { children: React.ReactNode }) {
   const tabs = [
     { name: t('nav.playground'), path: '/' },
     { name: t('nav.compare'), path: '/compare' },
+    { name: t('nav.autoGrader'), path: '/autograder' },
   ];
 
   return (
@@ -149,6 +151,7 @@ function App() {
                 path="/compare"
                 element={<Compare processes={processes} onProcessesChange={setProcesses} />}
               />
+              <Route path="/autograder" element={<AutoGrader />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
             </Routes>
