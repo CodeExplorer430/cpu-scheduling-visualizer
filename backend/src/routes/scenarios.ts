@@ -4,6 +4,8 @@ import {
   createScenario,
   getScenarios,
   getScenarioById,
+  updateScenario,
+  deleteScenario,
   uploadCSV,
 } from '../controllers/scenarioController.js';
 import { authenticate } from '../middleware/auth.js';
@@ -19,6 +21,8 @@ router.use(authenticate);
 router.post('/', createScenario);
 router.get('/', getScenarios);
 router.get('/:id', getScenarioById);
+router.patch('/:id', updateScenario);
+router.delete('/:id', deleteScenario);
 router.post('/upload/csv', upload.single('file'), uploadCSV);
 
 export default router;

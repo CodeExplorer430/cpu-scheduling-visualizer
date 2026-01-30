@@ -5,6 +5,15 @@ interface User {
   id: string;
   username: string;
   email: string;
+  settings?: {
+    theme: 'light' | 'dark' | 'system';
+    language: string;
+    defaultAlgorithm?: string;
+  };
+  profile?: {
+    avatarUrl?: string;
+    bio?: string;
+  };
 }
 
 interface AuthContextType {
@@ -14,6 +23,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (token: string, user: User) => void;
   logout: () => void;
+  updateUser: (newUser: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -92,6 +102,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     toast.success('Logged out successfully');
   };
 
+  const updateUser = (newUser: User) => {
+    setUser(newUser);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -101,6 +115,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isLoading,
         login,
         logout,
+        updateUser,
       }}
     >
       {children}

@@ -55,4 +55,50 @@ describe('Scenarios API Tests', () => {
     const res = await request(app).get('/api/scenarios');
     expect(res.status).toBe(401);
   });
+
+  it('PATCH /api/scenarios/:id should update a scenario', async () => {
+    // First create one
+    const createRes = await request(app)
+      .post('/api/scenarios')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'To Update',
+        processes: [{ pid: 'P1', arrival: 0, burst: 1 }],
+      });
+
+    const id = createRes.body._id;
+
+    const res = await request(app)
+      .patch(`/api/scenarios/${id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'Updated Name' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.name).toBe('Updated Name');
+  });
+
+  it('DELETE /api/scenarios/:id should delete a scenario', async () => {
+    // First create one
+    const createRes = await request(app)
+      .post('/api/scenarios')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'To Delete',
+        processes: [{ pid: 'P1', arrival: 0, burst: 1 }],
+      });
+
+    const id = createRes.body._id;
+
+    const res = await request(app)
+      .delete(`/api/scenarios/${id}`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+
+    // Verify it's gone
+    const checkRes = await request(app)
+      .get(`/api/scenarios/${id}`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(checkRes.status).toBe(404);
+  });
 });

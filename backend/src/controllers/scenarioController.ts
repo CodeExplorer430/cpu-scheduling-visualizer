@@ -70,6 +70,60 @@ export const getScenarioById = async (req: AuthRequest, res: Response) => {
   }
 };
 
+export const updateScenario = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { name, description, processes } = req.body;
+    const userId = req.auth?.userId;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const scenario = await Scenario.findOne({ _id: id, userId });
+    if (!scenario) {
+      return res.status(404).json({ error: 'Scenario not found or unauthorized' });
+    }
+
+    if (name) scenario.name = name;
+    if (description !== undefined) scenario.description = description;
+    if (processes) {
+      const validation = validateProcesses(processes);
+      if (!validation.valid) {
+        return res.status(400).json({ error: validation.error });
+      }
+      scenario.processes = processes;
+    }
+
+    const saved = await scenario.save();
+    return res.json(saved);
+  } catch (error) {
+    console.error('Update scenario error:', error);
+    return res.status(500).json({ error: 'Failed to update scenario' });
+  }
+};
+
+export const deleteScenario = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const userId = req.auth?.userId;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const scenario = await Scenario.findOneAndDelete({ _id: id, userId });
+    if (!scenario) {
+      return res.status(404).json({ error: 'Scenario not found or unauthorized' });
+    }
+
+    return res.json({ message: 'Scenario deleted successfully' });
+  } catch (error) {
+    console.error('Delete scenario error:', error);
+    return res.status(500).json({ error: 'Failed to delete scenario' });
+  }
+};
+
 export const uploadCSV = async (req: Request, res: Response) => {
   try {
     if (!req.file) {

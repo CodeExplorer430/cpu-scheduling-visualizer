@@ -11,7 +11,12 @@
     "watts": "W",
     "joules": "J",
     "loading": "Loading...",
-    "error": "Error"
+    "error": "Error",
+    "load": "Load",
+    "delete": "Delete",
+    "username": "Username",
+    "saveChanges": "Save Changes",
+    "saving": "Saving..."
   },
   "nav": {
     "playground": "Playground",
@@ -20,6 +25,7 @@
     "login": "Login",
     "register": "Register",
     "logout": "Logout",
+    "dashboard": "Dashboard",
     "about": "About"
   },
   "controls": {
@@ -83,5 +89,46 @@
     "active": "Active",
     "idle": "Idle",
     "switches": "Context Switches"
+  },
+  "dashboard": {
+    "title": "User Dashboard",
+    "welcome": "Welcome back, {{name}}!",
+    "scenarios": "Saved Scenarios",
+    "analytics": "Analytics",
+    "profile": "Profile",
+    "settings": "Settings",
+    "noScenarios": "No saved scenarios found",
+    "createOnePrompt": "Save your first scenario in the playground to see it here!",
+    "goToPlayground": "Go to Playground",
+    "noDescription": "No description provided",
+    "confirmDelete": "Are you sure you want to delete this scenario?",
+    "bio": "Bio",
+    "bioPlaceholder": "Tell us about yourself...",
+    "bioLimit": "Max 500 characters",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "switchToDark": "Switch to Dark Mode",
+    "switchToLight": "Switch to Light Mode",
+    "language": "Language",
+    "totalSimulations": "Total Simulations",
+    "mostUsed": "Most Used Algorithm",
+    "avgWait": "Avg. Waiting Time",
+    "algoPerformance": "Algorithm Performance Overview",
+    "algorithm": "Algorithm",
+    "runs": "Runs",
+    "avgWaitTime": "Avg. Wait",
+    "avgTurnaround": "Avg. Turnaround",
+    "noAnalytics": "No analytics available yet",
+    "runSimulationPrompt": "Run some simulations to see your usage statistics here!",
+    "success": {
+      "deleted": "Scenario deleted successfully",
+      "profileUpdated": "Profile updated successfully",
+      "settingsUpdated": "Settings updated successfully"
+    },
+    "errors": {
+      "fetchScenarios": "Failed to load scenarios",
+      "deleteFailed": "Failed to delete scenario",
+      "updateFailed": "Failed to update profile"
+    }
   }
 }

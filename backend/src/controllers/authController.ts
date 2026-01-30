@@ -33,9 +33,16 @@ export const register = async (req: Request, res: Response) => {
       expiresIn: '7d',
     });
 
-    res
-      .status(201)
-      .json({ token, user: { id: newUser._id, username: newUser.username, email: newUser.email } });
+    res.status(201).json({
+      token,
+      user: {
+        id: newUser._id,
+        username: newUser.username,
+        email: newUser.email,
+        profile: newUser.profile,
+        settings: newUser.settings,
+      },
+    });
   } catch (error) {
     console.error('Register error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -64,7 +71,16 @@ export const login = async (req: Request, res: Response) => {
       expiresIn: '7d',
     });
 
-    res.json({ token, user: { id: user._id, username: user.username, email: user.email } });
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        profile: user.profile,
+        settings: user.settings,
+      },
+    });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -149,7 +165,13 @@ export const verifyMagicLink = async (req: Request, res: Response) => {
 
     res.json({
       token: authToken,
-      user: { id: user._id, username: user.username, email: user.email },
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        profile: user.profile,
+        settings: user.settings,
+      },
     });
   } catch (error) {
     res.status(401).json({ error: 'Invalid or expired magic link' });

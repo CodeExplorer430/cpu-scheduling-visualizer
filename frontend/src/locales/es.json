@@ -25,6 +25,7 @@
     "login": "Iniciar Sesión",
     "register": "Registrarse",
     "logout": "Cerrar Sesión",
+    "dashboard": "Panel",
     "about": "Acerca de"
   },
   "controls": {
@@ -97,5 +98,46 @@
     "signUp": "Registrarse",
     "noAccount": "¿No tienes cuenta? Regístrate",
     "hasAccount": "¿Ya tienes cuenta? Inicia sesión"
+  },
+  "dashboard": {
+    "title": "Panel de Usuario",
+    "welcome": "¡Bienvenido de nuevo, {{name}}!",
+    "scenarios": "Escenarios Guardados",
+    "analytics": "Analíticas",
+    "profile": "Perfil",
+    "settings": "Ajustes",
+    "noScenarios": "No se encontraron escenarios guardados",
+    "createOnePrompt": "¡Guarda tu primer escenario en el área de pruebas para verlo aquí!",
+    "goToPlayground": "Ir al Área de Pruebas",
+    "noDescription": "Sin descripción",
+    "confirmDelete": "¿Estás seguro de que quieres eliminar este escenario?",
+    "bio": "Biografía",
+    "bioPlaceholder": "Cuéntanos sobre ti...",
+    "bioLimit": "Máximo 500 caracteres",
+    "appearance": "Apariencia",
+    "theme": "Tema",
+    "switchToDark": "Cambiar a Modo Oscuro",
+    "switchToLight": "Cambiar a Modo Claro",
+    "language": "Idioma",
+    "totalSimulations": "Simulaciones Totales",
+    "mostUsed": "Algoritmo Más Usado",
+    "avgWait": "Tiempo de Espera Prom.",
+    "algoPerformance": "Resumen de Rendimiento de Algoritmos",
+    "algorithm": "Algoritmo",
+    "runs": "Ejecuciones",
+    "avgWaitTime": "Espera Prom.",
+    "avgTurnaround": "Retorno Prom.",
+    "noAnalytics": "Aún no hay analíticas disponibles",
+    "runSimulationPrompt": "¡Ejecuta algunas simulaciones para ver tus estadísticas de uso aquí!",
+    "success": {
+      "deleted": "Escenario eliminado con éxito",
+      "profileUpdated": "Perfil actualizado con éxito",
+      "settingsUpdated": "Ajustes actualizados con éxito"
+    },
+    "errors": {
+      "fetchScenarios": "Error al cargar los escenarios",
+      "deleteFailed": "Error al eliminar el escenario",
+      "updateFailed": "Error al actualizar el perfil"
+    }
   }
 }

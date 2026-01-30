@@ -9,6 +9,15 @@ export interface IUser extends Document {
   gitlabId?: string;
   discordId?: string;
   linkedinId?: string;
+  settings: {
+    theme: 'light' | 'dark' | 'system';
+    language: string;
+    defaultAlgorithm?: string;
+  };
+  profile: {
+    avatarUrl?: string;
+    bio?: string;
+  };
   createdAt: Date;
 }
 
@@ -21,6 +30,15 @@ const userSchema = new Schema<IUser>({
   gitlabId: { type: String, required: false, unique: true, sparse: true },
   discordId: { type: String, required: false, unique: true, sparse: true },
   linkedinId: { type: String, required: false, unique: true, sparse: true },
+  settings: {
+    theme: { type: String, enum: ['light', 'dark', 'system'], default: 'system' },
+    language: { type: String, default: 'en' },
+    defaultAlgorithm: { type: String },
+  },
+  profile: {
+    avatarUrl: { type: String },
+    bio: { type: String, maxlength: 500 },
+  },
   createdAt: { type: Date, default: Date.now },
 });
 

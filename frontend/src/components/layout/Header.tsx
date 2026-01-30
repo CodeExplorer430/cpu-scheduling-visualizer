@@ -23,6 +23,10 @@ export const Header: React.FC = () => {
     { name: t('nav.about'), path: '/about' },
   ];
 
+  if (user) {
+    tabs.splice(3, 0, { name: t('nav.dashboard'), path: '/dashboard' });
+  }
+
   return (
     <header className="bg-white dark:bg-gray-800 shadow-sm z-10 relative transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
