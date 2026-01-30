@@ -7,6 +7,7 @@ import {
   ArrowTrendingUpIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
+import { handleApiResponse } from '../../lib/api';
 
 interface Stat {
   _id: string;
@@ -44,9 +45,8 @@ export const AnalyticsDashboard: React.FC = () => {
         const res = await fetch('/api/user/analytics', {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (res.ok) {
-          setData(await res.json());
-        }
+        const result = await handleApiResponse<AnalyticsData>(res);
+        setData(result);
       } catch (error) {
         console.error('Fetch analytics error:', error);
       } finally {

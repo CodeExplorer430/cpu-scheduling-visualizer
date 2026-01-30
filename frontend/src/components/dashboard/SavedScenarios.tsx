@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { TrashIcon, PlayIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
+import { handleApiResponse } from '../../lib/api';
 
 interface ScenarioSummary {
   _id: string;
@@ -23,15 +24,11 @@ export const SavedScenarios: React.FC = () => {
       const res = await fetch('/api/scenarios', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.ok) {
-        const data = await res.json();
-        setScenarios(data);
-      } else {
-        toast.error(t('dashboard.errors.fetchScenarios'));
-      }
+      const data = await handleApiResponse<ScenarioSummary[]>(res);
+      setScenarios(data);
     } catch (error) {
       console.error('Fetch scenarios error:', error);
-      toast.error(t('dashboard.errors.fetchScenarios'));
+      toast.error(error instanceof Error ? error.message : t('dashboard.errors.fetchScenarios'));
     } finally {
       setLoading(false);
     }
@@ -52,15 +49,13 @@ export const SavedScenarios: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (res.ok) {
-        toast.success(t('dashboard.success.deleted'));
-        setScenarios(scenarios.filter((s) => s._id !== id));
-      } else {
-        toast.error(t('dashboard.errors.deleteFailed'));
-      }
+      await handleApiResponse(res);
+
+      toast.success(t('dashboard.success.deleted'));
+      setScenarios(scenarios.filter((s) => s._id !== id));
     } catch (error) {
       console.error('Delete scenario error:', error);
-      toast.error(t('dashboard.errors.deleteFailed'));
+      toast.error(error instanceof Error ? error.message : t('dashboard.errors.deleteFailed'));
     }
   };
 

@@ -3,6 +3,7 @@ import { Process } from '@cpu-vis/shared';
 import toast from 'react-hot-toast';
 import { CloudArrowUpIcon, FolderOpenIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
+import { handleApiResponse } from '../../lib/api';
 
 interface Props {
   processes: Process[];
@@ -25,15 +26,12 @@ export const ScenarioManager: React.FC<Props> = ({ processes, onLoad }) => {
   const [loading, setLoading] = useState(false);
   const { token, isAuthenticated } = useAuth();
 
-  // On production, VITE_API_URL might be set to the backend Render URL
-  const API_BASE = import.meta.env.VITE_API_URL || '';
-
   const handleSave = async () => {
     if (!isAuthenticated) return toast.error('Please login to save scenarios');
     if (!name.trim()) return toast.error('Name is required');
 
     try {
-      const res = await fetch(`${API_BASE}/api/scenarios`, {
+      const res = await fetch(`/api/scenarios`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -42,8 +40,7 @@ export const ScenarioManager: React.FC<Props> = ({ processes, onLoad }) => {
         body: JSON.stringify({ name, processes }),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to save');
+      await handleApiResponse(res);
 
       toast.success('Scenario saved');
       setShowSaveModal(false);
@@ -58,16 +55,16 @@ export const ScenarioManager: React.FC<Props> = ({ processes, onLoad }) => {
     if (!isAuthenticated) return;
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/scenarios`, {
+      const res = await fetch(`/api/scenarios`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (!res.ok) throw new Error('Failed to fetch');
-      const data = await res.json();
+      const data = await handleApiResponse<Scenario[]>(res);
       setScenarios(data);
     } catch (error) {
-      toast.error('Error loading scenarios');
+      console.error('Fetch scenarios error:', error);
+      toast.error(error instanceof Error ? error.message : 'Error loading scenarios');
     } finally {
       setLoading(false);
     }
@@ -75,18 +72,18 @@ export const ScenarioManager: React.FC<Props> = ({ processes, onLoad }) => {
 
   const handleLoad = async (id: string) => {
     try {
-      const res = await fetch(`${API_BASE}/api/scenarios/${id}`, {
+      const res = await fetch(`/api/scenarios/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (!res.ok) throw new Error('Failed to fetch');
-      const data = await res.json();
+      const data = await handleApiResponse<Scenario>(res);
       onLoad(data.processes);
       toast.success(`Loaded "${data.name}"`);
       setShowLoadModal(false);
     } catch (error) {
-      toast.error('Error loading scenario details');
+      console.error('Load scenario error:', error);
+      toast.error(error instanceof Error ? error.message : 'Error loading scenario details');
     }
   };
 
@@ -155,7 +152,7 @@ export const ScenarioManager: React.FC<Props> = ({ processes, onLoad }) => {
       {/* Load Modal */}
       {showLoadModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col transform transition-all">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-2xl w-full max-lg max-h-[80vh] flex flex-col transform transition-all">
             <div className="flex justify-between items-center mb-4 border-b dark:border-gray-700 pb-3">
               <h3 className="text-xl font-bold dark:text-white flex items-center gap-2">
                 <FolderOpenIcon className="w-6 h-6 text-indigo-600" />

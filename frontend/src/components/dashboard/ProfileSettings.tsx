@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import { handleApiResponse } from '../../lib/api';
 
 interface ProfileSettingsProps {
   mode: 'profile' | 'settings';
@@ -36,17 +37,12 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ mode }) => {
         body: JSON.stringify({ username, bio }),
       });
 
-      if (res.ok) {
-        const updatedUser = await res.json();
-        updateUser(updatedUser);
-        toast.success(t('dashboard.success.profileUpdated'));
-      } else {
-        const error = await res.json();
-        toast.error(error.error || t('dashboard.errors.updateFailed'));
-      }
+      const updatedUser = await handleApiResponse(res);
+      updateUser(updatedUser as any);
+      toast.success(t('dashboard.success.profileUpdated'));
     } catch (error) {
       console.error('Update profile error:', error);
-      toast.error(t('dashboard.errors.updateFailed'));
+      toast.error(error instanceof Error ? error.message : t('dashboard.errors.updateFailed'));
     } finally {
       setLoading(false);
     }
@@ -63,17 +59,15 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ mode }) => {
         body: JSON.stringify(newSettings),
       });
 
-      if (res.ok) {
-        const settings = await res.json();
-        // Update user context with new settings
-        if (user) {
-          updateUser({ ...user, settings });
-        }
-        toast.success(t('dashboard.success.settingsUpdated'));
+      const settings = await handleApiResponse<any>(res);
+      // Update user context with new settings
+      if (user) {
+        updateUser({ ...user, settings });
       }
+      toast.success(t('dashboard.success.settingsUpdated'));
     } catch (error) {
       console.error('Update settings error:', error);
-      toast.error(t('dashboard.errors.updateFailed'));
+      toast.error(error instanceof Error ? error.message : t('dashboard.errors.updateFailed'));
     }
   };
 
