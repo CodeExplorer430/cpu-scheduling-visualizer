@@ -1,119 +1,101 @@
-import React, { useState, useEffect } from 'react';
-import { MinusIcon, PlusIcon } from '@heroicons/react/24/outline';
+import React, { useState, useEffect, FocusEvent, KeyboardEvent } from 'react';
 
 interface NumberInputProps {
-  id: string;
-  label: string;
   value: number;
   onChange: (value: number) => void;
+  className?: string;
   min?: number;
   max?: number;
   step?: number;
-  className?: string;
+  id?: string;
+  name?: string;
+  placeholder?: string;
 }
 
 export const NumberInput: React.FC<NumberInputProps> = ({
-  id,
-  label,
   value,
   onChange,
-  min = 0,
-  max,
-  step = 1,
   className = '',
+  min,
+  max,
+  step,
+  id,
+  name,
+  placeholder,
 }) => {
-  // Local state to allow empty/partial input while typing
-  const [inputValue, setInputValue] = useState(value.toString());
+  // Local string state to allow empty values and formatting while typing
+  const [localValue, setLocalValue] = useState<string>(value.toString());
 
-  // Sync local state when prop changes externally
+  // Sync with parent value updates (e.g. from Randomize button),
+  // but only when the parent value actually changes to something different
+  // than what we currently parsed.
   useEffect(() => {
-    setInputValue(value.toString());
+    // If the prop value matches our current local value (parsed), don't mess with the text.
+    // This prevents cursor jumping or reformatting while the user is typing valid numbers.
+    // However, if the prop changes externally (e.g. randomize), we must update.
+    // We assume if the prop differs from our local parsed, it's an external change.
+    const parsedLocal = parseFloat(localValue);
+    if (parsedLocal !== value) {
+      setLocalValue(value.toString());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVal = e.target.value;
-    setInputValue(newVal);
-
-    const parsed = parseFloat(newVal);
-    if (!isNaN(parsed)) {
-      // Only update parent if it's a valid number
-      // We don't enforce min/max strictly while typing to allow intermediate states
-      // (e.g. typing "10" when min is 5: "1" might be invalid temporarily)
-      onChange(parsed);
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalValue(e.target.value);
   };
 
-  const handleBlur = () => {
-    let parsed = parseFloat(inputValue);
-
-    // If empty or invalid, revert to last valid prop value
-    if (isNaN(parsed)) {
-      setInputValue(value.toString());
+  const commit = () => {
+    if (localValue === '') {
+      // If empty, revert to the current valid prop value (or could be 0)
+      setLocalValue(value.toString());
       return;
     }
 
-    // Clamp on blur
+    let parsed = parseFloat(localValue);
+
+    if (isNaN(parsed)) {
+      setLocalValue(value.toString());
+      return;
+    }
+
+    // Clamp
     if (min !== undefined && parsed < min) parsed = min;
     if (max !== undefined && parsed > max) parsed = max;
 
-    setInputValue(parsed.toString());
+    // Update parent
     onChange(parsed);
+    
+    // Update local value to the clean number string (removes leading zeros, etc.)
+    setLocalValue(parsed.toString());
   };
 
-  const increment = () => {
-    let newVal = value + step;
-    if (max !== undefined && newVal > max) newVal = max;
-    // Fix floating point precision
-    newVal = Math.round(newVal * 100) / 100;
-    onChange(newVal);
-    setInputValue(newVal.toString());
+  const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
+    commit();
   };
 
-  const decrement = () => {
-    let newVal = value - step;
-    if (min !== undefined && newVal < min) newVal = min;
-    // Fix floating point precision
-    newVal = Math.round(newVal * 100) / 100;
-    onChange(newVal);
-    setInputValue(newVal.toString());
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      commit();
+      (e.target as HTMLInputElement).blur();
+    }
   };
 
   return (
-    <div className={className}>
-      <label
-        htmlFor={id}
-        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-      >
-        {label}
-      </label>
-      <div className="flex rounded-md shadow-sm">
-        <button
-          type="button"
-          onClick={decrement}
-          className="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-gray-50 text-gray-500 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 sm:text-sm focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-        >
-          <MinusIcon className="h-4 w-4" aria-hidden="true" />
-        </button>
-        <input
-          type="number"
-          name={id}
-          id={id}
-          className="focus:ring-blue-500 focus:border-blue-500 block w-full text-center sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-none border-x-0 appearance-none"
-          placeholder={value.toString()}
-          value={inputValue}
-          onChange={handleInputChange}
-          onBlur={handleBlur}
-          onFocus={(e) => e.target.select()} // Auto-select on focus for easy replacement
-          step={step}
-        />
-        <button
-          type="button"
-          onClick={increment}
-          className="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-gray-50 text-gray-500 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 sm:text-sm focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-        >
-          <PlusIcon className="h-4 w-4" aria-hidden="true" />
-        </button>
-      </div>
-    </div>
+    <input
+      id={id}
+      name={name}
+      type="number"
+      className={className}
+      value={localValue}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      onKeyDown={handleKeyDown}
+      min={min}
+      max={max}
+      step={step}
+      placeholder={placeholder}
+      onFocus={(e) => e.target.select()} // Auto-select content on focus for quick replacement
+    />
   );
 };

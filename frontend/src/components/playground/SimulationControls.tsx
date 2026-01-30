@@ -1,6 +1,7 @@
 import { EnergyConfig, Algorithm } from '@cpu-vis/shared';
 import { useTranslation } from 'react-i18next';
 import { InformationCircleIcon, ChevronRightIcon, PlayIcon } from '@heroicons/react/24/outline';
+import { NumberInput } from '../common/NumberInput';
 
 interface Props {
   selectedAlgorithm: Algorithm;
@@ -90,13 +91,12 @@ export const SimulationControls: React.FC<Props> = ({
           >
             {t('controls.cores')}
           </label>
-          <input
+          <NumberInput
             id="core-count-input"
-            type="number"
-            min="1"
-            max="8"
+            min={1}
+            max={8}
             value={coreCount}
-            onChange={(e) => setCoreCount(Math.max(1, parseInt(e.target.value) || 1))}
+            onChange={setCoreCount}
             className="w-full bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors"
           />
         </div>
@@ -108,12 +108,11 @@ export const SimulationControls: React.FC<Props> = ({
           >
             {t('controls.contextSwitch')} ({t('common.ms')})
           </label>
-          <input
+          <NumberInput
             id="context-switch-input"
-            type="number"
-            min="0"
+            min={0}
             value={contextSwitch}
-            onChange={(e) => setContextSwitch(Math.max(0, parseInt(e.target.value) || 0))}
+            onChange={setContextSwitch}
             className="w-full bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors"
           />
         </div>
@@ -127,12 +126,11 @@ export const SimulationControls: React.FC<Props> = ({
               {t('controls.quantum')}
             </label>
             <div className="flex gap-2">
-              <input
+              <NumberInput
                 id="quantum-input"
-                type="number"
-                min="1"
+                min={1}
                 value={quantum}
-                onChange={(e) => setQuantum(Math.max(1, parseInt(e.target.value) || 1))}
+                onChange={setQuantum}
                 className="w-full bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors"
               />
               {onOptimizeQuantum && (
@@ -159,12 +157,9 @@ export const SimulationControls: React.FC<Props> = ({
             <label className="block text-xs font-bold text-gray-500 uppercase">
               {t('controls.activePower')} ({t('common.watts')})
             </label>
-            <input
-              type="number"
+            <NumberInput
               value={energyConfig.activeWatts}
-              onChange={(e) =>
-                setEnergyConfig({ ...energyConfig, activeWatts: parseFloat(e.target.value) || 0 })
-              }
+              onChange={(val) => setEnergyConfig({ ...energyConfig, activeWatts: val })}
               className="w-full text-sm bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-blue-500 outline-none py-1 dark:text-white"
             />
           </div>
@@ -172,12 +167,9 @@ export const SimulationControls: React.FC<Props> = ({
             <label className="block text-xs font-bold text-gray-500 uppercase">
               {t('controls.idlePower')} ({t('common.watts')})
             </label>
-            <input
-              type="number"
+            <NumberInput
               value={energyConfig.idleWatts}
-              onChange={(e) =>
-                setEnergyConfig({ ...energyConfig, idleWatts: parseFloat(e.target.value) || 0 })
-              }
+              onChange={(val) => setEnergyConfig({ ...energyConfig, idleWatts: val })}
               className="w-full text-sm bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-blue-500 outline-none py-1 dark:text-white"
             />
           </div>
@@ -185,13 +177,10 @@ export const SimulationControls: React.FC<Props> = ({
             <label className="block text-xs font-bold text-gray-500 uppercase">
               {t('controls.switchCost')} ({t('common.joules')})
             </label>
-            <input
-              type="number"
-              step="0.01"
+            <NumberInput
+              step={0.01}
               value={energyConfig.switchJoules}
-              onChange={(e) =>
-                setEnergyConfig({ ...energyConfig, switchJoules: parseFloat(e.target.value) || 0 })
-              }
+              onChange={(val) => setEnergyConfig({ ...energyConfig, switchJoules: val })}
               className="w-full text-sm bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-blue-500 outline-none py-1 dark:text-white"
             />
           </div>
