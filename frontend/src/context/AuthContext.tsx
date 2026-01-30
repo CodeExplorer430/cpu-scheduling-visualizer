@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import toast from 'react-hot-toast';
 
-interface User {
+export interface User {
   id: string;
   username: string;
   email: string;

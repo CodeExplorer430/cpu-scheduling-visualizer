@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, User } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { handleApiResponse } from '../../lib/api';
 
@@ -37,8 +37,8 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ mode }) => {
         body: JSON.stringify({ username, bio }),
       });
 
-      const updatedUser = await handleApiResponse(res);
-      updateUser(updatedUser as any);
+      const updatedUser = await handleApiResponse<User>(res);
+      updateUser(updatedUser);
       toast.success(t('dashboard.success.profileUpdated'));
     } catch (error) {
       console.error('Update profile error:', error);
@@ -59,7 +59,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ mode }) => {
         body: JSON.stringify(newSettings),
       });
 
-      const settings = await handleApiResponse<any>(res);
+      const settings = await handleApiResponse<UserSettings>(res);
       // Update user context with new settings
       if (user) {
         updateUser({ ...user, settings });
