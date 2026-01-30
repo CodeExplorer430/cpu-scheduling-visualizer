@@ -37,10 +37,26 @@ All protected routes require a Bearer Token.
   }
   ```
 
-### 3. Google OAuth
+### 3. OAuth Authentication
 
-- **Endpoint**: `GET /auth/google`
-- **Description**: Redirects user to Google Sign-In. Returns to frontend with `?token=<jwt>` on success.
+- **Endpoints**:
+  - `GET /auth/google`
+  - `GET /auth/github`
+  - `GET /auth/gitlab`
+  - `GET /auth/discord`
+  - `GET /auth/linkedin`
+- **Description**: Redirects user to the respective provider's Sign-In page. On success, redirects back to the frontend with `?token=<jwt>`.
+
+### 4. Magic Link (Planned)
+
+- **Endpoint**: `POST /auth/magic-link`
+- **Body**:
+  ```json
+  {
+    "email": "jdoe@example.com"
+  }
+  ```
+- **Description**: Sends a login link to the user's email.
 
 ---
 

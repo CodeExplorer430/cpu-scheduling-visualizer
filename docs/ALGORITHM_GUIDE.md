@@ -2,6 +2,28 @@
 
 This guide explains how to implement new scheduling algorithms in the `shared` engine.
 
+## Execution Flow
+
+```mermaid
+flowchart TD
+    Start([Start]) --> Init[Initialize Time=0, ReadyQueue=[], Completed=[]]
+    Init --> CheckArrivals{New Arrivals?}
+    CheckArrivals -- Yes --> AddToQueue[Add to ReadyQueue]
+    AddToQueue --> SelectProcess
+    CheckArrivals -- No --> SelectProcess
+    SelectProcess[Select Next Process based on Strategy] --> Execute[Execute for 1 Tick / Quantum]
+    Execute --> UpdateMetrics[Update Remaining Time & Stats]
+    UpdateMetrics --> Finished{Process Finished?}
+    Finished -- Yes --> MarkCompleted[Move to Completed]
+    Finished -- No --> Requeue[Add back to ReadyQueue if Preemptive]
+    MarkCompleted --> AllDone{All Processes Done?}
+    Requeue --> AllDone
+    AllDone -- No --> IncrementTime[Increment Time]
+    IncrementTime --> CheckArrivals
+    AllDone -- Yes --> GenerateSnapshots[Generate Snapshots & Calculate Final Metrics]
+    GenerateSnapshots --> End([End])
+```
+
 ## Directory Structure
 
 All algorithm logic resides in `shared/src/engine/`.

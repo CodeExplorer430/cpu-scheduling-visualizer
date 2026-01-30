@@ -1,0 +1,36 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+  workflow_run:
+    workflows: ['CI']
+    types:
+      - completed
+
+jobs:
+  deploy-backend:
+    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Render
+        run: |
+          if [ -n "${{ secrets.RENDER_DEPLOY_HOOK }}" ]; then
+            curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+          else
+            echo "RENDER_DEPLOY_HOOK not set, skipping manual trigger."
+            echo "Note: Render typically auto-deploys on push to main if connected to GitHub."
+          fi
+
+  deploy-frontend:
+    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Vercel
+        run: |
+          if [ -n "${{ secrets.VERCEL_DEPLOY_HOOK }}" ]; then
+            curl -X POST ${{ secrets.VERCEL_DEPLOY_HOOK }}
+          else
+            echo "VERCEL_DEPLOY_HOOK not set, skipping manual trigger."
+            echo "Note: Vercel typically auto-deploys on push to main if connected to GitHub."
+          fi

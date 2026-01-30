@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { OAuthButtons } from '../components/auth/OAuthButtons';
@@ -8,8 +8,64 @@ export const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [magicLoading, setMagicLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const handleVerifyMagicLink = useCallback(
+    async (token: string) => {
+      setLoading(true);
+      try {
+        const res = await fetch('/api/auth/magic-link/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Magic link verification failed');
+
+        login(data.token, data.user);
+        toast.success('Successfully logged in!');
+        navigate('/');
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Magic link expired or invalid');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [login, navigate]
+  );
+
+  useEffect(() => {
+    const magicToken = searchParams.get('magicToken');
+    if (magicToken) {
+      handleVerifyMagicLink(magicToken);
+    }
+  }, [searchParams, handleVerifyMagicLink]);
+
+  const handleRequestMagicLink = useCallback(async () => {
+    if (!email) {
+      toast.error('Please enter your email address first');
+      return;
+    }
+    setMagicLoading(true);
+    try {
+      const res = await fetch('/api/auth/magic-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send magic link');
+
+      toast.success(data.message, { duration: 6000 });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Error sending magic link');
+    } finally {
+      setMagicLoading(false);
+    }
+  }, [email]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,6 +145,19 @@ export const Login: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="text-sm">
+              <button
+                type="button"
+                onClick={handleRequestMagicLink}
+                disabled={magicLoading}
+                className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 disabled:opacity-50"
+              >
+                {magicLoading ? 'Sending...' : 'Email me a login link'}
+              </button>
             </div>
           </div>
 

@@ -39,7 +39,7 @@ interface OAuthProfile {
 type PassportDone = (error: Error | null | unknown, user?: any) => void;
 
 // --- Generic Handler ---
-const handleOAuthLogin = async (
+export const handleOAuthLogin = async (
   providerKey: string, // e.g., 'googleId', 'githubId'
   profile: OAuthProfile,
   done: PassportDone

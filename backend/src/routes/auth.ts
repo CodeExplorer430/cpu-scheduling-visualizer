@@ -1,7 +1,13 @@
 import { Router, Request, Response } from 'express';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
-import { register, login, getMe } from '../controllers/authController.js';
+import {
+  register,
+  login,
+  getMe,
+  requestMagicLink,
+  verifyMagicLink,
+} from '../controllers/authController.js';
 import { IUser } from '../models/User.js';
 
 const router = Router();
@@ -10,6 +16,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key-change-me';
 router.post('/register', register);
 router.post('/login', login);
 router.get('/me', getMe);
+router.post('/magic-link', requestMagicLink);
+router.post('/magic-link/verify', verifyMagicLink);
 
 // --- OAuth Helpers ---
 

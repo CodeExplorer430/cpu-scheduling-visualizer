@@ -1,15 +1,11 @@
-import { describe, it, expect, beforeEach, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach, beforeAll, afterAll, vi } from 'vitest';
 import { User } from '../models/User.js';
-import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import { connectDB } from '../db/index.js';
 import dotenv from 'dotenv';
+import { handleOAuthLogin } from '../config/passport.js';
 
 dotenv.config();
-
-// Mock Passport logic or the strategies if needed
-// For these tests, we are mostly testing the logic that happens AFTER passport authentication
-// which is usually in the callback route or the handleOAuthLogin helper.
 
 describe('OAuth Authentication Logic', () => {
   beforeAll(async () => {
@@ -24,42 +20,29 @@ describe('OAuth Authentication Logic', () => {
     await User.deleteMany({});
   });
 
-  it('should create a new user and return a token on successful OAuth callback logic simulation', async () => {
-    // This is more of a unit test for the handleOAuthLogin logic if it were exported,
-    // but we can simulate the outcome by checking how the database is populated.
-
+  it('should create a new user on successful handleOAuthLogin', async () => {
     const mockProfile = {
       id: '12345',
       emails: [{ value: 'oauth-user@example.com' }],
       displayName: 'OAuth User',
-      provider: 'google',
     };
 
-    // Simulate the behavior of handleOAuthLogin
-    let user = await User.findOne({
-      $or: [{ googleId: mockProfile.id }, { email: mockProfile.emails[0].value }],
-    });
+    const done = vi.fn();
+    await handleOAuthLogin('googleId', mockProfile as Parameters<typeof handleOAuthLogin>[1], done);
 
-    if (!user) {
-      user = await User.create({
-        username: mockProfile.displayName,
-        email: mockProfile.emails[0].value,
-        googleId: mockProfile.id,
-      });
-    }
+    expect(done).toHaveBeenCalledWith(
+      null,
+      expect.objectContaining({
+        email: 'oauth-user@example.com',
+        googleId: '12345',
+      })
+    );
 
+    const user = await User.findOne({ email: 'oauth-user@example.com' });
     expect(user).toBeDefined();
-    expect(user.email).toBe('oauth-user@example.com');
-    expect(user.googleId).toBe('12345');
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret', {
-      expiresIn: '1d',
-    });
-    expect(token).toBeDefined();
   });
 
   it('should link accounts if the email already exists', async () => {
-    // Create an existing user with email/password
     await User.create({
       username: 'Existing User',
       email: 'link@example.com',
@@ -69,24 +52,27 @@ describe('OAuth Authentication Logic', () => {
     const mockProfile = {
       id: 'gh-678',
       emails: [{ value: 'link@example.com' }],
-      displayName: 'GitHub User',
-      provider: 'github',
+      username: 'githubuser',
     };
 
-    // Simulate handleOAuthLogin logic
-    const user = await User.findOne({
-      $or: [{ githubId: mockProfile.id }, { email: mockProfile.emails[0].value }],
-    });
-
-    if (user) {
-      if (!user.githubId) {
-        user.githubId = mockProfile.id;
-        await user.save();
-      }
-    }
+    const done = vi.fn();
+    await handleOAuthLogin('githubId', mockProfile as Parameters<typeof handleOAuthLogin>[1], done);
 
     const updatedUser = await User.findOne({ email: 'link@example.com' });
     expect(updatedUser?.githubId).toBe('gh-678');
-    expect(updatedUser?.username).toBe('Existing User'); // Kept original username
+    expect(updatedUser?.username).toBe('Existing User');
+  });
+
+  it('should fail if no email is provided', async () => {
+    const mockProfile = {
+      id: 'no-email-id',
+      emails: [],
+    };
+
+    const done = vi.fn();
+    await handleOAuthLogin('gitlabId', mockProfile as Parameters<typeof handleOAuthLogin>[1], done);
+
+    expect(done).toHaveBeenCalledWith(expect.any(Error), undefined);
+    expect(done.mock.calls[0][0].message).toContain('No email found');
   });
 });

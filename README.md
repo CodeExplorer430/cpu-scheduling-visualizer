@@ -11,12 +11,19 @@ A comprehensive, interactive web-based visualizer for CPU scheduling algorithms,
 - **Algorithm Comparison**: Run simulations side-by-side to compare metrics like Turnaround Time and Waiting Time.
 - **Step-by-Step Explanations**: Understand _why_ a scheduler made a specific decision at any given tick.
 - **Multi-Core Support**: Simulate scheduling across multiple CPU cores.
-- **Save & Load**: Persist your custom scenarios using MongoDB (via Google Login or Guest).
+- **Save & Load**: Persist your custom scenarios using MongoDB (via Google, GitHub, GitLab, Discord, LinkedIn, or Guest).
 - **Export**: Download results as PNG, PDF, or CSV.
 - **Internationalization**: Full English and Spanish (Español) support.
 - **PWA Ready**: Installable on desktop and mobile for offline usage.
 
 ## 🏗️ Architecture
+
+```mermaid
+graph LR
+    F[Frontend - React] --- S[Shared Engine]
+    B[Backend - Express] --- S
+    B --- DB[(MongoDB)]
+```
 
 The project is structured as a Monorepo:
 
@@ -63,7 +70,7 @@ The project is structured as a Monorepo:
     Access at `http://localhost:5173`
 
 2.  **Start the Backend (Optional):**
-    Create a `.env` file in `backend/` (see [MongoDB Setup](docs/MONGODB_SETUP.md) and [OAuth Setup](docs/GOOGLE_OAUTH_SETUP.md)) and run:
+    Create a `.env` file in `backend/` (see [MongoDB Setup](docs/MONGODB_SETUP.md) and [OAuth Setup Guides](docs/)) and run:
     ```bash
     npm run dev:backend
     ```
@@ -81,7 +88,7 @@ The project is structured as a Monorepo:
 
 ### Non-Preemptive
 
-- **First-Come, First-Served (FCFS)**: Strict arrival order.
+- **First-Come, First-Served (FCFS)**: Strict arrival order. Supports Multi-Core.
 - **Shortest Job First (SJF)**: Prioritizes shortest burst time.
 - **Longest Job First (LJF)**: Prioritizes longest burst time.
 - **Priority Scheduling**: Processes executed based on assigned priority.
@@ -91,10 +98,11 @@ The project is structured as a Monorepo:
 ## 📚 Documentation
 
 - [Architecture Overview](docs/architecture.md)
-- [MongoDB & Environment Setup](docs/MONGODB_SETUP.md)
-- [Google OAuth Setup Guide](docs/GOOGLE_OAUTH_SETUP.md)
-- [Algorithm Implementation Guide](docs/ALGORITHM_GUIDE.md)
 - [API Documentation](docs/API.md)
+- [Algorithm Implementation Guide](docs/ALGORITHM_GUIDE.md)
+- [Deployment Guide](docs/DEPLOYMENT.md)
+- **OAuth Setup Guides**: [Google](docs/GOOGLE_OAUTH_SETUP.md), [GitHub](docs/GITHUB_OAUTH_SETUP.md), [GitLab](docs/GITLAB_OAUTH_SETUP.md), [Discord](docs/DISCORD_OAUTH_SETUP.md), [LinkedIn](docs/LINKEDIN_OAUTH_SETUP.md)
+- [MongoDB & Environment Setup](docs/MONGODB_SETUP.md)
 
 ## 🤝 Contributing
 

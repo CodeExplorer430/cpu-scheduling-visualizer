@@ -95,3 +95,63 @@ export const getMe = async (req: Request, res: Response) => {
     res.status(401).json({ error: 'Invalid token' });
   }
 };
+
+export const requestMagicLink = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      // Auto-register user with magic link if they don't exist
+      user = await User.create({
+        email,
+        username: email.split('@')[0],
+      });
+    }
+
+    const token = jwt.sign({ userId: user._id, type: 'magic_link' }, JWT_SECRET, {
+      expiresIn: '15m',
+    });
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const magicLink = `${frontendUrl}/login?magicToken=${token}`;
+
+    // In a real app, we would use an email service here.
+    // For this project, we'll log it to console and return success.
+    console.log(`[MAGIC LINK] Sent to ${email}: ${magicLink}`);
+
+    res.json({ message: 'Magic link sent! Check your console (in dev) or email.' });
+  } catch (error) {
+    console.error('Magic link request error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const verifyMagicLink = async (req: Request, res: Response) => {
+  try {
+    const { token } = req.body;
+    if (!token) return res.status(400).json({ error: 'Token is required' });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const decoded = jwt.verify(token, JWT_SECRET) as any;
+
+    if (decoded.type !== 'magic_link') {
+      return res.status(400).json({ error: 'Invalid token type' });
+    }
+
+    const user = await User.findById(decoded.userId);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const authToken = jwt.sign({ userId: user._id, username: user.username }, JWT_SECRET, {
+      expiresIn: '7d',
+    });
+
+    res.json({
+      token: authToken,
+      user: { id: user._id, username: user.username, email: user.email },
+    });
+  } catch (error) {
+    res.status(401).json({ error: 'Invalid or expired magic link' });
+  }
+};

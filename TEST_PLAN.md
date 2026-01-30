@@ -12,39 +12,31 @@ The following OAuth2 providers are fully implemented in the backend (`passport.t
 
 **Status:** ✅ Implemented & Aligned with Documentation.
 
-## Missing Tests & Gaps
+## Test Coverage Status
 
 ### 1. Backend: OAuth Integration Tests
 
-**Current State:** `backend/src/test/auth.test.ts` only covers local email/password flows.
-**Missing:**
+**Status:** ✅ Implemented in `backend/src/test/oauth.test.ts`.
 
-- Tests for `handleOAuthLogin` logic (mocking the profile data).
-- Verification of account linking (same email from different providers).
-- Handling of missing email scenarios (e.g., private GitHub emails).
-- JWT generation on successful OAuth callback.
+- Tests for `handleOAuthLogin` logic with mocked profiles.
+- Verification of account linking (email deduplication).
+- Error handling for missing profile emails.
 
 ### 2. Frontend: Authentication State
 
-**Current State:** `AuthContext.tsx` handles tokens but lacks unit tests.
-**Missing:**
+**Status:** ✅ Implemented.
 
-- Tests for `AuthContext` processing the JWT from the URL query string after redirect.
-- Tests for `OAuthButtons` rendering correct links.
-- Tests for `Login` and `Register` form validation.
+- `AuthContext.test.tsx`: Verifies token parsing from URL and localStorage sync.
+- `OAuthButtons.test.tsx`: Verifies provider links and UI rendering.
 
 ### 3. Feature Gap: Magic Link
 
-**Current State:** `Login.tsx` has a "Send Magic Link" button that is purely cosmetic.
-**Missing:**
+**Status:** ✅ Implemented.
 
-- Backend route to generate and email magic links.
-- Backend route to verify magic link tokens.
-- Frontend logic to handle magic link clicks.
-- **Action:** We should either implement this feature or remove the misleading UI.
+- Backend routes for generation (`/api/auth/magic-link`) and verification.
+- Frontend integration in `Login.tsx` with automatic token detection.
 
-## Recommended Action Items
+## CI/CD Status
 
-1.  **Create OAuth Mock Tests:** Add unit tests for `handleOAuthLogin` in `backend/src/test/auth.test.ts` by mocking the Passport profile response.
-2.  **Frontend Auth Tests:** Create `frontend/src/test/context/AuthContext.test.tsx` to verify token parsing and state updates.
-3.  **Cleanup:** Remove the "Magic Link" UI from `Login.tsx` if it's not being implemented immediately, to avoid user confusion.
+- **CI**: GitHub Actions (`ci.yml`) runs on every PR/push to main.
+- **CD**: GitHub Actions (`cd.yml`) configured for Render (API) and Vercel (Frontend) deployments via webhooks.
