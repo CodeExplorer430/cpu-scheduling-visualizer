@@ -5,6 +5,10 @@ export interface IUser extends Document {
   email: string;
   passwordHash?: string;
   googleId?: string;
+  githubId?: string;
+  gitlabId?: string;
+  discordId?: string;
+  linkedinId?: string;
   createdAt: Date;
 }
 
@@ -13,6 +17,10 @@ const userSchema = new Schema<IUser>({
   email: { type: String, required: true, unique: true, trim: true, lowercase: true },
   passwordHash: { type: String, required: false },
   googleId: { type: String, required: false, unique: true, sparse: true },
+  githubId: { type: String, required: false, unique: true, sparse: true },
+  gitlabId: { type: String, required: false, unique: true, sparse: true },
+  discordId: { type: String, required: false, unique: true, sparse: true },
+  linkedinId: { type: String, required: false, unique: true, sparse: true },
   createdAt: { type: Date, default: Date.now },
 });
 

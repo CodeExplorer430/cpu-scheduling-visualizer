@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import { register, login, getMe } from '../controllers/authController.js';
@@ -11,25 +11,40 @@ router.post('/register', register);
 router.post('/login', login);
 router.get('/me', getMe);
 
-// Google OAuth
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+// --- OAuth Helpers ---
 
-router.get(
-  '/google/callback',
-  passport.authenticate('google', { session: false, failureRedirect: '/login' }),
-  (req, res) => {
-    // Successful authentication, issue JWT and redirect
-    const user = req.user as unknown as IUser;
-    const token = jwt.sign({ userId: user._id, username: user.username }, JWT_SECRET, {
-      expiresIn: '7d',
-    });
+const handleCallback = (req: Request, res: Response) => {
+  // Successful authentication, issue JWT and redirect
+  const user = req.user as unknown as IUser;
+  const token = jwt.sign({ userId: user._id, username: user.username }, JWT_SECRET, {
+    expiresIn: '7d',
+  });
 
-    // Redirect to frontend with token
-    // In production, use a secure cookie or a dedicated success page
-    // For this prototype, we'll redirect with query param (simplest for SPA)
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    res.redirect(`${frontendUrl}?token=${token}`);
-  }
-);
+  // Redirect to frontend with token
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  res.redirect(`${frontendUrl}?token=${token}`);
+};
+
+const providers = [
+  { name: 'google', scope: ['profile', 'email'] },
+  { name: 'github', scope: ['user:email'] },
+  { name: 'gitlab', scope: ['read_user'] },
+  { name: 'discord', scope: ['identify', 'email'] },
+  { name: 'linkedin', scope: ['r_emailaddress', 'r_liteprofile'] },
+];
+
+// --- OAuth Routes ---
+
+providers.forEach(({ name, scope }) => {
+  // Auth initiation
+  router.get(`/${name}`, passport.authenticate(name, { scope }));
+
+  // Callback
+  router.get(
+    `/${name}/callback`,
+    passport.authenticate(name, { session: false, failureRedirect: '/login' }),
+    handleCallback
+  );
+});
 
 export default router;
