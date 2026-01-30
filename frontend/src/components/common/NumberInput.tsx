@@ -26,15 +26,11 @@ export const NumberInput: React.FC<NumberInputProps> = ({
   // Local string state to allow empty values and formatting while typing
   const [localValue, setLocalValue] = useState<string>(value.toString());
 
-  // Sync with parent value updates (e.g. from Randomize button),
-  // but only when the parent value actually changes to something different
-  // than what we currently parsed.
+  // Sync with parent value updates (e.g. from Randomize button)
   useEffect(() => {
-    // If the prop value matches our current local value (parsed), don't mess with the text.
-    // This prevents cursor jumping or reformatting while the user is typing valid numbers.
-    // However, if the prop changes externally (e.g. randomize), we must update.
-    // We assume if the prop differs from our local parsed, it's an external change.
     const parsedLocal = parseFloat(localValue);
+    // If prop differs from our local state (parsed), or if local is empty/invalid but prop is valid, sync.
+    // This allows external resets to fix empty fields.
     if (parsedLocal !== value) {
       setLocalValue(value.toString());
     }
@@ -47,8 +43,8 @@ export const NumberInput: React.FC<NumberInputProps> = ({
 
   const commit = () => {
     if (localValue === '') {
-      // If empty, revert to the current valid prop value (or could be 0)
-      setLocalValue(value.toString());
+      // Allow empty state (don't revert to old value immediately)
+      // This lets the user clear the field and see the placeholder
       return;
     }
 

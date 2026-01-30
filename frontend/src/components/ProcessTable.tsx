@@ -175,7 +175,8 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
                     value={process.arrival}
                     onChange={(val) => updateProcess(index, 'arrival', val)}
                     min={0}
-                    className="bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white border rounded px-2 py-1 w-20 sm:w-full max-w-[6rem] text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    placeholder="0"
+                    className="bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors w-24 sm:w-full min-w-[6rem]"
                   />
                 </td>
                 <td className="px-3 sm:px-4 py-4 whitespace-nowrap">
@@ -183,7 +184,8 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
                     value={process.burst}
                     onChange={(val) => updateProcess(index, 'burst', val)}
                     min={1}
-                    className="bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white border rounded px-2 py-1 w-20 sm:w-full max-w-[6rem] text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    placeholder="1"
+                    className="bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors w-24 sm:w-full min-w-[6rem]"
                   />
                 </td>
                 <td className="px-3 sm:px-4 py-4 whitespace-nowrap">
@@ -191,7 +193,8 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
                     value={process.priority || 1}
                     onChange={(val) => updateProcess(index, 'priority', val)}
                     min={1}
-                    className="bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white border rounded px-2 py-1 w-20 sm:w-full max-w-[6rem] text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    placeholder="1"
+                    className="bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors w-24 sm:w-full min-w-[6rem]"
                   />
                 </td>
                 <td className="px-3 sm:px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
