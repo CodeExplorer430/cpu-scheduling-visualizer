@@ -11,10 +11,10 @@ describe('NumberInput Component', () => {
   it('updates local value on change without calling onChange immediately', () => {
     const handleChange = vi.fn();
     render(<NumberInput value={10} onChange={handleChange} />);
-    
+
     const input = screen.getByRole('spinbutton');
     fireEvent.change(input, { target: { value: '100' } });
-    
+
     // Value in DOM should update
     expect(input).toHaveValue(100);
     // Parent onChange should NOT be called yet (commit on blur)
@@ -24,11 +24,11 @@ describe('NumberInput Component', () => {
   it('calls onChange and formats on blur', () => {
     const handleChange = vi.fn();
     render(<NumberInput value={10} onChange={handleChange} />);
-    
+
     const input = screen.getByRole('spinbutton');
     fireEvent.change(input, { target: { value: '05' } });
     fireEvent.blur(input);
-    
+
     expect(handleChange).toHaveBeenCalledWith(5);
     expect(input).toHaveValue(5); // Formatted "05" -> 5
   });
@@ -36,11 +36,11 @@ describe('NumberInput Component', () => {
   it('allows empty string while typing, reverts on blur', () => {
     const handleChange = vi.fn();
     render(<NumberInput value={10} onChange={handleChange} />);
-    
+
     const input = screen.getByRole('spinbutton');
     fireEvent.change(input, { target: { value: '' } });
     expect(input).toHaveValue(null); // Empty
-    
+
     fireEvent.blur(input);
     expect(input).toHaveValue(10); // Reverted
     expect(handleChange).not.toHaveBeenCalled(); // No change to parent
@@ -49,11 +49,11 @@ describe('NumberInput Component', () => {
   it('clamps min value on blur', () => {
     const handleChange = vi.fn();
     render(<NumberInput value={10} min={5} onChange={handleChange} />);
-    
+
     const input = screen.getByRole('spinbutton');
     fireEvent.change(input, { target: { value: '2' } });
     fireEvent.blur(input);
-    
+
     expect(handleChange).toHaveBeenCalledWith(5);
     expect(input).toHaveValue(5);
   });
@@ -61,11 +61,11 @@ describe('NumberInput Component', () => {
   it('clamps max value on blur', () => {
     const handleChange = vi.fn();
     render(<NumberInput value={10} max={20} onChange={handleChange} />);
-    
+
     const input = screen.getByRole('spinbutton');
     fireEvent.change(input, { target: { value: '25' } });
     fireEvent.blur(input);
-    
+
     expect(handleChange).toHaveBeenCalledWith(20);
     expect(input).toHaveValue(20);
   });

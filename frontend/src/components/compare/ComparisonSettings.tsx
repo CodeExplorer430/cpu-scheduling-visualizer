@@ -19,12 +19,7 @@ export const ComparisonSettings: React.FC<Props> = ({ quantum, setQuantum, onRun
         {t('compare.title')}
       </h2>
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow space-y-4 transition-colors duration-200">
-        <NumberInput
-          id="quantum-input"
-          value={quantum}
-          onChange={setQuantum}
-          min={1}
-        />
+        <NumberInput id="quantum-input" value={quantum} onChange={setQuantum} min={1} />
         <button
           onClick={onRun}
           className="w-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded transition-colors shadow-sm flex items-center justify-center gap-2"

@@ -114,7 +114,9 @@ describe('Simulation Controller', () => {
         algorithms: ['FCFS', 'RR'],
       };
       vi.mocked(shared.validateProcesses).mockReturnValue({ valid: true });
-      vi.mocked(shared.runFCFS).mockReturnValue({ algo: 'FCFS' } as unknown as shared.SimulationResult);
+      vi.mocked(shared.runFCFS).mockReturnValue({
+        algo: 'FCFS',
+      } as unknown as shared.SimulationResult);
       vi.mocked(shared.runRR).mockReturnValue({ algo: 'RR' } as unknown as shared.SimulationResult);
 
       runBatchSimulation(mockRequest as Request, mockResponse as Response);
@@ -133,7 +135,9 @@ describe('Simulation Controller', () => {
         algorithms: ['FCFS', 'RR'],
       };
       vi.mocked(shared.validateProcesses).mockReturnValue({ valid: true });
-      vi.mocked(shared.runFCFS).mockReturnValue({ algo: 'FCFS' } as unknown as shared.SimulationResult);
+      vi.mocked(shared.runFCFS).mockReturnValue({
+        algo: 'FCFS',
+      } as unknown as shared.SimulationResult);
       vi.mocked(shared.runRR).mockImplementation(() => {
         throw new Error('RR Failed');
       });

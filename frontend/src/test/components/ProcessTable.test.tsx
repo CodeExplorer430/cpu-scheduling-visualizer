@@ -40,12 +40,17 @@ describe('ProcessTable Component', () => {
   it('calls onProcessChange when updating a process', () => {
     render(<ProcessTable processes={initialProcesses} onProcessChange={mockProcessChange} />);
 
+    // Burst inputs are the second number inputs in each row
+    // P1 is first row.
     const p1BurstInput = screen.getAllByDisplayValue('5')[0];
+    
+    // Change value
     fireEvent.change(p1BurstInput, { target: { value: '10' } });
+    // Trigger blur to commit the change (NumberInput behavior)
+    fireEvent.blur(p1BurstInput);
 
     expect(mockProcessChange).toHaveBeenCalled();
-    const updatedProcesses = mockProcessChange.mock.calls[0][0]; // Check last call arguments? No, calls[0] if it's the first call.
-    // Actually we should clear mock before test or use mockProcessChange.mock.lastCall
+    const updatedProcesses = mockProcessChange.mock.calls[0][0]; 
     expect(updatedProcesses[0].burst).toBe(10);
   });
 

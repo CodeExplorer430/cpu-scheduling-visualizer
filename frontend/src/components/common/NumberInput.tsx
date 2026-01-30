@@ -65,7 +65,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
 
     // Update parent
     onChange(parsed);
-    
+
     // Update local value to the clean number string (removes leading zeros, etc.)
     setLocalValue(parsed.toString());
   };

@@ -16,7 +16,9 @@ describe('RealTimeStatus Component', () => {
 
   it('should display the running PID from snapshot', () => {
     const snapshot = { runningPid: 'P1', readyQueue: [], completedPids: [], ganttChart: [] };
-    render(<RealTimeStatus snapshot={snapshot as unknown as Snapshot} currentTime={5} maxTime={10} />);
+    render(
+      <RealTimeStatus snapshot={snapshot as unknown as Snapshot} currentTime={5} maxTime={10} />
+    );
     expect(screen.getByText('P1')).toBeInTheDocument();
   });
 
@@ -27,7 +29,9 @@ describe('RealTimeStatus Component', () => {
       completedPids: [],
       ganttChart: [],
     };
-    render(<RealTimeStatus snapshot={snapshot as unknown as Snapshot} currentTime={5} maxTime={10} />);
+    render(
+      <RealTimeStatus snapshot={snapshot as unknown as Snapshot} currentTime={5} maxTime={10} />
+    );
     expect(screen.getByText('P1')).toBeInTheDocument();
     expect(screen.getByText('P2')).toBeInTheDocument();
   });
@@ -39,14 +43,18 @@ describe('RealTimeStatus Component', () => {
       completedPids: [],
       ganttChart: [],
     };
-    render(<RealTimeStatus snapshot={snapshot as unknown as Snapshot} currentTime={5} maxTime={10} />);
+    render(
+      <RealTimeStatus snapshot={snapshot as unknown as Snapshot} currentTime={5} maxTime={10} />
+    );
     expect(screen.getByText('P2')).toBeInTheDocument();
     expect(screen.getByText('P3')).toBeInTheDocument();
   });
 
   it('should show Empty when ready queue is empty', () => {
     const snapshot = { runningPid: 'P1', readyQueue: [], completedPids: [], ganttChart: [] };
-    render(<RealTimeStatus snapshot={snapshot as unknown as Snapshot} currentTime={5} maxTime={10} />);
+    render(
+      <RealTimeStatus snapshot={snapshot as unknown as Snapshot} currentTime={5} maxTime={10} />
+    );
     expect(screen.getByText('Empty')).toBeInTheDocument();
   });
 });
