@@ -25,11 +25,11 @@ export const About: React.FC = () => {
             <span className="text-blue-500 mr-2">Our</span> Mission
           </h2>
           <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-            Operating Systems concepts can be abstract and difficult to grasp. <strong>Quantix</strong> bridges
-            the gap between theory and practice by providing a visual, interactive platform to
-            explore how CPU schedulers work under the hood. Whether you're analyzing the efficiency
-            of Round Robin or the complexity of Multilevel Feedback Queues, Quantix offers a
-            deterministic engine to verify your understanding.
+            Operating Systems concepts can be abstract and difficult to grasp.{' '}
+            <strong>Quantix</strong> bridges the gap between theory and practice by providing a
+            visual, interactive platform to explore how CPU schedulers work under the hood. Whether
+            you're analyzing the efficiency of Round Robin or the complexity of Multilevel Feedback
+            Queues, Quantix offers a deterministic engine to verify your understanding.
           </p>
         </div>
       </Card>
@@ -103,10 +103,11 @@ export const About: React.FC = () => {
         <div className="text-center space-y-4">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Author & Open Source</h2>
           <p className="text-gray-600 dark:text-gray-300">
-            Quantix is an open-source project developed only by myself, <strong>CodeExplorer430</strong>. I believe
-            in free, accessible education tools for everyone.
+            Quantix is an open-source project developed by <strong>Miguel Harvey Velasco</strong>. 
+            Miguel is a BSIT student with over 4 years of coding experience and a passion for 
+            problem-solving and tech exploration. We believe in free, accessible education tools for everyone.
           </p>
-          <div className="pt-4">
+          <div className="flex flex-wrap justify-center gap-4 pt-4">
             <a
               href="https://github.com/CodeExplorer430/quantix"
               target="_blank"
@@ -114,6 +115,14 @@ export const About: React.FC = () => {
               className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition-colors"
             >
               View on GitHub
+            </a>
+            <a
+              href="https://www.linkedin.com/in/miguel-harvey-velasco-07995b251"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-base font-medium rounded-md shadow-sm text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              Connect on LinkedIn
             </a>
           </div>
         </div>
