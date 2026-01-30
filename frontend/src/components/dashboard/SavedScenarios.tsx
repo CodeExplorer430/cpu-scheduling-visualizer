@@ -1,11 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
-import { 
-  TrashIcon, 
-  PlayIcon, 
-  CalendarIcon
-} from '@heroicons/react/24/outline';
+import { TrashIcon, PlayIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 
