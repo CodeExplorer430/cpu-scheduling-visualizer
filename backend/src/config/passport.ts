@@ -31,7 +31,8 @@ interface OAuthProfile {
   displayName?: string;
   username?: string;
   emails?: Array<{ value: string }>;
-  [key: string]: unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -93,7 +94,7 @@ if (googleConfig) {
         callbackURL: googleConfig.callbackURL,
       },
       (_accessToken, _refreshToken, profile: GoogleProfile, done) =>
-        handleOAuthLogin('googleId', profile as OAuthProfile, done)
+        handleOAuthLogin('googleId', profile as unknown as OAuthProfile, done)
     )
   );
 }
@@ -101,6 +102,7 @@ if (googleConfig) {
 // 2. GitHub
 const githubConfig = getAuthConfig('github');
 if (githubConfig) {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   passport.use(
     new GitHubStrategy(
       {
@@ -109,15 +111,17 @@ if (githubConfig) {
         callbackURL: githubConfig.callbackURL,
         scope: ['user:email'],
       },
-      (_accessToken: string, _refreshToken: string, profile: OAuthProfile, done: PassportDone) =>
-        handleOAuthLogin('githubId', profile, done)
+      ((_accessToken: string, _refreshToken: string, profile: any, done: any) =>
+        handleOAuthLogin('githubId', profile as OAuthProfile, done)) as any
     )
   );
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 }
 
 // 3. GitLab
 const gitlabConfig = getAuthConfig('gitlab');
 if (gitlabConfig) {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   passport.use(
     new GitLabStrategy(
       {
@@ -126,15 +130,17 @@ if (gitlabConfig) {
         callbackURL: gitlabConfig.callbackURL,
         scope: ['read_user'],
       },
-      (_accessToken: string, _refreshToken: string, profile: OAuthProfile, done: PassportDone) =>
-        handleOAuthLogin('gitlabId', profile, done)
+      ((_accessToken: string, _refreshToken: string, profile: any, done: any) =>
+        handleOAuthLogin('gitlabId', profile as OAuthProfile, done)) as any
     )
   );
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 }
 
 // 4. Discord
 const discordConfig = getAuthConfig('discord');
 if (discordConfig) {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   passport.use(
     new DiscordStrategy(
       {
@@ -142,17 +148,18 @@ if (discordConfig) {
         clientSecret: discordConfig.clientSecret,
         callbackURL: discordConfig.callbackURL,
         scope: ['identify', 'email'],
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any,
-      (_accessToken: string, _refreshToken: string, profile: OAuthProfile, done: PassportDone) =>
-        handleOAuthLogin('discordId', profile, done)
+      ((_accessToken: string, _refreshToken: string, profile: any, done: any) =>
+        handleOAuthLogin('discordId', profile as OAuthProfile, done)) as any
     )
   );
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 }
 
 // 5. LinkedIn
 const linkedinConfig = getAuthConfig('linkedin');
 if (linkedinConfig) {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   passport.use(
     new LinkedInStrategy(
       {
@@ -162,10 +169,11 @@ if (linkedinConfig) {
         scope: ['openid', 'profile', 'email'],
         userProfileURL: 'https://api.linkedin.com/v2/userinfo',
       },
-      (_accessToken: string, _refreshToken: string, profile: OAuthProfile, done: PassportDone) =>
-        handleOAuthLogin('linkedinId', profile, done)
+      ((_accessToken: string, _refreshToken: string, profile: any, done: any) =>
+        handleOAuthLogin('linkedinId', profile as OAuthProfile, done)) as any
     )
   );
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 }
 
 export default passport;
