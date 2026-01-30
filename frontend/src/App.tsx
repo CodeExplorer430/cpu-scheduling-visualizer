@@ -11,29 +11,9 @@ import { Dashboard } from './pages/Dashboard';
 import { AutoGrader } from './pages/autograder/AutoGrader';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
-import { Header } from './components/layout/Header';
-import { Footer } from './components/layout/Footer';
+import { Layout } from './components/layout/Layout';
 
 // --- Initial Data ---
-const initialProcesses: Process[] = [
-  { pid: 'P1', arrival: 0, burst: 4, priority: 1 },
-  { pid: 'P2', arrival: 1, burst: 3, priority: 2 },
-  { pid: 'P3', arrival: 2, burst: 1, priority: 3 },
-  { pid: 'P4', arrival: 5, burst: 2, priority: 1 },
-];
-
-// --- Layout ---
-function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="min-h-screen font-sans flex flex-col transition-colors duration-200">
-      <Header />
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-        {children}
-      </main>
-      <Footer />
-    </div>
-  );
-}
 
 function App() {
   const [processes, setProcesses] = useState<Process[]>(initialProcesses);
