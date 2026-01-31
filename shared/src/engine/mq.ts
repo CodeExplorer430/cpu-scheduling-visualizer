@@ -55,7 +55,8 @@ export function runMQ(
   while (completedCount < totalProcesses) {
     while (pIndex < totalProcesses && processes[pIndex].arrival <= systemTime) {
       const p = processes[pIndex];
-      if (p.priority === 1) q1.push(p);
+      const prio = p.priority ?? 2;
+      if (prio === 1) q1.push(p);
       else q2.push(p);
       pIndex++;
     }
@@ -70,12 +71,13 @@ export function runMQ(
 
         if (core.currentProcessPid && core.currentProcessPid !== 'CS') {
           const current = processes.find((p) => p.pid === core.currentProcessPid)!;
+          const currentPrio = current.priority ?? 2;
           if (
-            current.priority > 1 &&
+            currentPrio > 1 &&
             q1.filter((p) => !currentlyRunningPids.includes(p.pid)).length > 0
           ) {
             core.currentProcessPid = undefined;
-          } else if (current.priority === 1 && core.rrQuantumProgress >= quantum) {
+          } else if (currentPrio === 1 && core.rrQuantumProgress >= quantum) {
             q1.shift();
             q1.push(current);
             core.rrQuantumProgress = 0;
@@ -135,7 +137,8 @@ export function runMQ(
               .map((c) => {
                 const p = processes.find((p) => p.pid === c.currentProcessPid)!;
                 const timeToComplete = p.remaining;
-                const timeToQuantum = p.priority === 1 ? quantum - c.rrQuantumProgress : Infinity;
+                const timeToQuantum =
+                  (p.priority ?? 2) === 1 ? quantum - c.rrQuantumProgress : Infinity;
                 return systemTime + Math.min(timeToComplete, timeToQuantum);
               })
           )
@@ -160,7 +163,7 @@ export function runMQ(
           else events.push({ pid: p.pid, start: systemTime, end: nextEventTime, coreId: core.id });
 
           p.remaining -= duration;
-          if (p.priority === 1) core.rrQuantumProgress += duration;
+          if ((p.priority ?? 2) === 1) core.rrQuantumProgress += duration;
           core.currentTime = nextEventTime;
           core.lastPid = p.pid;
 
@@ -170,7 +173,7 @@ export function runMQ(
             turnaroundTimes[p.pid] = nextEventTime - p.arrival;
             waitingTimes[p.pid] = turnaroundTimes[p.pid] - p.burst;
             core.currentProcessPid = undefined;
-            if (p.priority === 1) q1.shift();
+            if ((p.priority ?? 2) === 1) q1.shift();
             else q2.shift();
           }
         } else if (!core.currentProcessPid) {
@@ -242,12 +245,10 @@ export function runMQ(
     },
   };
 
-  if (coreCount === 1) {
+  if (coreCount === 1)
     events.forEach((e) => {
-      const eWithCore = e as { coreId?: number };
-      delete eWithCore.coreId;
+      delete (e as GanttEvent).coreId;
     });
-  }
 
   return {
     events,
