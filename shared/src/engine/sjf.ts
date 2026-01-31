@@ -67,6 +67,7 @@ export function runSJF(
   while (completedCount < totalProcesses) {
     // 1. Enqueue arrivals
     while (pIndex < totalProcesses && processes[pIndex].arrival <= systemTime) {
+      log(`Time ${systemTime}: Process ${processes[pIndex].pid} arrived`);
       readyQueue.push(processes[pIndex]);
       pIndex++;
     }
@@ -126,7 +127,8 @@ export function runSJF(
 
         completionTimes[currentProcess.pid] = end;
         turnaroundTimes[currentProcess.pid] = end - currentProcess.arrival;
-        waitingTimes[currentProcess.pid] = turnaroundTimes[currentProcess.pid] - currentProcess.burst;
+        waitingTimes[currentProcess.pid] =
+          turnaroundTimes[currentProcess.pid] - currentProcess.burst;
       }
     }
 
@@ -138,21 +140,28 @@ export function runSJF(
     if (nextTime === Infinity && readyQueue.length === 0) break;
 
     // Handle IDLE
-    if (readyQueue.length === 0 && pIndex < totalProcesses && nextArrival > systemTime && cores.every(c => c.currentTime <= systemTime)) {
-        for (const core of cores) {
-            if (core.currentTime <= systemTime) {
-                events.push({ pid: 'IDLE', start: core.currentTime, end: nextArrival, coreId: core.id });
-                core.currentTime = nextArrival;
-                core.lastPid = 'IDLE';
-            }
+    if (
+      readyQueue.length === 0 &&
+      pIndex < totalProcesses &&
+      nextArrival > systemTime &&
+      cores.every((c) => c.currentTime <= systemTime)
+    ) {
+      for (const core of cores) {
+        if (core.currentTime <= systemTime) {
+          events.push({ pid: 'IDLE', start: core.currentTime, end: nextArrival, coreId: core.id });
+          core.currentTime = nextArrival;
+          core.lastPid = 'IDLE';
         }
-        systemTime = nextArrival;
+      }
+      systemTime = nextArrival;
     } else if (nextTime > systemTime) {
       systemTime = nextTime;
     } else if (!assignedThisStep && readyQueue.length === 0 && pIndex < totalProcesses) {
-        systemTime = nextArrival;
+      systemTime = nextArrival;
     } else {
-      const earliestBusyCoreFinish = Math.min(...cores.filter(c => c.currentTime > systemTime).map(c => c.currentTime));
+      const earliestBusyCoreFinish = Math.min(
+        ...cores.filter((c) => c.currentTime > systemTime).map((c) => c.currentTime)
+      );
       systemTime = earliestBusyCoreFinish !== Infinity ? earliestBusyCoreFinish : systemTime + 1;
     }
     systemTime = Math.round(systemTime * 100) / 100;
@@ -167,9 +176,15 @@ export function runSJF(
     contextSwitches = events.filter((e) => e.pid === 'CS').length;
   } else {
     for (let c = 0; c < coreCount; c++) {
-      const coreEvents = events.filter((e) => (e.coreId ?? 0) === c).sort((a, b) => a.start - b.start);
+      const coreEvents = events
+        .filter((e) => (e.coreId ?? 0) === c)
+        .sort((a, b) => a.start - b.start);
       for (let i = 0; i < coreEvents.length - 1; i++) {
-        if (coreEvents[i].pid !== coreEvents[i + 1].pid && coreEvents[i].pid !== 'IDLE' && coreEvents[i + 1].pid !== 'IDLE') {
+        if (
+          coreEvents[i].pid !== coreEvents[i + 1].pid &&
+          coreEvents[i].pid !== 'IDLE' &&
+          coreEvents[i + 1].pid !== 'IDLE'
+        ) {
           contextSwitches++;
         }
       }
@@ -197,7 +212,10 @@ export function runSJF(
     contextSwitches,
     cpuUtilization,
     energy: {
-      totalEnergy: activeTime * energyConfig.activeWatts + idleTime * energyConfig.idleWatts + contextSwitches * energyConfig.switchJoules,
+      totalEnergy:
+        activeTime * energyConfig.activeWatts +
+        idleTime * energyConfig.idleWatts +
+        contextSwitches * energyConfig.switchJoules,
       activeEnergy: activeTime * energyConfig.activeWatts,
       idleEnergy: idleTime * energyConfig.idleWatts,
       switchEnergy: contextSwitches * energyConfig.switchJoules,
@@ -206,7 +224,7 @@ export function runSJF(
 
   // Clean up coreId for single-core to keep tests happy
   if (coreCount === 1) {
-    events.forEach(e => delete e.coreId);
+    events.forEach((e) => delete e.coreId);
   }
 
   return {

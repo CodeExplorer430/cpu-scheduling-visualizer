@@ -23,13 +23,19 @@ describe('MLFQ Property Tests', () => {
           // 1. All processes complete
           expect(Object.keys(metrics.completion).length).toBe(processes.length);
 
-          // 2. No overlapping events
-          const sortedEvents = [...events]
-            .filter((e: GanttEvent) => e.pid !== 'IDLE' && e.pid !== 'CS')
-            .sort((a: GanttEvent, b: GanttEvent) => a.start - b.start);
+          // 2. No overlapping events PER CORE
+          const coreIds = Array.from(new Set(events.map((e) => e.coreId ?? 0)));
 
-          for (let i = 0; i < sortedEvents.length - 1; i++) {
-            expect(sortedEvents[i].end).toBeLessThanOrEqual(sortedEvents[i + 1].start);
+          for (const coreId of coreIds) {
+            const sortedEvents = [...events]
+              .filter(
+                (e: GanttEvent) => (e.coreId ?? 0) === coreId && e.pid !== 'IDLE' && e.pid !== 'CS'
+              )
+              .sort((a: GanttEvent, b: GanttEvent) => a.start - b.start);
+
+            for (let i = 0; i < sortedEvents.length - 1; i++) {
+              expect(sortedEvents[i].end).toBeLessThanOrEqual(sortedEvents[i + 1].start);
+            }
           }
 
           // 3. CPU utilization is between 0 and 100

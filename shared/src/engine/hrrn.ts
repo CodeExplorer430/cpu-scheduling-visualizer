@@ -16,7 +16,13 @@ export function runHRRN(
   inputProcesses: Process[],
   options: SimulationOptions = {}
 ): SimulationResult {
-  const { contextSwitchOverhead = 0, enableLogging = false } = options;
+  const {
+    contextSwitchOverhead = 0,
+    enableLogging = false,
+    coreCount = 1,
+    energyConfig = { activeWatts: 20, idleWatts: 5, switchJoules: 0.1 },
+  } = options;
+
   const logs: string[] = [];
   const stepLogs: DecisionLog[] = [];
 
@@ -38,119 +44,160 @@ export function runHRRN(
   const processes = inputProcesses.map((p) => ({ ...p }));
   processes.sort((a, b) => a.arrival - b.arrival);
 
-  let currentTime = 0;
   const events: GanttEvent[] = [];
   const completionTimes: Record<string, number> = {};
   const turnaroundTimes: Record<string, number> = {};
   const waitingTimes: Record<string, number> = {};
 
-  let completedCount = 0;
-  const totalProcesses = processes.length;
   const readyQueue: Process[] = [];
   let pIndex = 0;
-  let lastPid: string | 'IDLE' | 'CS' = 'IDLE';
+  let completedCount = 0;
+  const totalProcesses = processes.length;
+
+  interface CoreState {
+    id: number;
+    currentTime: number;
+    lastPid: string | 'IDLE' | 'CS';
+  }
+
+  const cores: CoreState[] = Array.from({ length: coreCount }, (_, i) => ({
+    id: i,
+    currentTime: 0,
+    lastPid: 'IDLE',
+  }));
+
+  let systemTime = 0;
 
   while (completedCount < totalProcesses) {
     // 1. Enqueue arrivals
-    while (pIndex < totalProcesses && processes[pIndex].arrival <= currentTime) {
-      log(`Time ${currentTime}: Process ${processes[pIndex].pid} arrived`);
+    while (pIndex < totalProcesses && processes[pIndex].arrival <= systemTime) {
+      log(`Time ${systemTime}: Process ${processes[pIndex].pid} arrived`);
       readyQueue.push(processes[pIndex]);
       pIndex++;
     }
 
-    // 2. Idle handling
-    if (readyQueue.length === 0) {
-      if (pIndex < totalProcesses) {
-        const nextArrival = processes[pIndex].arrival;
-        logDecision(currentTime, 0, `IDLE until ${nextArrival}`, `Ready queue empty.`, []);
-        events.push({ pid: 'IDLE', start: currentTime, end: nextArrival });
-        currentTime = nextArrival;
-        lastPid = 'IDLE';
-        continue;
+    // 2. Select Highest Response Ratio for available cores
+    cores.sort((a, b) => a.currentTime - b.currentTime || a.id - b.id);
+
+    let assignedThisStep = false;
+    for (const core of cores) {
+      if (core.currentTime <= systemTime && readyQueue.length > 0) {
+        let selectedIndex = -1;
+        let maxRatio = -1;
+        const queueState: string[] = [];
+
+        readyQueue.forEach((p, idx) => {
+          const waitTime = core.currentTime - p.arrival;
+          const responseRatio = (waitTime + p.burst) / p.burst;
+          queueState.push(`${p.pid}(RR:${responseRatio.toFixed(2)})`);
+
+          if (responseRatio > maxRatio) {
+            maxRatio = responseRatio;
+            selectedIndex = idx;
+          } else if (responseRatio === maxRatio) {
+            if (p.arrival < readyQueue[selectedIndex].arrival) {
+              selectedIndex = idx;
+            }
+          }
+        });
+
+        const currentProcess = readyQueue.splice(selectedIndex, 1)[0];
+
+        logDecision(
+          core.currentTime,
+          core.id,
+          `Selected ${currentProcess.pid}`,
+          `Selected ${currentProcess.pid} with the highest Response Ratio: ${maxRatio.toFixed(2)}`,
+          queueState
+        );
+
+        if (
+          contextSwitchOverhead > 0 &&
+          core.lastPid !== 'IDLE' &&
+          core.lastPid !== currentProcess.pid &&
+          core.lastPid !== 'CS'
+        ) {
+          events.push({
+            pid: 'CS',
+            start: core.currentTime,
+            end: core.currentTime + contextSwitchOverhead,
+            coreId: core.id,
+          });
+          core.currentTime += contextSwitchOverhead;
+        }
+
+        const start = core.currentTime;
+        const end = start + currentProcess.burst;
+        events.push({ pid: currentProcess.pid, start, end, coreId: core.id });
+
+        core.currentTime = end;
+        core.lastPid = currentProcess.pid;
+        completedCount++;
+        assignedThisStep = true;
+
+        completionTimes[currentProcess.pid] = end;
+        turnaroundTimes[currentProcess.pid] = end - currentProcess.arrival;
+        waitingTimes[currentProcess.pid] =
+          turnaroundTimes[currentProcess.pid] - currentProcess.burst;
       }
     }
 
-    // 3. Calculate Response Ratios and select Highest
-    // RR = (Waiting Time + Burst Time) / Burst Time
-    let selectedIndex = -1;
-    let maxRatio = -1;
-    const queueState: string[] = [];
+    const nextArrival = pIndex < totalProcesses ? processes[pIndex].arrival : Infinity;
+    const nextCoreFree = Math.min(...cores.map((c) => c.currentTime));
+    const nextTime = Math.min(nextArrival, nextCoreFree);
 
-    readyQueue.forEach((p, idx) => {
-      const waitTime = currentTime - p.arrival;
-      const responseRatio = (waitTime + p.burst) / p.burst;
-      queueState.push(`${p.pid}(RR:${responseRatio.toFixed(2)})`);
+    if (nextTime === Infinity && readyQueue.length === 0) break;
 
-      if (responseRatio > maxRatio) {
-        maxRatio = responseRatio;
-        selectedIndex = idx;
-      } else if (responseRatio === maxRatio) {
-        // Tie-breaker: earlier arrival or FCFS
-        if (p.arrival < readyQueue[selectedIndex].arrival) {
-          selectedIndex = idx;
+    if (
+      readyQueue.length === 0 &&
+      pIndex < totalProcesses &&
+      nextArrival > systemTime &&
+      cores.every((c) => c.currentTime <= systemTime)
+    ) {
+      for (const core of cores) {
+        if (core.currentTime <= systemTime) {
+          events.push({ pid: 'IDLE', start: core.currentTime, end: nextArrival, coreId: core.id });
+          core.currentTime = nextArrival;
+          core.lastPid = 'IDLE';
         }
       }
-    });
-
-    const currentProcess = readyQueue.splice(selectedIndex, 1)[0];
-
-    if (currentProcess) {
-      const waitTime = currentTime - currentProcess.arrival;
-      logDecision(
-        currentTime,
-        0,
-        `Selected ${currentProcess.pid}`,
-        `Selected ${currentProcess.pid} with the highest Response Ratio: (${waitTime} + ${currentProcess.burst}) / ${currentProcess.burst} = ${maxRatio.toFixed(2)}`,
-        queueState
+      systemTime = nextArrival;
+    } else if (nextTime > systemTime) {
+      systemTime = nextTime;
+    } else if (!assignedThisStep && readyQueue.length === 0 && pIndex < totalProcesses) {
+      systemTime = nextArrival;
+    } else {
+      const earliestBusyCoreFinish = Math.min(
+        ...cores.filter((c) => c.currentTime > systemTime).map((c) => c.currentTime)
       );
-
-      // Context Switch
-      if (
-        contextSwitchOverhead > 0 &&
-        lastPid !== 'IDLE' &&
-        lastPid !== currentProcess.pid &&
-        lastPid !== 'CS'
-      ) {
-        events.push({ pid: 'CS', start: currentTime, end: currentTime + contextSwitchOverhead });
-        currentTime += contextSwitchOverhead;
-        // Re-check arrivals
-        while (pIndex < totalProcesses && processes[pIndex].arrival <= currentTime) {
-          readyQueue.push(processes[pIndex]);
-          pIndex++;
-        }
-      }
-
-      const start = currentTime;
-      const end = start + currentProcess.burst;
-      events.push({ pid: currentProcess.pid, start, end });
-
-      currentTime = end;
-      lastPid = currentProcess.pid;
-
-      // Metrics
-      completionTimes[currentProcess.pid] = end;
-      turnaroundTimes[currentProcess.pid] = end - currentProcess.arrival;
-      waitingTimes[currentProcess.pid] = turnaroundTimes[currentProcess.pid] - currentProcess.burst;
-      completedCount++;
+      systemTime = earliestBusyCoreFinish !== Infinity ? earliestBusyCoreFinish : systemTime + 1;
     }
+    systemTime = Math.round(systemTime * 100) / 100;
   }
 
-  // Aggregate Metrics
   const totalTurnaround = Object.values(turnaroundTimes).reduce((sum, val) => sum + val, 0);
   const totalWaiting = Object.values(waitingTimes).reduce((sum, val) => sum + val, 0);
 
   let contextSwitches = 0;
-  for (let i = 0; i < events.length - 1; i++) {
-    if (
-      events[i].pid !== events[i + 1].pid &&
-      events[i].pid !== 'IDLE' &&
-      events[i + 1].pid !== 'IDLE'
-    ) {
-      contextSwitches++;
+  if (contextSwitchOverhead > 0) {
+    contextSwitches = events.filter((e) => e.pid === 'CS').length;
+  } else {
+    for (let c = 0; c < coreCount; c++) {
+      const coreEvents = events
+        .filter((e) => (e.coreId ?? 0) === c)
+        .sort((a, b) => a.start - b.start);
+      for (let i = 0; i < coreEvents.length - 1; i++) {
+        if (
+          coreEvents[i].pid !== coreEvents[i + 1].pid &&
+          coreEvents[i].pid !== 'IDLE' &&
+          coreEvents[i + 1].pid !== 'IDLE'
+        ) {
+          contextSwitches++;
+        }
+      }
     }
   }
 
-  // Calculate Active Time
   let activeTime = 0;
   let idleTime = 0;
   events.forEach((e) => {
@@ -159,8 +206,9 @@ export function runHRRN(
     else if (e.pid !== 'CS') activeTime += duration;
   });
 
-  const totalTime = events.length > 0 ? events[events.length - 1].end : 1;
-  const cpuUtilization = (activeTime / totalTime) * 100;
+  const globalMaxTime = events.length > 0 ? Math.max(...events.map((e) => e.end)) : 0;
+  const totalTime = globalMaxTime > 0 ? globalMaxTime : 1;
+  const cpuUtilization = (activeTime / (totalTime * coreCount)) * 100;
 
   const metrics: Metrics = {
     completion: completionTimes,
@@ -171,17 +219,22 @@ export function runHRRN(
     contextSwitches,
     cpuUtilization,
     energy: {
-      totalEnergy: activeTime * 20 + idleTime * 5 + contextSwitches * 0.1,
-      activeEnergy: activeTime * 20,
-      idleEnergy: idleTime * 5,
-      switchEnergy: contextSwitches * 0.1,
+      totalEnergy:
+        activeTime * energyConfig.activeWatts +
+        idleTime * energyConfig.idleWatts +
+        contextSwitches * energyConfig.switchJoules,
+      activeEnergy: activeTime * energyConfig.activeWatts,
+      idleEnergy: idleTime * energyConfig.idleWatts,
+      switchEnergy: contextSwitches * energyConfig.switchJoules,
     },
   };
+
+  if (coreCount === 1) events.forEach((e) => delete e.coreId);
 
   return {
     events,
     metrics,
-    snapshots: generateSnapshots(events, inputProcesses),
+    snapshots: generateSnapshots(events, inputProcesses, coreCount),
     logs: enableLogging ? logs : undefined,
     stepLogs: enableLogging ? stepLogs : undefined,
   };

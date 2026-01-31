@@ -12,7 +12,13 @@ export function runPriority(
   inputProcesses: Process[],
   options: SimulationOptions = {}
 ): SimulationResult {
-  const { contextSwitchOverhead = 0, enableLogging = false } = options;
+  const {
+    contextSwitchOverhead = 0,
+    enableLogging = false,
+    coreCount = 1,
+    energyConfig = { activeWatts: 20, idleWatts: 5, switchJoules: 0.1 },
+  } = options;
+
   const logs: string[] = [];
   const stepLogs: DecisionLog[] = [];
 
@@ -32,124 +38,137 @@ export function runPriority(
 
   // Deep copy
   const processes = inputProcesses.map((p) => ({ ...p }));
-
-  // Sort by arrival initially
   processes.sort((a, b) => a.arrival - b.arrival);
 
-  let currentTime = 0;
   const events: GanttEvent[] = [];
   const completionTimes: Record<string, number> = {};
   const turnaroundTimes: Record<string, number> = {};
   const waitingTimes: Record<string, number> = {};
 
-  let completedCount = 0;
-  const totalProcesses = processes.length;
   const readyQueue: Process[] = [];
   let pIndex = 0;
-  let lastPid: string | 'IDLE' | 'CS' = 'IDLE';
+  let completedCount = 0;
+  const totalProcesses = processes.length;
+
+  interface CoreState {
+    id: number;
+    currentTime: number;
+    lastPid: string | 'IDLE' | 'CS';
+  }
+
+  const cores: CoreState[] = Array.from({ length: coreCount }, (_, i) => ({
+    id: i,
+    currentTime: 0,
+    lastPid: 'IDLE',
+  }));
+
+  let systemTime = 0;
 
   while (completedCount < totalProcesses) {
     // 1. Enqueue arrivals
-    while (pIndex < totalProcesses && processes[pIndex].arrival <= currentTime) {
-      log(
-        `Time ${currentTime}: Process ${processes[pIndex].pid} arrived and queued (Priority: ${processes[pIndex].priority})`
-      );
+    while (pIndex < totalProcesses && processes[pIndex].arrival <= systemTime) {
       readyQueue.push(processes[pIndex]);
+      log(`Time ${systemTime}: Process ${processes[pIndex].pid} arrived`);
       pIndex++;
     }
 
-    // 2. If empty, jump to next arrival
-    if (readyQueue.length === 0) {
-      if (pIndex < totalProcesses) {
-        const nextArrival = processes[pIndex].arrival;
-        log(`Time ${currentTime}: System IDLE until ${nextArrival}`);
+    // 2. Select highest priority for available cores
+    cores.sort((a, b) => a.currentTime - b.currentTime || a.id - b.id);
+
+    let assignedThisStep = false;
+    for (const core of cores) {
+      if (core.currentTime <= systemTime && readyQueue.length > 0) {
+        readyQueue.sort((a, b) => {
+          const pA = a.priority ?? Number.MAX_SAFE_INTEGER;
+          const pB = b.priority ?? Number.MAX_SAFE_INTEGER;
+          if (pA !== pB) return pA - pB; // Lower number = Higher priority
+          return a.arrival - b.arrival;
+        });
+
+        const currentProcess = readyQueue.shift()!;
+        const queueState = [
+          currentProcess.pid,
+          ...readyQueue.map((p) => `${p.pid}(${p.priority})`),
+        ];
+
         logDecision(
-          currentTime,
-          0,
-          `IDLE until ${nextArrival}`,
-          `Ready queue empty. Waiting for next arrival.`,
-          []
+          core.currentTime,
+          core.id,
+          `Selected ${currentProcess.pid}`,
+          `Selected ${currentProcess.pid} because it has the highest priority (${currentProcess.priority}).`,
+          queueState
         );
 
+        if (
+          contextSwitchOverhead > 0 &&
+          core.lastPid !== 'IDLE' &&
+          core.lastPid !== currentProcess.pid &&
+          core.lastPid !== 'CS'
+        ) {
+          events.push({
+            pid: 'CS',
+            start: core.currentTime,
+            end: core.currentTime + contextSwitchOverhead,
+            coreId: core.id,
+          });
+          core.currentTime += contextSwitchOverhead;
+        }
+
+        const start = core.currentTime;
+        const end = start + currentProcess.burst;
+
         events.push({
-          pid: 'IDLE',
-          start: currentTime,
-          end: nextArrival,
+          pid: currentProcess.pid,
+          start,
+          end,
+          coreId: core.id,
         });
-        currentTime = nextArrival;
-        lastPid = 'IDLE';
-        continue;
+
+        core.currentTime = end;
+        core.lastPid = currentProcess.pid;
+        completedCount++;
+        assignedThisStep = true;
+
+        completionTimes[currentProcess.pid] = end;
+        turnaroundTimes[currentProcess.pid] = end - currentProcess.arrival;
+        waitingTimes[currentProcess.pid] =
+          turnaroundTimes[currentProcess.pid] - currentProcess.burst;
       }
     }
 
-    // 3. Select process with HIGHEST priority (Lowest number = Higher priority)
-    readyQueue.sort((a, b) => {
-      const pA = a.priority ?? Number.MAX_SAFE_INTEGER;
-      const pB = b.priority ?? Number.MAX_SAFE_INTEGER;
-      if (pA !== pB) return pA - pB;
-      return a.arrival - b.arrival;
-    });
+    const nextArrival = pIndex < totalProcesses ? processes[pIndex].arrival : Infinity;
+    const nextCoreFree = Math.min(...cores.map((c) => c.currentTime));
+    const nextTime = Math.min(nextArrival, nextCoreFree);
 
-    const queueState = readyQueue.map((p) => `${p.pid}(Prio:${p.priority})`);
+    if (nextTime === Infinity && readyQueue.length === 0) break;
 
-    const currentProcess = readyQueue.shift();
-
-    if (currentProcess) {
-      logDecision(
-        currentTime,
-        0,
-        `Selected ${currentProcess.pid}`,
-        `Selected ${currentProcess.pid} because it has the highest priority (${currentProcess.priority}).`,
-        queueState
-      );
-
-      // Context Switch Overhead
-      if (
-        contextSwitchOverhead > 0 &&
-        lastPid !== 'IDLE' &&
-        lastPid !== currentProcess.pid &&
-        lastPid !== 'CS'
-      ) {
-        log(`Time ${currentTime}: Context Switch from ${lastPid} to ${currentProcess.pid}`);
-        events.push({
-          pid: 'CS',
-          start: currentTime,
-          end: currentTime + contextSwitchOverhead,
-        });
-        currentTime += contextSwitchOverhead;
-        // Re-check arrivals
-        while (pIndex < totalProcesses && processes[pIndex].arrival <= currentTime) {
-          readyQueue.push(processes[pIndex]);
-          pIndex++;
+    if (
+      readyQueue.length === 0 &&
+      pIndex < totalProcesses &&
+      nextArrival > systemTime &&
+      cores.every((c) => c.currentTime <= systemTime)
+    ) {
+      for (const core of cores) {
+        if (core.currentTime <= systemTime) {
+          events.push({ pid: 'IDLE', start: core.currentTime, end: nextArrival, coreId: core.id });
+          core.currentTime = nextArrival;
+          core.lastPid = 'IDLE';
         }
       }
-
-      const start = currentTime;
-      const end = start + currentProcess.burst;
-      log(
-        `Time ${currentTime}: ${currentProcess.pid} starts execution (Burst: ${currentProcess.burst}, Priority: ${currentProcess.priority})`
+      systemTime = nextArrival;
+    } else if (nextTime > systemTime) {
+      systemTime = nextTime;
+    } else if (!assignedThisStep && readyQueue.length === 0 && pIndex < totalProcesses) {
+      systemTime = nextArrival;
+    } else {
+      const earliestBusyCoreFinish = Math.min(
+        ...cores.filter((c) => c.currentTime > systemTime).map((c) => c.currentTime)
       );
-
-      events.push({
-        pid: currentProcess.pid,
-        start,
-        end,
-      });
-
-      currentTime = end;
-      lastPid = currentProcess.pid;
-
-      // Metrics
-      log(`Time ${currentTime}: ${currentProcess.pid} completed`);
-      completionTimes[currentProcess.pid] = end;
-      turnaroundTimes[currentProcess.pid] = end - currentProcess.arrival;
-      waitingTimes[currentProcess.pid] = turnaroundTimes[currentProcess.pid] - currentProcess.burst;
-
-      completedCount++;
+      systemTime = earliestBusyCoreFinish !== Infinity ? earliestBusyCoreFinish : systemTime + 1;
     }
+    systemTime = Math.round(systemTime * 100) / 100;
   }
 
-  // Aggregate
   const totalTurnaround = Object.values(turnaroundTimes).reduce((sum, val) => sum + val, 0);
   const totalWaiting = Object.values(waitingTimes).reduce((sum, val) => sum + val, 0);
 
@@ -157,18 +176,22 @@ export function runPriority(
   if (contextSwitchOverhead > 0) {
     contextSwitches = events.filter((e) => e.pid === 'CS').length;
   } else {
-    for (let i = 0; i < events.length - 1; i++) {
-      if (
-        events[i].pid !== events[i + 1].pid &&
-        events[i].pid !== 'IDLE' &&
-        events[i + 1].pid !== 'IDLE'
-      ) {
-        contextSwitches++;
+    for (let c = 0; c < coreCount; c++) {
+      const coreEvents = events
+        .filter((e) => (e.coreId ?? 0) === c)
+        .sort((a, b) => a.start - b.start);
+      for (let i = 0; i < coreEvents.length - 1; i++) {
+        if (
+          coreEvents[i].pid !== coreEvents[i + 1].pid &&
+          coreEvents[i].pid !== 'IDLE' &&
+          coreEvents[i + 1].pid !== 'IDLE'
+        ) {
+          contextSwitches++;
+        }
       }
     }
   }
 
-  // Calculate Active Time
   let activeTime = 0;
   let idleTime = 0;
   events.forEach((e) => {
@@ -177,12 +200,9 @@ export function runPriority(
     else if (e.pid !== 'CS') activeTime += duration;
   });
 
-  const totalEnergy =
-    activeTime * (options.energyConfig?.activeWatts ?? 20) +
-    idleTime * (options.energyConfig?.idleWatts ?? 5) +
-    contextSwitches * (options.energyConfig?.switchJoules ?? 0.1);
-  const totalTime = events.length > 0 ? events[events.length - 1].end : 1;
-  const cpuUtilization = (activeTime / totalTime) * 100;
+  const globalMaxTime = events.length > 0 ? Math.max(...events.map((e) => e.end)) : 0;
+  const totalTime = globalMaxTime > 0 ? globalMaxTime : 1;
+  const cpuUtilization = (activeTime / (totalTime * coreCount)) * 100;
 
   const metrics: Metrics = {
     completion: completionTimes,
@@ -193,17 +213,22 @@ export function runPriority(
     contextSwitches,
     cpuUtilization,
     energy: {
-      totalEnergy,
-      activeEnergy: activeTime * (options.energyConfig?.activeWatts ?? 20),
-      idleEnergy: idleTime * (options.energyConfig?.idleWatts ?? 5),
-      switchEnergy: contextSwitches * (options.energyConfig?.switchJoules ?? 0.1),
+      totalEnergy:
+        activeTime * energyConfig.activeWatts +
+        idleTime * energyConfig.idleWatts +
+        contextSwitches * energyConfig.switchJoules,
+      activeEnergy: activeTime * energyConfig.activeWatts,
+      idleEnergy: idleTime * energyConfig.idleWatts,
+      switchEnergy: contextSwitches * energyConfig.switchJoules,
     },
   };
+
+  if (coreCount === 1) events.forEach((e) => delete e.coreId);
 
   return {
     events,
     metrics,
-    snapshots: generateSnapshots(events, inputProcesses),
+    snapshots: generateSnapshots(events, inputProcesses, coreCount),
     logs: enableLogging ? logs : undefined,
     stepLogs: enableLogging ? stepLogs : undefined,
   };
