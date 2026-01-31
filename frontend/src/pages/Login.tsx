@@ -102,73 +102,74 @@ export const Login: React.FC = () => {
       <h1 className="sr-only">Sign In to Quantix</h1>
       <AuthCard
         title="Sign in to your account"
-      subtitle="Enter your details below."
-      footerLinkText="Don't have an account? Sign up"
-      footerLinkTo="/register"
-      onSubmit={handleLogin}
-    >
-      <div className="space-y-4">
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            Email address
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm p-2 border transition-colors"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+        subtitle="Enter your details below."
+        footerLinkText="Don't have an account? Sign up"
+        footerLinkTo="/register"
+        onSubmit={handleLogin}
+      >
+        <div className="space-y-4">
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Email address
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm p-2 border transition-colors"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm p-2 border transition-colors"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="text-sm">
+            <button
+              type="button"
+              onClick={handleRequestMagicLink}
+              disabled={magicLoading}
+              className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 disabled:opacity-50 transition-colors"
+            >
+              {magicLoading ? 'Sending...' : 'Email me a login link'}
+            </button>
+          </div>
         </div>
 
         <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            Password
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm p-2 border transition-colors"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-      </div>
-
-      <div className="flex items-center justify-between">
-        <div className="text-sm">
           <button
-            type="button"
-            onClick={handleRequestMagicLink}
-            disabled={magicLoading}
-            className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 disabled:opacity-50 transition-colors"
+            type="submit"
+            disabled={loading}
+            className="group relative flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 transition-all shadow-md"
           >
-            {magicLoading ? 'Sending...' : 'Email me a login link'}
+            {loading ? 'Processing...' : 'Sign in'}
           </button>
         </div>
-      </div>
-
-      <div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="group relative flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 transition-all shadow-md"
-        >
-          {loading ? 'Processing...' : 'Sign in'}
-        </button>
-      </div>
-    </AuthCard>
+      </AuthCard>
+    </>
   );
 };

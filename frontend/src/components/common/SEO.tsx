@@ -21,16 +21,18 @@ const SEO: React.FC<SEOProps> = ({
   const { t, i18n } = useTranslation();
   const location = useLocation();
   const currentLanguage = i18n.language;
-  
+
   // Base URL (assuming production URL, update if known)
-  const baseUrl = 'https://quantix-cpu.vercel.app'; 
+  const baseUrl = 'https://quantix-cpu.vercel.app';
   const canonicalUrl = `${baseUrl}${location.pathname}`;
 
   // Get localized strings from the seo block
   // We use the pathname to determine which SEO keys to use
   const path = location.pathname === '/' ? 'home' : location.pathname.split('/')[1];
   const defaultTitle = t(`seo.${path}.title`, { defaultValue: t('seo.home.title') });
-  const defaultDescription = t(`seo.${path}.description`, { defaultValue: t('seo.defaultDescription') });
+  const defaultDescription = t(`seo.${path}.description`, {
+    defaultValue: t('seo.defaultDescription'),
+  });
 
   const seoTitle = title ? `${title} | ${name}` : defaultTitle;
   const seoDescription = description || defaultDescription;
