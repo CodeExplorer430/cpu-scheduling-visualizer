@@ -10,6 +10,7 @@ import { Register } from './pages/Register';
 import { Dashboard } from './pages/Dashboard';
 import { Guide } from './pages/Guide';
 import { AutoGrader } from './pages/autograder/AutoGrader';
+import { NotFound } from './pages/NotFound';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { Layout } from './components/layout/Layout';
@@ -46,6 +47,7 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/guide" element={<Guide />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>
         </AuthProvider>

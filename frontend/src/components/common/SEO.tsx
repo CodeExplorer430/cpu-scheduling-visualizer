@@ -72,21 +72,50 @@ const SEO: React.FC<SEOProps> = ({
       <meta name="twitter:description" content={seoDescription} />
       <meta name="twitter:image" content={`${baseUrl}${image}`} />
 
-      {/* Structured Data (JSON-LD) - Basic Website Schema */}
+      {/* Structured Data (JSON-LD) */}
       <script type="application/ld+json">
         {JSON.stringify({
           '@context': 'https://schema.org',
-          '@type': 'WebSite',
+          '@type': 'SoftwareApplication',
           name: name,
+          applicationCategory: 'EducationalApplication',
+          operatingSystem: 'Web',
           url: baseUrl,
           description: t('seo.defaultDescription'),
-          potentialAction: {
-            '@type': 'SearchAction',
-            target: `${baseUrl}/playground?q={search_term_string}`,
-            'query-input': 'required name=search_term_string',
+          offers: {
+            '@type': 'Offer',
+            price: '0',
+            priceCurrency: 'USD',
           },
         })}
       </script>
+
+      {location.pathname === '/guide' && (
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'HowTo',
+            name: 'How to use Quantix CPU Visualizer',
+            step: [
+              {
+                '@type': 'HowToStep',
+                name: 'Define Processes',
+                text: 'Add your processes with PID, Arrival, and Burst times in the process table.',
+              },
+              {
+                '@type': 'HowToStep',
+                name: 'Choose Algorithm',
+                text: 'Select one of the 11 supported scheduling algorithms like Round Robin or MLFQ.',
+              },
+              {
+                '@type': 'HowToStep',
+                name: 'Run & Analyze',
+                text: 'Start the simulation and use the Gantt chart to analyze the execution flow.',
+              },
+            ],
+          })}
+        </script>
+      )}
     </Helmet>
   );
 };
