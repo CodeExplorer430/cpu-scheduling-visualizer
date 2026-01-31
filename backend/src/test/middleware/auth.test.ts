@@ -2,8 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { authenticate } from '../../middleware/auth.js';
-
-const TEST_SECRET = process.env.JWT_SECRET || 'dev-secret-key-change-me';
+import { JWT_SECRET } from '../../config/index.js';
 
 describe('Auth Middleware', () => {
   let mockRequest: Partial<Request>;
@@ -51,7 +50,7 @@ describe('Auth Middleware', () => {
 
   it('should call next() and attach user to request if token is valid', () => {
     const payload = { userId: '123', username: 'testuser' };
-    const token = jwt.sign(payload, TEST_SECRET);
+    const token = jwt.sign(payload, JWT_SECRET);
     mockRequest.headers = { authorization: `Bearer ${token}` };
 
     authenticate(mockRequest as Request, mockResponse as Response, nextFunction);

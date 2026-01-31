@@ -18,7 +18,9 @@ describe('User API Tests', () => {
       password: 'password123',
     };
     const res = await request(app).post('/api/auth/register').send(testUser);
+    expect(res.status).toBe(201);
     token = res.body.token;
+    expect(token).toBeDefined();
   }, 30000);
 
   afterAll(async () => {

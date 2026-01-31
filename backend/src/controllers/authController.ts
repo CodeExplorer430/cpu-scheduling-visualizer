@@ -2,8 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key-change-me';
+import { JWT_SECRET } from '../config/index.js';
 
 export const register = async (req: Request, res: Response) => {
   try {

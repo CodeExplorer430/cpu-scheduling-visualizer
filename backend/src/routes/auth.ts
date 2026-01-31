@@ -9,9 +9,9 @@ import {
   verifyMagicLink,
 } from '../controllers/authController.js';
 import { IUser } from '../models/User.js';
+import { JWT_SECRET } from '../config/index.js';
 
 const router = Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key-change-me';
 
 router.post('/register', register);
 router.post('/login', login);

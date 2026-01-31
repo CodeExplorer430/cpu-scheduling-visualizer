@@ -14,6 +14,12 @@ jobs:
       matrix:
         node-version: [18.x, 20.x]
 
+    services:
+      mongodb:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+
     steps:
       - uses: actions/checkout@v3
 
@@ -37,3 +43,16 @@ jobs:
 
       - name: Test
         run: npm test
+        env:
+          MONGODB_URI: mongodb://localhost:27017/test
+          JWT_SECRET: ci_test_secret_key_1234567890
+          GOOGLE_CLIENT_ID: dummy
+          GOOGLE_CLIENT_SECRET: dummy
+          GITHUB_CLIENT_ID: dummy
+          GITHUB_CLIENT_SECRET: dummy
+          GITLAB_CLIENT_ID: dummy
+          GITLAB_CLIENT_SECRET: dummy
+          DISCORD_CLIENT_ID: dummy
+          DISCORD_CLIENT_SECRET: dummy
+          LINKEDIN_CLIENT_ID: dummy
+          LINKEDIN_CLIENT_SECRET: dummy
