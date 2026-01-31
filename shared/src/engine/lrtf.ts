@@ -1,10 +1,4 @@
-import {
-  GanttEvent,
-  Metrics,
-  Process,
-  SimulationResult,
-  SimulationOptions,
-} from '../types.js';
+import { GanttEvent, Metrics, Process, SimulationResult, SimulationOptions } from '../types.js';
 import { generateSnapshots } from './utils.js';
 
 export function runLRTF(

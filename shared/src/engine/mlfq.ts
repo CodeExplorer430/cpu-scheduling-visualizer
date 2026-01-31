@@ -1,10 +1,4 @@
-import {
-  GanttEvent,
-  Metrics,
-  Process,
-  SimulationResult,
-  SimulationOptions,
-} from '../types.js';
+import { GanttEvent, Metrics, Process, SimulationResult, SimulationOptions } from '../types.js';
 import { generateSnapshots } from './utils.js';
 
 interface MLFQProcess extends Process {
@@ -195,8 +189,7 @@ export function runMLFQ(
           const lastEvent = events.filter((e) => (e.coreId ?? 0) === core.id).pop();
           if (lastEvent && lastEvent.pid === 'IDLE' && lastEvent.end === systemTime)
             lastEvent.end = nextEventTime;
-          else
-            events.push({ pid: 'IDLE', start: systemTime, end: nextEventTime, coreId: core.id });
+          else events.push({ pid: 'IDLE', start: systemTime, end: nextEventTime, coreId: core.id });
           core.currentTime = nextEventTime;
           core.lastPid = 'IDLE';
         } else if (core.currentProcessPid === 'CS') {
