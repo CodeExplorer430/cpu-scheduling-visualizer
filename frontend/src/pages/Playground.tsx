@@ -50,6 +50,7 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
 
   return (
     <div className="space-y-8">
+      <h1 className="sr-only">CPU Scheduling Visualizer - Interactive Playground</h1>
       {/* Inputs Section */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         <div className="lg:col-span-4 space-y-6">

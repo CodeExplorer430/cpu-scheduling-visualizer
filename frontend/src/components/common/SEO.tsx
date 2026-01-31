@@ -1,0 +1,94 @@
+import React from 'react';
+import { Helmet } from 'react-helmet-async';
+import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
+
+interface SEOProps {
+  title?: string;
+  description?: string;
+  type?: string;
+  name?: string;
+  image?: string;
+}
+
+const SEO: React.FC<SEOProps> = ({
+  title,
+  description,
+  type = 'website',
+  name = 'Quantix',
+  image = '/logo.png',
+}) => {
+  const { t, i18n } = useTranslation();
+  const location = useLocation();
+  const currentLanguage = i18n.language;
+  
+  // Base URL (assuming production URL, update if known)
+  const baseUrl = 'https://quantix-cpu.vercel.app'; 
+  const canonicalUrl = `${baseUrl}${location.pathname}`;
+
+  // Get localized strings from the seo block
+  // We use the pathname to determine which SEO keys to use
+  const path = location.pathname === '/' ? 'home' : location.pathname.split('/')[1];
+  const defaultTitle = t(`seo.${path}.title`, { defaultValue: t('seo.home.title') });
+  const defaultDescription = t(`seo.${path}.description`, { defaultValue: t('seo.defaultDescription') });
+
+  const seoTitle = title ? `${title} | ${name}` : defaultTitle;
+  const seoDescription = description || defaultDescription;
+
+  // Supported languages for hreflang
+  const supportedLanguages = ['ar', 'de', 'en', 'es', 'fil', 'fr', 'hi', 'ja', 'ko', 'pt', 'zh'];
+
+  return (
+    <Helmet>
+      {/* Standard metadata tags */}
+      <title>{seoTitle}</title>
+      <meta name="description" content={seoDescription} />
+      <link rel="canonical" href={canonicalUrl} />
+      <html lang={currentLanguage} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'} />
+
+      {/* hreflang tags for international SEO */}
+      {supportedLanguages.map((lang) => (
+        <link
+          key={lang}
+          rel="alternate"
+          hrefLang={lang}
+          href={`${baseUrl}${location.pathname}`} // Ideally, localized URLs if they exist
+        />
+      ))}
+      <link rel="alternate" hrefLang="x-default" href={`${baseUrl}${location.pathname}`} />
+
+      {/* Open Graph / Facebook tags */}
+      <meta property="og:type" content={type} />
+      <meta property="og:title" content={seoTitle} />
+      <meta property="og:description" content={seoDescription} />
+      <meta property="og:url" content={canonicalUrl} />
+      <meta property="og:site_name" content={name} />
+      <meta property="og:image" content={`${baseUrl}${image}`} />
+
+      {/* Twitter tags */}
+      <meta name="twitter:creator" content="@quantix" />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={seoTitle} />
+      <meta name="twitter:description" content={seoDescription} />
+      <meta name="twitter:image" content={`${baseUrl}${image}`} />
+
+      {/* Structured Data (JSON-LD) - Basic Website Schema */}
+      <script type="application/ld+json">
+        {JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          name: name,
+          url: baseUrl,
+          description: t('seo.defaultDescription'),
+          potentialAction: {
+            '@type': 'SearchAction',
+            target: `${baseUrl}/playground?q={search_term_string}`,
+            'query-input': 'required name=search_term_string',
+          },
+        })}
+      </script>
+    </Helmet>
+  );
+};
+
+export default SEO;

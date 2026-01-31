@@ -140,9 +140,31 @@
       "settingsUpdated": "設定を更新しました"
     },
     "errors": {
-      "fetchScenarios": "シナリオの読み込みに失敗しました",
       "deleteFailed": "シナリオの削除に失敗しました",
-      "updateFailed": "更新に失敗しました"
+      "updateFailed": "Update failed"
+    }
+  },
+  "seo": {
+    "defaultDescription": "Quantix: A high-performance CPU scheduling visualizer supporting 11 algorithms, multi-core simulation, and detailed analytics.",
+    "home": {
+      "title": "Quantix | CPU Scheduling Visualizer",
+      "description": "Visualize and compare 11 CPU scheduling algorithms with multi-core support, energy modeling, and real-time Gantt charts."
+    },
+    "playground": {
+      "title": "Playground | Quantix CPU Visualizer",
+      "description": "Experiment with FCFS, SJF, RR, MLFQ and more. Adjust core counts, context switch overhead, and energy parameters in real-time."
+    },
+    "compare": {
+      "title": "Compare Algorithms | Quantix",
+      "description": "Batch run CPU scheduling algorithms to compare average wait times, turnaround times, and energy efficiency."
+    },
+    "guide": {
+      "title": "Algorithm Guide | Quantix",
+      "description": "Learn the theory behind CPU scheduling: FCFS, Round Robin, Multi-level Feedback Queues, and more."
+    },
+    "about": {
+      "title": "About Quantix",
+      "description": "The mission and technology behind Quantix CPU Scheduling Visualizer."
     }
   }
 }
