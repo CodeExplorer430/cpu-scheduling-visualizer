@@ -29,6 +29,7 @@ export const Compare: React.FC<Props> = ({ processes, onProcessesChange }) => {
 
   return (
     <div className="space-y-8">
+      <h1 className="sr-only">Compare CPU Scheduling Algorithms</h1>
       {/* Top: Controls & Input */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         <div className="lg:col-span-4">

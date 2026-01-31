@@ -98,8 +98,10 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <AuthCard
-      title="Sign in to your account"
+    <>
+      <h1 className="sr-only">Sign In to Quantix</h1>
+      <AuthCard
+        title="Sign in to your account"
       subtitle="Enter your details below."
       footerLinkText="Don't have an account? Sign up"
       footerLinkTo="/register"

@@ -21,6 +21,7 @@ export const AutoGrader: React.FC = () => {
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
+      <h1 className="sr-only">Algorithm Auto-Grader</h1>
       <TestUploader
         onTestCasesLoad={(cases) => {
           setTestCases(cases);

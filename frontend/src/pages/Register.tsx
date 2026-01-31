@@ -40,8 +40,10 @@ export const Register: React.FC = () => {
   };
 
   return (
-    <AuthCard
-      title="Create your account"
+    <>
+      <h1 className="sr-only">Create a Quantix Account</h1>
+      <AuthCard
+        title="Create your account"
       footerLinkText="Already have an account? Sign in"
       footerLinkTo="/login"
       onSubmit={handleSubmit}
