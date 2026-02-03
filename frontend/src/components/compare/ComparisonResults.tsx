@@ -37,6 +37,15 @@ export const ComparisonResults: React.FC<Props> = ({ results, algorithms }) => {
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff', // Force white background
+        windowWidth: 1280, // Force desktop width for mobile export
+        onclone: (clonedDoc) => {
+          const container = clonedDoc.getElementById('comparison-export-container');
+          if (container) {
+            container.style.width = '1280px';
+            // Ensure no overflow hiding prevents full capture
+            container.style.overflow = 'visible'; 
+          }
+        },
       });
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
@@ -61,6 +70,14 @@ export const ComparisonResults: React.FC<Props> = ({ results, algorithms }) => {
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
+        windowWidth: 1280,
+        onclone: (clonedDoc) => {
+          const container = clonedDoc.getElementById('comparison-export-container');
+          if (container) {
+            container.style.width = '1280px';
+            container.style.overflow = 'visible';
+          }
+        },
       });
       const imgData = canvas.toDataURL('image/png');
 
@@ -98,7 +115,11 @@ export const ComparisonResults: React.FC<Props> = ({ results, algorithms }) => {
         </button>
       </div>
 
-      <div ref={exportRef} className="space-y-8 p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
+      <div
+        id="comparison-export-container"
+        ref={exportRef}
+        className="space-y-8 p-4 bg-gray-50 dark:bg-gray-900 rounded-xl"
+      >
         {/* Metrics Comparison Table */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden transition-colors duration-200">
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
