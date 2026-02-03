@@ -13,10 +13,6 @@ export const SimulationMetrics: React.FC<Props> = ({ metrics, isFinished }) => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const energy = metrics.energy;
 
-  // Simple Performance Score (0-100) based on Average Waiting time relative to total burst
-  // Lower waiting = higher score. This is a basic auto-grading heuristic.
-  const performanceScore = Math.max(0, 100 - metrics.avgWaiting * 2).toFixed(1);
-
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden transition-colors duration-200">
       <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">

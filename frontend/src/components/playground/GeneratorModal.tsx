@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Dialog } from '@headlessui/react';
 import { XMarkIcon, BoltIcon } from '@heroicons/react/24/outline';
 import { Process, generateRandomProcesses } from '@cpu-vis/shared';
-import { useTranslation } from 'react-i18next';
 import { NumberInput } from '../common/NumberInput';
 
 interface Props {
@@ -20,7 +19,6 @@ type ScenarioType =
   | 'starvation';
 
 export const GeneratorModal: React.FC<Props> = ({ isOpen, onClose, onGenerate }) => {
-  const { t } = useTranslation();
   const [type, setType] = useState<ScenarioType>('random');
   const [count, setCount] = useState(10);
 
@@ -58,7 +56,7 @@ export const GeneratorModal: React.FC<Props> = ({ isOpen, onClose, onGenerate })
           burstRange: [50, 200],
         });
         break;
-      case 'starvation':
+      case 'starvation': {
         // One long process, many short ones arriving continuously
         const longP: Process = {
           pid: 'P_LONG',
@@ -76,6 +74,7 @@ export const GeneratorModal: React.FC<Props> = ({ isOpen, onClose, onGenerate })
         shorts.forEach((p) => (p.priority = 1));
         processes = [longP, ...shorts];
         break;
+      }
       case 'random':
       default:
         processes = generateRandomProcesses({ count });

@@ -129,12 +129,10 @@ export function calculateMetrics(
       turnaroundTimes[p.pid] = completionTimes[p.pid] - p.arrival;
       waitingTimes[p.pid] = turnaroundTimes[p.pid] - p.burst;
       // Response Time: Time from arrival until first execution start
-      // If never ran, response is undefined? We set to 0 or -1?
-      // Spec: Response time = Time at which process was first submitted to CPU - Arrival time
       if (firstRunTimes[p.pid] !== -1) {
         responseTimes[p.pid] = firstRunTimes[p.pid] - p.arrival;
       } else {
-        responseTimes[p.pid] = 0; // Did not run?
+        responseTimes[p.pid] = 0; // Did not run
       }
     }
   });
@@ -173,78 +171,18 @@ export function calculateMetrics(
   }
 
   // Energy & Utilization
-  let activeTime = 0;
-  let idleTime = 0;
   const globalMaxTime = events.length > 0 ? Math.max(...events.map((e) => e.end)) : 0;
 
-  // Calculate per core
-  for (let c = 0; c < coreCount; c++) {
-    const coreEvents = events.filter((e) => (e.coreId ?? 0) === c);
-    let coreActive = 0;
-
-    coreEvents.forEach((e) => {
-      const dur = e.end - e.start;
-      if (e.pid !== 'IDLE' && e.pid !== 'CS') coreActive += dur;
-    });
-
-    // CS usually counts as overhead/active power?
-    // Let's stick to the previous logic: switchJoules handles the switch cost separately.
-    // Is CS time "active" or "idle"? Usually CPU is busy switching.
-    // Let's count CS time as active for utilization but power comes from switchJoules.
-    // Or just treat CS time as active watts?
-    // The previous implementation had "switchJoules" separate.
-    // Let's keep switchJoules as the *extra* cost, and maybe idle watts during switch?
-    // Or active watts?
-    // Simplification: activeTime includes CS time.
-    coreEvents.forEach((e) => {
-      if (e.pid === 'CS') coreActive += e.end - e.start;
-    });
-
-    activeTime += coreActive;
-
-    // Idle is total time - active
-    // Total time for this core is effectively globalMaxTime
-    // (assuming all cores are "on" until the end of the batch)
-    const coreIdle = Math.max(0, globalMaxTime - coreActive);
-    idleTime += coreIdle;
-  }
-
-  const totalTime = globalMaxTime > 0 ? globalMaxTime : 1;
-  const cpuUtilization = (activeTime / (totalTime * coreCount)) * 100;
-
-  const activeEnergy = activeTime * energyConfig.activeWatts; // Note: this might double count if we add switchJoules too?
-  // Usually: Energy = (ActiveTime * ActivePower) + (IdleTime * IdlePower) + (Switches * SwitchEnergy)
-  // If SwitchEnergy is "extra overhead"
-
-  // Correction: If CS blocks exist, they take time.
-  // Should we charge ActiveWatts during CS?
-  // Let's assume CS is "overhead" time but consumes ActiveWatts OR just SwitchJoules?
-  // If we follow typical textbook: Switch cost is a fixed penalty.
-  // Let's exclude CS time from ActiveWatts calculation if we charge SwitchJoules?
-  // To be safe and consistent with previous FCFS implementation:
-  // FCFS impl: "activeTime += duration" (excluding CS).
-  // Then "totalEnergy = active * watts + idle * watts + switches * joules".
-  // This implies CS time is neither Active nor Idle in terms of *time-based* watts?
-  // No, that leaves a gap in energy accounting.
-  // Let's assume CS time consumes ActiveWatts AND incurs the SwitchJoules penalty.
-  // Or better: CS time consumes ActiveWatts, and the "SwitchJoules" is the *extra* cost of flushing caches etc.
-
-  // Re-evaluating FCFS logic I read earlier:
-  // "if (e.pid === 'IDLE') idleTime += duration; else if (e.pid === 'CS') {} else activeTime += duration;"
-  // So CS time was ignored in time-sum? That means totalTime > active + idle.
-  // That seems like a bug in the old implementation or a specific choice.
-  // I will make it robust: Time is either Active or Idle.
-  // CS is Active work.
-
-  // Refined Active Time:
+  // Refined Active Time: Sum of durations of all non-IDLE events across all cores
   let refinedActiveTime = 0;
   events.forEach((e) => {
     if (e.pid !== 'IDLE') refinedActiveTime += e.end - e.start;
   });
-  // Wait, if I iterate all events, I sum up across all cores.
-  // That works.
 
-  const refinedIdleTime = globalMaxTime * coreCount - refinedActiveTime;
+  const totalCapacity = globalMaxTime > 0 ? globalMaxTime * coreCount : 1;
+  const cpuUtilization = (refinedActiveTime / totalCapacity) * 100;
+
+  const refinedIdleTime = totalCapacity - refinedActiveTime;
 
   const totalEnergy =
     refinedActiveTime * energyConfig.activeWatts +
