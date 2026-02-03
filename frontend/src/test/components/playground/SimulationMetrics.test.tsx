@@ -7,9 +7,17 @@ describe('SimulationMetrics Component', () => {
   const mockMetrics: Metrics = {
     completion: { P1: 5 },
     turnaround: { P1: 5 },
-    waiting: { P1: 0 },
+    waiting: { P1: 2 },
+    response: { P1: 1 },
     avgTurnaround: 5,
-    avgWaiting: 0,
+    avgWaiting: 2,
+    avgResponse: 1,
+    p95Turnaround: 5,
+    p95Waiting: 2,
+    p95Response: 1,
+    stdDevTurnaround: 0,
+    stdDevWaiting: 0,
+    stdDevResponse: 0,
     contextSwitches: 0,
   };
 
@@ -17,7 +25,8 @@ describe('SimulationMetrics Component', () => {
     render(<SimulationMetrics metrics={mockMetrics} isFinished={true} />);
 
     expect(screen.getByText('5.00')).toBeInTheDocument(); // Avg Turnaround
-    expect(screen.getByText('0.00')).toBeInTheDocument(); // Avg Waiting
+    expect(screen.getByText('2.00')).toBeInTheDocument(); // Avg Waiting
+    expect(screen.getByText('1.00')).toBeInTheDocument(); // Avg Response
     expect(screen.getByText('P1')).toBeInTheDocument();
   });
 

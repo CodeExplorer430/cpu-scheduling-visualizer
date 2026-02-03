@@ -79,7 +79,11 @@ export const GeneratorModal: React.FC<Props> = ({ isOpen, onClose, onGenerate })
       }
       case 'random':
       default:
-        processes = generateRandomProcesses({ count });
+        processes = generateRandomProcesses({
+          count,
+          arrivalRange: [0, 10],
+          burstRange: [1, 10],
+        });
     }
 
     onGenerate(processes);
