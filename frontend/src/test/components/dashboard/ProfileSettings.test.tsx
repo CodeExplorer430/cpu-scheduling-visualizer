@@ -34,10 +34,11 @@ const renderWithContext = (component: React.ReactNode) => {
       <AuthContext.Provider value={{ 
         user: mockUser, 
         token: 'token', 
+        isAuthenticated: true,
         login: vi.fn(), 
         logout: vi.fn(), 
         updateUser: mockUpdateUser, 
-        loading: false 
+        isLoading: false 
       }}>
         {component}
       </AuthContext.Provider>

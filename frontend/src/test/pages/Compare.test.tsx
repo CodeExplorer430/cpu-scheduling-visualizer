@@ -18,10 +18,11 @@ const renderWithProviders = (ui: React.ReactNode) => {
         <AuthContext.Provider value={{ 
           user: null, 
           token: null, 
+          isAuthenticated: false,
           login: vi.fn(), 
           logout: vi.fn(), 
           updateUser: vi.fn(), 
-          loading: false 
+          isLoading: false 
         }}>
           {ui}
         </AuthContext.Provider>

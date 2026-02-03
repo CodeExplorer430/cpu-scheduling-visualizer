@@ -2,6 +2,13 @@ import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { GanttEvent } from '@cpu-vis/shared';
 import { useTheme } from '../../context/ThemeContext';
+import {
+  CHART_CONSTANTS,
+  getChartDimensions,
+  getCoreIds,
+  getMaxTime,
+  getColorScale,
+} from './ganttUtils';
 
 interface Props {
   events: GanttEvent[];
@@ -24,23 +31,20 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
 
     // Check for dark mode via theme context
     const isDarkMode = theme === 'dark';
-    const axisColor = isDarkMode ? '#9ca3af' : '#374151'; // gray-400 : gray-700
-    const gridColor = isDarkMode ? '#4b5563' : '#e5e7eb'; // gray-600 : gray-200
-    const idleColor = isDarkMode ? '#374151' : '#e5e7eb'; // gray-700 : gray-200
-    const idleTextColor = isDarkMode ? '#9ca3af' : '#374151';
-    const switchMarkerColor = '#ef4444'; // Red for context switches
-    const switchBlockColor = isDarkMode ? '#7f1d1d' : '#fca5a5'; // Dark red background for CS block
+    const axisColor = isDarkMode ? CHART_CONSTANTS.AXIS_COLOR_DARK : CHART_CONSTANTS.AXIS_COLOR_LIGHT;
+    const gridColor = isDarkMode ? CHART_CONSTANTS.GRID_COLOR_DARK : CHART_CONSTANTS.GRID_COLOR_LIGHT;
+    const idleColor = isDarkMode ? CHART_CONSTANTS.IDLE_COLOR_DARK : CHART_CONSTANTS.IDLE_COLOR_LIGHT;
+    const idleTextColor = axisColor;
+    const switchBlockColor = isDarkMode ? CHART_CONSTANTS.SWITCH_BLOCK_COLOR_DARK : CHART_CONSTANTS.SWITCH_BLOCK_COLOR_LIGHT;
 
     // Determine Cores
-    const coreIds = Array.from(new Set(events.map((e) => e.coreId ?? 0))).sort((a, b) => a - b);
+    const coreIds = getCoreIds(events);
     const numCores = coreIds.length;
-    const rowHeight = 60;
-    const rowGap = 20;
 
     // Dimensions
-    const margin = { top: 30, right: 30, bottom: 40, left: 60 };
-    const width = svgRef.current.clientWidth - margin.left - margin.right;
-    const height = numCores * rowHeight + (numCores - 1) * rowGap + margin.top + margin.bottom;
+    const containerWidth = svgRef.current.clientWidth;
+    const { width, height } = getChartDimensions(numCores, containerWidth);
+    const margin = CHART_CONSTANTS.MARGIN;
 
     // Resize SVG container
     svg.attr('height', height);
@@ -48,14 +52,9 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
     const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
 
     // Scales
-    // Use domainMax if provided, otherwise default to this chart's max time
-    const localMax = d3.max(events, (d) => d.end) || 10;
-    const maxTime = domainMax !== undefined ? Math.max(domainMax, localMax) : localMax;
-
+    const maxTime = getMaxTime(events, domainMax);
     const xScale = d3.scaleLinear().domain([0, maxTime]).range([0, width]);
-
-    // Color scale for processes
-    const colorScale = d3.scaleOrdinal(d3.schemeTableau10);
+    const colorScale = getColorScale();
 
     // X Axis
     const xAxis = d3.axisBottom(xScale).ticks(Math.min(maxTime, 20));
@@ -72,13 +71,13 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
 
     // Render Rows for each Core
     coreIds.forEach((coreId, index) => {
-      const coreY = index * (rowHeight + rowGap);
+      const coreY = index * (CHART_CONSTANTS.ROW_HEIGHT + CHART_CONSTANTS.ROW_GAP);
       const coreEvents = events.filter((e) => (e.coreId ?? 0) === coreId);
 
       // Core Label
       g.append('text')
         .attr('x', -10)
-        .attr('y', coreY + rowHeight / 2)
+        .attr('y', coreY + CHART_CONSTANTS.ROW_HEIGHT / 2)
         .attr('text-anchor', 'end')
         .attr('dominant-baseline', 'middle')
         .attr('fill', axisColor)
@@ -115,13 +114,6 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
           if (d.pid === 'CS')
             return `Core ${coreId + 1}: Context Switch from ${d.start} to ${d.end}`;
           return `Core ${coreId + 1}: Process ${d.pid} from time ${d.start} to ${d.end}`;
-        })
-        .on('keydown', (event, _d) => {
-          // Optional: Handle Enter/Space to show details or navigate
-          if (event.key === 'Enter' || event.key === ' ') {
-            // Logic to show details could go here
-            // console.log('Focused:', _d);
-          }
         });
 
       bars
@@ -130,7 +122,7 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
         .attr('x', (d) => xScale(d.start))
         .attr('y', 0)
         .attr('width', (d) => xScale(d.end) - xScale(d.start))
-        .attr('height', rowHeight)
+        .attr('height', CHART_CONSTANTS.ROW_HEIGHT)
         .attr('fill', (d) => {
           if (d.pid === 'IDLE') return idleColor;
           if (d.pid === 'CS') return switchBlockColor;
@@ -150,7 +142,7 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
         .enter()
         .append('text')
         .attr('x', (d) => xScale(d.start) + (xScale(d.end) - xScale(d.start)) / 2)
-        .attr('y', rowHeight / 2 + 5)
+        .attr('y', CHART_CONSTANTS.ROW_HEIGHT / 2 + 5)
         .attr('text-anchor', 'middle')
         .attr('fill', (d) => (d.pid === 'IDLE' || d.pid === 'CS' ? idleTextColor : '#fff'))
         .attr('font-size', '10px')
@@ -180,8 +172,8 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
         .attr('x1', (d) => xScale(d))
         .attr('x2', (d) => xScale(d))
         .attr('y1', -5)
-        .attr('y2', rowHeight + 5)
-        .attr('stroke', switchMarkerColor)
+        .attr('y2', CHART_CONSTANTS.ROW_HEIGHT + 5)
+        .attr('stroke', CHART_CONSTANTS.SWITCH_MARKER_COLOR)
         .attr('stroke-width', 2)
         .attr('stroke-dasharray', '2,2');
     });
