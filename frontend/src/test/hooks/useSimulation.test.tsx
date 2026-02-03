@@ -95,7 +95,12 @@ describe('useSimulation Hook', () => {
     const { result } = renderHook(() => useSimulation(mockProcesses));
     vi.mocked(optimizer.findOptimalQuantum).mockReturnValue({
       optimalQuantum: 5,
-      minAvgWaiting: 2.5,
+      minCost: 10,
+      metrics: {
+        avgWaiting: 2.5,
+        avgTurnaround: 5,
+        contextSwitches: 3
+      }
     });
 
     act(() => {

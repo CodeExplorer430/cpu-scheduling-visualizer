@@ -46,7 +46,7 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
 
   const handleGenerate = (newProcesses: Process[]) => {
     onProcessChange(newProcesses);
-    toast.success('Processes generated');
+    toast.success(t('generator.success'));
   };
 
   const handleExportCSV = () => {
@@ -106,7 +106,7 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
             className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors whitespace-nowrap flex items-center gap-1"
           >
             <SparklesIcon className="w-3.5 h-3.5" />
-            Generate
+            {t('processTable.generate')}
           </button>
           <button
             onClick={handleExportCSV}

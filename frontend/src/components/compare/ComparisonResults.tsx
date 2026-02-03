@@ -105,7 +105,7 @@ export const ComparisonResults: React.FC<Props> = ({ results, algorithms }) => {
 
     const svgElement = container.querySelector('svg');
     if (!svgElement) {
-      toast.error('SVG not found');
+      toast.error(t('toast.svgNotFound'));
       return;
     }
 
@@ -196,7 +196,7 @@ export const ComparisonResults: React.FC<Props> = ({ results, algorithms }) => {
                 <button
                   onClick={() => handleExportSVG(algo)}
                   className="text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400"
-                  title="Download SVG"
+                  title={t('controls.downloadSVG')}
                 >
                   <ArrowDownTrayIcon className="w-5 h-5" />
                 </button>
