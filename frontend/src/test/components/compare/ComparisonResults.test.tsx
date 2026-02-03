@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { ComparisonResults } from '../../../components/compare/ComparisonResults';
 import { SimulationResult, Algorithm } from '@cpu-vis/shared';
 import { ThemeProvider } from '../../../context/ThemeContext';
@@ -24,7 +24,7 @@ const renderWithTheme = (component: React.ReactNode) => {
 describe('ComparisonResults Component', () => {
   const mockResults: Record<Algorithm, SimulationResult> = {
     FCFS: {
-      events: [{ pid: 'P1', start: 0, end: 5 }],
+      events: [{ pid: 'P1', start: 0, end: 5, coreId: 0 }],
       metrics: {
         completion: { P1: 5 },
         turnaround: { P1: 5 },
@@ -35,7 +35,6 @@ describe('ComparisonResults Component', () => {
       },
       snapshots: [],
     },
-    // Add placeholders for others if needed, but let's just test with a subset
   } as unknown as Record<Algorithm, SimulationResult>;
 
   const algorithms: Algorithm[] = ['FCFS'];
@@ -43,7 +42,6 @@ describe('ComparisonResults Component', () => {
   it('renders metrics comparison table', () => {
     renderWithTheme(<ComparisonResults results={mockResults} algorithms={algorithms} />);
     expect(screen.getByText('metrics.title')).toBeInTheDocument();
-    // Use getAllByText as FCFS appears in table and chart headings
     expect(screen.getAllByText('controls.algorithms.FCFS').length).toBeGreaterThan(0);
   });
 
@@ -51,7 +49,25 @@ describe('ComparisonResults Component', () => {
     const { container } = renderWithTheme(
       <ComparisonResults results={mockResults} algorithms={algorithms} />
     );
-    // Gantt component renders an svg
     expect(container.querySelector('svg')).toBeInTheDocument();
+  });
+
+  it('triggers SVG download when clicking the export button', () => {
+    // Mock XMLSerializer and URL
+    const mockSerialize = vi.fn().mockReturnValue('<svg></svg>');
+    global.XMLSerializer = vi.fn().mockImplementation(() => ({
+      serializeToString: mockSerialize,
+    }));
+    global.URL.createObjectURL = vi.fn().mockReturnValue('blob:test');
+    global.URL.revokeObjectURL = vi.fn();
+
+    renderWithTheme(<ComparisonResults results={mockResults} algorithms={algorithms} />);
+
+    // Find the button with the download icon title
+    const downloadBtn = screen.getByTitle('controls.downloadSVG');
+    fireEvent.click(downloadBtn);
+
+    expect(mockSerialize).toHaveBeenCalled();
+    expect(global.URL.createObjectURL).toHaveBeenCalled();
   });
 });

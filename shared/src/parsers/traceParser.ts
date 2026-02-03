@@ -170,24 +170,24 @@ export const FtraceParser: TraceParser = {
       // We need timestamp and cpu.
       // Typical format: "bash-1234 [001] d... 12345.678900:"
       // We can just split by space and look for timestamp (ends with :) and cpu (in brackets)
-      
+
       const metaTokens = metadataPart.trim().split(/\s+/);
       let timestamp = 0;
       let cpu = 0;
-      
+
       // Find timestamp: usually the last token ending with ":"
       const tsToken = metaTokens[metaTokens.length - 1];
       if (tsToken && tsToken.endsWith(':')) {
-          timestamp = parseFloat(tsToken.slice(0, -1));
+        timestamp = parseFloat(tsToken.slice(0, -1));
       } else {
-          // Fallback check
-          continue;
+        // Fallback check
+        continue;
       }
 
       // Find CPU: token matching [001]
-      const cpuToken = metaTokens.find(t => t.startsWith('[') && t.endsWith(']'));
+      const cpuToken = metaTokens.find((t) => t.startsWith('[') && t.endsWith(']'));
       if (cpuToken) {
-          cpu = parseInt(cpuToken.slice(1, -1), 10);
+        cpu = parseInt(cpuToken.slice(1, -1), 10);
       }
 
       if (isNaN(timestamp) || isNaN(cpu)) continue;
@@ -198,17 +198,17 @@ export const FtraceParser: TraceParser = {
       // Parse Arguments: prev_comm=bash prev_pid=1234 ... ==> next_comm=nginx next_pid=5678
       // We want next_comm and next_pid.
       // We can split by spaces and look for "key=value"
-      
+
       const argsTokens = argsPart.trim().split(/\s+/);
       let nextComm = '';
       let nextPid = '';
 
       for (const token of argsTokens) {
-          if (token.startsWith('next_comm=')) {
-              nextComm = token.split('=')[1];
-          } else if (token.startsWith('next_pid=')) {
-              nextPid = token.split('=')[1];
-          }
+        if (token.startsWith('next_comm=')) {
+          nextComm = token.split('=')[1];
+        } else if (token.startsWith('next_pid=')) {
+          nextPid = token.split('=')[1];
+        }
       }
 
       // Close previous event on this CPU

@@ -16,7 +16,11 @@
     "cancel": "Cancelar",
     "delete": "Eliminar",
     "edit": "Editar",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "load": "Load",
+    "username": "Username",
+    "saveChanges": "Save Changes",
+    "saving": "Saving..."
   },
   "nav": {
     "playground": "Área de Pruebas",
@@ -54,7 +58,9 @@
       "HRRN": "Siguiente con mayor tasa de respuesta (HRRN)",
       "MQ": "Cola Multinivel (MQ)",
       "MLFQ": "Cola Multinivel con Retroalimentación (MLFQ)"
-    }
+    },
+    "importTrace": "Import Trace",
+    "downloadSVG": "Download SVG"
   },
   "explainer": {
     "title": "Lógica de Decisión del Algoritmo",
@@ -73,7 +79,8 @@
     "burst": "Ráfaga",
     "priority": "Prioridad",
     "actions": "Acciones",
-    "delete": "Eliminar"
+    "delete": "Eliminar",
+    "generate": "Generate"
   },
   "compare": {
     "title": "Comparar Algoritmos",
@@ -137,7 +144,8 @@
     },
     "errors": {
       "deleteFailed": "Error al eliminar el escenario",
-      "updateFailed": "Update failed"
+      "updateFailed": "Update failed",
+      "fetchScenarios": "Failed to load scenarios"
     }
   },
   "seo": {
@@ -162,5 +170,79 @@
       "title": "About Quantix",
       "description": "The mission and technology behind Quantix CPU Scheduling Visualizer."
     }
+  },
+  "generator": {
+    "title": "Scenario Generator",
+    "type": "Scenario Type",
+    "count": "Process Count (approx)",
+    "generate": "Generate",
+    "types": {
+      "random": "Random Mix",
+      "burst_heavy": "CPU Bound (Long Bursts)",
+      "io_heavy": "I/O Bound (Short Bursts)",
+      "many_short": "Many Short Processes (Stress Test)",
+      "long_running": "Long Running (Batch)",
+      "starvation": "Starvation Risk (Priority)"
+    },
+    "success": "Processes generated"
+  },
+  "tutorial": {
+    "title": "Interactive Guide",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish Tutorial",
+    "steps": {
+      "welcome": {
+        "title": "Welcome to Quantix",
+        "desc": "This interactive tutorial will guide you through the core concepts of CPU scheduling algorithms. Learn how processes are managed, executed, and prioritized by the operating system."
+      },
+      "processes": {
+        "title": "Processes & The Ready Queue",
+        "desc": "A process is a program in execution. In our visualizer, processes waiting for CPU time are placed in the \"Ready Queue\". Algorithms decide WHICH process from this queue runs next."
+      },
+      "gantt": {
+        "title": "The Gantt Chart",
+        "desc": "The timeline below is a Gantt Chart. It visualizes the execution order. Blocks represent time slices given to processes. \"CS\" blocks represent Context Switching overhead."
+      },
+      "fcfs": {
+        "title": "First-Come, First-Served (FCFS)",
+        "desc": "The simplest algorithm. Processes are executed in the exact order they arrive. Great for simplicity, but can lead to the \"Convoy Effect\" where short processes wait behind long ones."
+      },
+      "rr": {
+        "title": "Round Robin (RR)",
+        "desc": "Designed for fair sharing. Each process gets a fixed \"Time Quantum\" (e.g., 2ms). If it doesn't finish, it moves to the back of the queue. Try adjusting the Quantum slider!"
+      },
+      "sjf": {
+        "title": "Shortest Job First (SJF)",
+        "desc": "Optimizes for minimum waiting time. The process with the shortest burst time runs first. However, long processes may starve if short ones keep arriving."
+      },
+      "step": {
+        "title": "Step-by-Step Execution",
+        "desc": "Use the \"Step Forward\" button to see exactly why an algorithm made a decision. The \"Decision Log\" panel will explain the logic (e.g., \"Selected P1 because priority is highest\")."
+      }
+    }
+  },
+  "modals": {
+    "save": {
+      "title": "Save Scenario",
+      "placeholder": "Scenario Name"
+    },
+    "load": {
+      "title": "Load Scenario",
+      "fetching": "Fetching scenarios...",
+      "empty": "No saved scenarios found.",
+      "created": "Created:",
+      "local": "Local",
+      "cloud": "Cloud",
+      "confirmDelete": "Are you sure you want to delete \"{{name}}\"?",
+      "localDeleted": "Local scenario deleted",
+      "cloudDeleteNotImpl": "Cloud delete not implemented yet"
+    }
+  },
+  "toast": {
+    "traceLoaded": "Trace loaded successfully",
+    "traceError": "Failed to load trace: {{error}}",
+    "svgNotFound": "SVG not found",
+    "optimalQuantum": "Optimal Quantum found: {{quantum}} (Wait: {{wait}}, Switches: {{switches}})"
   }
 }

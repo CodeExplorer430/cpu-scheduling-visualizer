@@ -99,8 +99,8 @@ describe('useSimulation Hook', () => {
       metrics: {
         avgWaiting: 2.5,
         avgTurnaround: 5,
-        contextSwitches: 3
-      }
+        contextSwitches: 3,
+      },
     });
 
     act(() => {

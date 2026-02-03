@@ -38,18 +38,18 @@ export function findOptimalQuantum(
   const limit = Math.min(Math.max(20, maxBurst), maxQuantumToCheck);
 
   for (let q = 1; q <= limit; q++) {
-    const result = runRR(processes, { 
-      quantum: q, 
-      contextSwitchOverhead: 0 // Assume overhead is internal logic or provided? 
+    const result = runRR(processes, {
+      quantum: q,
+      contextSwitchOverhead: 0, // Assume overhead is internal logic or provided?
       // Ideally we should pass the actual CS overhead if we want to penalize real time.
       // But here we optimize for "count" penalty.
     });
-    
+
     const cs = result.metrics.contextSwitches ?? 0;
     const aw = result.metrics.avgWaiting;
-    
+
     // Cost Function
-    const cost = (weightWait * aw) + (weightSwitch * cs);
+    const cost = weightWait * aw + weightSwitch * cs;
 
     if (cost < minCost) {
       minCost = cost;

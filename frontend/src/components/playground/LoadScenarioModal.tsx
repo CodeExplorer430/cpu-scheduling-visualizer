@@ -99,11 +99,7 @@ export const LoadScenarioModal: React.FC<LoadScenarioModalProps> = ({
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (
-                            window.confirm(
-                              t('modals.load.confirmDelete', { name: s.name })
-                            )
-                          ) {
+                          if (window.confirm(t('modals.load.confirmDelete', { name: s.name }))) {
                             onDelete(s._id);
                           }
                         }}

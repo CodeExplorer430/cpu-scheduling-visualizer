@@ -14,15 +14,7 @@ interface Props {
   onClose: () => void;
 }
 
-const STEP_KEYS = [
-  'welcome',
-  'processes',
-  'gantt',
-  'fcfs',
-  'rr',
-  'sjf',
-  'step',
-];
+const STEP_KEYS = ['welcome', 'processes', 'gantt', 'fcfs', 'rr', 'sjf', 'step'];
 
 export const TutorialModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
@@ -63,10 +55,7 @@ export const TutorialModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 {t(`tutorial.steps.${stepKey}.title`)}
               </Dialog.Title>
             </div>
-            <button
-              onClick={onClose}
-              className="text-white/70 hover:text-white transition-colors"
-            >
+            <button onClick={onClose} className="text-white/70 hover:text-white transition-colors">
               <XMarkIcon className="w-6 h-6" />
             </button>
           </div>
