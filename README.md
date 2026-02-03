@@ -11,6 +11,7 @@ A comprehensive, interactive web-based visualizer for CPU scheduling algorithms,
 - **Algorithm Comparison**: Run simulations side-by-side to compare metrics like Turnaround Time and Waiting Time.
 - **Step-by-Step Explanations**: Understand _why_ a scheduler made a specific decision at any given tick.
 - **Multi-Core Support**: Simulate scheduling across multiple CPU cores.
+- **Energy Efficiency Metrics**: Analyze power consumption with configurable Active/Idle Watts and Context Switch energy costs.
 - **Save & Load**: Persist your custom scenarios using MongoDB (via Google, GitHub, GitLab, Discord, LinkedIn, or Guest).
 - **Export**: Download results as PNG, PDF, or CSV.
 - **Internationalization**: Full English and Spanish (Español) support.

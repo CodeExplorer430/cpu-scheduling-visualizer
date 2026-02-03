@@ -1,32 +1,46 @@
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
 import { Compare } from '../../pages/Compare';
 import { ThemeProvider } from '../../context/ThemeContext';
-import { AuthProvider } from '../../context/AuthContext';
-import { Process } from '@cpu-vis/shared';
-import React from 'react';
+import { AuthContext } from '../../context/AuthContext';
+import { MemoryRouter } from 'react-router-dom';
 
-const renderWithContexts = (component: React.ReactNode) => {
+const mockProcesses = [
+  { pid: 'P1', arrival: 0, burst: 5, priority: 1 },
+];
+
+const mockSetProcesses = vi.fn();
+
+const renderWithProviders = (ui: React.ReactNode) => {
   return render(
-    <ThemeProvider>
-      <AuthProvider>{component}</AuthProvider>
-    </ThemeProvider>
+    <MemoryRouter>
+      <ThemeProvider>
+        <AuthContext.Provider value={{ 
+          user: null, 
+          token: null, 
+          login: vi.fn(), 
+          logout: vi.fn(), 
+          updateUser: vi.fn(), 
+          loading: false 
+        }}>
+          {ui}
+        </AuthContext.Provider>
+      </ThemeProvider>
+    </MemoryRouter>
   );
 };
 
 describe('Compare Page', () => {
-  it('renders without crashing', () => {
-    const mockProcesses: Process[] = [{ pid: 'P1', arrival: 0, burst: 5 }];
-    const mockOnProcessesChange = vi.fn();
-
-    renderWithContexts(
-      <Compare processes={mockProcesses} onProcessesChange={mockOnProcessesChange} />
-    );
-
-    // Check for ComparisonSettings title or content
-    expect(screen.getByText('compare.runComparison')).toBeInTheDocument();
-
-    // Check for ProcessTable
-    expect(screen.getByText('processTable.pid')).toBeInTheDocument();
+  it('renders title and process table', () => {
+    renderWithProviders(<Compare processes={mockProcesses} onProcessesChange={mockSetProcesses} />);
+    
+    expect(screen.getByText('nav.compare')).toBeInTheDocument();
+    expect(screen.getByText('P1')).toBeInTheDocument();
   });
+
+  // Note: Export functionality (PNG/PDF) relies on html2canvas and DOM layout
+  // which is difficult to fully mock in JSDOM. 
+  // Verified manually: 
+  // 1. Desktop export works.
+  // 2. Mobile export forces 1280px width to capture full chart.
 });

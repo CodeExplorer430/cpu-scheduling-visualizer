@@ -47,8 +47,9 @@ All protected routes require a Bearer Token.
   - `GET /auth/linkedin`
 - **Description**: Redirects user to the respective provider's Sign-In page. On success, redirects back to the frontend with `?token=<jwt>`.
 
-### 4. Magic Link (Planned)
+### 4. Magic Link
 
+#### Request Link
 - **Endpoint**: `POST /auth/magic-link`
 - **Body**:
   ```json
@@ -56,7 +57,24 @@ All protected routes require a Bearer Token.
     "email": "jdoe@example.com"
   }
   ```
-- **Description**: Sends a login link to the user's email.
+- **Description**: Sends a login link to the user's email (or logs to console in development).
+
+#### Verify Link
+- **Endpoint**: `POST /auth/magic-link/verify`
+- **Body**:
+  ```json
+  {
+    "token": "jwt_from_email_link"
+  }
+  ```
+- **Description**: Verifies the magic link token and returns a session token.
+- **Response**:
+  ```json
+  {
+    "token": "jwt_token",
+    "user": { ... }
+  }
+  ```
 
 ---
 
