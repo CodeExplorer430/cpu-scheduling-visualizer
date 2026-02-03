@@ -5,6 +5,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
+import { ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 
 interface Props {
   results: Record<Algorithm, SimulationResult>;
@@ -13,6 +14,7 @@ interface Props {
 
 export const ComparisonResults: React.FC<Props> = ({ results, algorithms }) => {
   const exportRef = useRef<HTMLDivElement>(null);
+  const chartRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const { t } = useTranslation();
 
   // Calculate global max time across all algorithms to synchronize scales
@@ -97,6 +99,29 @@ export const ComparisonResults: React.FC<Props> = ({ results, algorithms }) => {
     });
   };
 
+  const handleExportSVG = (algo: string) => {
+    const container = chartRefs.current[algo];
+    if (!container) return;
+
+    const svgElement = container.querySelector('svg');
+    if (!svgElement) {
+      toast.error('SVG not found');
+      return;
+    }
+
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(svgElement);
+    const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `quantix-${algo}.svg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="space-y-8">
       {/* Actions */}
@@ -161,11 +186,21 @@ export const ComparisonResults: React.FC<Props> = ({ results, algorithms }) => {
           {algorithms.map((algo) => (
             <div
               key={algo}
+              ref={(el) => (chartRefs.current[algo] = el)}
               className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow transition-colors duration-200"
             >
-              <h4 className="text-md font-bold mb-2 text-gray-700 dark:text-gray-200">
-                {t(`controls.algorithms.${algo}`)}
-              </h4>
+              <div className="flex justify-between items-center mb-2">
+                <h4 className="text-md font-bold text-gray-700 dark:text-gray-200">
+                  {t(`controls.algorithms.${algo}`)}
+                </h4>
+                <button
+                  onClick={() => handleExportSVG(algo)}
+                  className="text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400"
+                  title="Download SVG"
+                >
+                  <ArrowDownTrayIcon className="w-5 h-5" />
+                </button>
+              </div>
               <Gantt events={results[algo].events} domainMax={domainMax} />
             </div>
           ))}

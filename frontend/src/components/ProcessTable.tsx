@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { Process, generateRandomProcesses, exportToCSV, parseCSV } from '@cpu-vis/shared';
+import React, { useRef, useState } from 'react';
+import { Process, exportToCSV, parseCSV } from '@cpu-vis/shared';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import {
@@ -11,6 +11,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { ScenarioManager } from './playground/ScenarioManager';
 import { NumberInput } from './common/NumberInput';
+import { GeneratorModal } from './playground/GeneratorModal';
 
 interface Props {
   processes: Process[];
@@ -19,6 +20,7 @@ interface Props {
 
 export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showGenerator, setShowGenerator] = useState(false);
   const { t } = useTranslation();
 
   const addProcess = () => {
@@ -42,14 +44,9 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
     toast.success('Process removed');
   };
 
-  const handleRandomize = () => {
-    const randomProcesses = generateRandomProcesses({
-      count: 5,
-      arrivalRange: [0, 10],
-      burstRange: [1, 10],
-    });
-    onProcessChange(randomProcesses);
-    toast.success('Processes randomized');
+  const handleGenerate = (newProcesses: Process[]) => {
+    onProcessChange(newProcesses);
+    toast.success('Processes generated');
   };
 
   const handleExportCSV = () => {
@@ -105,11 +102,11 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
         <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 justify-center sm:justify-end w-full sm:w-auto overflow-x-auto no-scrollbar pb-1 sm:pb-0">
           <ScenarioManager processes={processes} onLoad={onProcessChange} />
           <button
-            onClick={handleRandomize}
+            onClick={() => setShowGenerator(true)}
             className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors whitespace-nowrap flex items-center gap-1"
           >
             <SparklesIcon className="w-3.5 h-3.5" />
-            Randomize
+            Generate
           </button>
           <button
             onClick={handleExportCSV}
@@ -138,6 +135,13 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
           </button>
         </div>
       </div>
+
+      <GeneratorModal
+        isOpen={showGenerator}
+        onClose={() => setShowGenerator(false)}
+        onGenerate={handleGenerate}
+      />
+
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-700 sticky top-0 z-10 shadow-sm">

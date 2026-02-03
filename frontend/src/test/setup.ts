@@ -21,10 +21,21 @@ vi.mock('react-i18next', () => ({
     t: (key: string) => key,
     i18n: {
       changeLanguage: () => Promise.resolve(),
+      language: 'en',
     },
   }),
   initReactI18next: {
     type: '3rdParty',
     init: () => {},
+  },
+}));
+
+// Mock persistence layer to avoid IndexedDB issues in JSDOM
+vi.mock('../lib/persistence', () => ({
+  persistence: {
+    saveScenario: vi.fn().mockResolvedValue({}),
+    getScenarios: vi.fn().mockResolvedValue([]),
+    deleteScenario: vi.fn().mockResolvedValue(undefined),
+    getScenario: vi.fn().mockResolvedValue(undefined),
   },
 }));

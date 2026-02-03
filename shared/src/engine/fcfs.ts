@@ -1,12 +1,5 @@
-import {
-  GanttEvent,
-  Metrics,
-  Process,
-  SimulationResult,
-  SimulationOptions,
-  DecisionLog,
-} from '../types.js';
-import { generateSnapshots } from './utils.js';
+import { GanttEvent, Process, SimulationResult, SimulationOptions, DecisionLog } from '../types.js';
+import { generateSnapshots, calculateMetrics } from './utils.js';
 
 export function runFCFS(
   inputProcesses: Process[],
@@ -16,7 +9,7 @@ export function runFCFS(
     contextSwitchOverhead = 0,
     enableLogging = false,
     coreCount = 1,
-    energyConfig = { activeWatts: 20, idleWatts: 5, switchJoules: 0.1 }, // Defaults
+    enableAffinity = false,
   } = options;
 
   const logs: string[] = [];
@@ -40,9 +33,7 @@ export function runFCFS(
   const processes = [...inputProcesses].sort((a, b) => a.arrival - b.arrival);
 
   const events: GanttEvent[] = [];
-  const completionTimes: Record<string, number> = {};
-  const turnaroundTimes: Record<string, number> = {};
-  const waitingTimes: Record<string, number> = {};
+  const processCoreMap: Record<string, number> = {};
 
   // Core State
   interface CoreState {
@@ -57,58 +48,48 @@ export function runFCFS(
     lastPid: 'IDLE',
   }));
 
-  // Global Ready Queue logic
-  // Since FCFS is non-preemptive and arrival-based, we can just iterate processes?
-  // No, with multi-core, a process arriving later might get picked up by a core that finishes early.
-  // We need a simulation loop time-step or event-driven.
-  // Event-driven is better. Events: Process Arrival, Core Free.
-
-  // Let's use a simple discrete event simulation approach or just iterate if we can?
-  // With FCFS, we just need to assign the next available core to the next process in queue.
-  // But processes arrive at specific times.
-
-  // We can track `readyQueue`.
-  // Loop until all processes done.
-
   let completedCount = 0;
   const totalProcesses = processes.length;
   let pIndex = 0; // Index in sorted arrival list
   const readyQueue: Process[] = [];
 
-  // Simulation Clock?
-  // We can jump to the next "interesting" time: min(nextArrival, min(coreFreeTime))
-
   while (completedCount < totalProcesses) {
     // 1. Find earliest time something happens
     // Next arrival?
     const nextArrival = pIndex < totalProcesses ? processes[pIndex].arrival : Infinity;
-    // Earliest core free?
-    // const nextCoreFree = Math.min(...cores.map((c) => c.currentTime));
 
-    // Global time advances to the interesting point
-    // Ideally we process events at `nextCoreFree` if it's <= nextArrival, or `nextArrival` if it's earlier.
-    // Actually, we can fill cores up to `nextArrival` if they are free.
-
-    // Let's sort cores by free time
+    // Sort cores by free time
     cores.sort((a, b) => a.currentTime - b.currentTime);
-    const availableCore = cores[0]; // Core that frees up earliest
+
+    // Determine the available core
+    // Standard: Pick the earliest free core (cores[0])
+    // Affinity: If the *next* process to be scheduled has an affinity for a core that is ALSO free at the same minimal time (or close?), prefer it.
+    // However, FCFS strictly schedules the head of the queue.
+    // So we look at readyQueue[0].
+
+    let availableCore = cores[0];
+
+    if (enableAffinity && readyQueue.length > 0) {
+      const nextProcess = readyQueue[0];
+      const lastCoreId = processCoreMap[nextProcess.pid];
+
+      if (lastCoreId !== undefined) {
+        // Check if this preferred core is also free at the minimal time (or reasonably close? For now, strict minimal time to avoid inserting IDLE gaps unnecessarily)
+        // Actually, if we wait for affinity, we might insert IDLE.
+        // Let's implement strict affinity: If preferred core is available at <= cores[0].currentTime, take it.
+        // But cores are sorted. So cores[0] is min time.
+        // We only check if the preferred core has same currentTime as cores[0].
+
+        const preferredCore = cores.find((c) => c.id === lastCoreId);
+        if (preferredCore && preferredCore.currentTime === availableCore.currentTime) {
+          availableCore = preferredCore;
+        }
+      }
+    }
 
     // If ready queue is empty, we must jump to next arrival
     if (readyQueue.length === 0) {
       if (pIndex < totalProcesses) {
-        // Jump time?
-        // If the core is free BEFORE next arrival, it idles until next arrival (or until other cores finish?)
-        // If it idles, we record IDLE event.
-        // Wait, other cores might finish before nextArrival too.
-        // The *global* system time isn't single. Each core has its own time.
-
-        // We take the earliest free core.
-        // If it's free at T_free, and next process arrives at T_arrival.
-        // If T_free < T_arrival, this core idles from T_free to T_arrival.
-        // BUT, maybe another core frees up at T_free_2 (where T_free < T_free_2 < T_arrival).
-        // It also idles.
-        // So we can safely advance this core to T_arrival.
-
         const timeToJump = Math.max(availableCore.currentTime, nextArrival);
 
         // Record IDLE if jump > current
@@ -139,10 +120,6 @@ export function runFCFS(
         // Continue loop to pick up from readyQueue
         continue;
       } else {
-        // No more processes arriving, queue empty. We are done?
-        // But other cores might be running.
-        // This core is done forever (until end of sim).
-        // We can just conceptually stop this core.
         break;
       }
     }
@@ -158,7 +135,7 @@ export function runFCFS(
       availableCore.currentTime,
       availableCore.id,
       `Selected Process ${pid}`,
-      `Selected ${pid} because it arrived earliest (Arrival: ${arrival}). FCFS logic.`,
+      `Selected ${pid} because it arrived earliest (Arrival: ${arrival}). FCFS logic.${enableAffinity && processCoreMap[pid] === availableCore.id ? ' (Affinity)' : ''}`,
       currentQueuePids
     );
 
@@ -194,108 +171,17 @@ export function runFCFS(
 
     c.currentTime = end;
     c.lastPid = pid;
+    processCoreMap[pid] = c.id; // Record core usage
     completedCount++;
 
-    // Metrics
-    completionTimes[pid] = end;
-    turnaroundTimes[pid] = end - arrival;
-    waitingTimes[pid] = turnaroundTimes[pid] - burst;
-
     // Check arrivals up to new time
-    // We must be careful: we only advance `pIndex` using the *current* core's time.
-    // Other cores might be behind.
-    // If we add to readyQueue now, they become available for *any* core.
-    // This is correct. Global queue.
     while (pIndex < totalProcesses && processes[pIndex].arrival <= c.currentTime) {
       readyQueue.push(processes[pIndex]);
       pIndex++;
     }
   }
 
-  // Aggregate metrics
-  const totalTurnaround = Object.values(turnaroundTimes).reduce((sum, val) => sum + val, 0);
-  const totalWaiting = Object.values(waitingTimes).reduce((sum, val) => sum + val, 0);
-
-  // Context Switches
-  let contextSwitches = 0;
-  if (contextSwitchOverhead > 0) {
-    contextSwitches = events.filter((e) => e.pid === 'CS').length;
-  } else {
-    // Per core counting
-    for (let c = 0; c < coreCount; c++) {
-      const coreEvents = events.filter((e) => e.coreId === c).sort((a, b) => a.start - b.start);
-      for (let i = 0; i < coreEvents.length - 1; i++) {
-        if (
-          coreEvents[i].pid !== coreEvents[i + 1].pid &&
-          coreEvents[i].pid !== 'IDLE' &&
-          coreEvents[i + 1].pid !== 'IDLE'
-        ) {
-          contextSwitches++;
-        }
-      }
-    }
-  }
-
-  // Energy Calculation
-  // Active Time: Sum of durations where pid != IDLE and pid != CS
-  // Idle Time: Sum of durations where pid == IDLE (or gaps? events cover gaps)
-  // Switch Energy: count * switchJoules
-
-  let activeTime = 0;
-  let idleTime = 0;
-
-  events.forEach((e) => {
-    const duration = e.end - e.start;
-    if (e.pid === 'IDLE') idleTime += duration;
-    else if (e.pid === 'CS') {
-      // Switch energy is calculated separately using switchJoules
-    }
-    // Overhead usually counts as active or separate? Let's say separate or active.
-    // Spec: active vs idle. Usually CS consumes power. Let's count CS as Active for power?
-    // Or define switchJoules separate.
-    // Let's assume switchJoules covers the switch cost entirely.
-    else activeTime += duration;
-  });
-
-  // Wait, total time is max(end) - 0? Or sum of all core durations?
-  // Energy is sum of energy per core.
-  // We iterated events. Events cover the timeline for each core (except maybe trailing idle).
-  // Trailing idle: from core finish to global max time.
-  const globalMaxTime = Math.max(...events.map((e) => e.end));
-  // Add trailing idle for cores that finished early
-  cores.forEach((c) => {
-    if (c.currentTime < globalMaxTime) {
-      idleTime += globalMaxTime - c.currentTime;
-    }
-  });
-
-  const totalEnergy =
-    activeTime * energyConfig.activeWatts +
-    idleTime * energyConfig.idleWatts +
-    contextSwitches * energyConfig.switchJoules;
-
-  const totalTime = globalMaxTime > 0 ? globalMaxTime : 1; // Avoid div by 0
-  // Utilization: Active time across all cores / (Total time * Core count)
-  // Wait, activeTime calculated above is sum of event durations.
-  // Events cover all cores.
-  // So cpuUtilization = (activeTime / (totalTime * coreCount)) * 100.
-  const cpuUtilization = (activeTime / (totalTime * coreCount)) * 100;
-
-  const metrics: Metrics = {
-    completion: completionTimes,
-    turnaround: turnaroundTimes,
-    waiting: waitingTimes,
-    avgTurnaround: totalProcesses > 0 ? totalTurnaround / totalProcesses : 0,
-    avgWaiting: totalProcesses > 0 ? totalWaiting / totalProcesses : 0,
-    contextSwitches,
-    cpuUtilization,
-    energy: {
-      totalEnergy,
-      activeEnergy: activeTime * energyConfig.activeWatts,
-      idleEnergy: idleTime * energyConfig.idleWatts,
-      switchEnergy: contextSwitches * energyConfig.switchJoules,
-    },
-  };
+  const metrics = calculateMetrics(events, inputProcesses, options);
 
   return {
     events,

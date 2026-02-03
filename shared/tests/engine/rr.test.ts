@@ -20,10 +20,10 @@ describe('Round Robin (RR) Algorithm', () => {
     // P2: 6-7 (rem: 0) -> Done.
 
     expect(events).toHaveLength(4);
-    expect(events[0]).toEqual({ pid: 'P1', start: 0, end: 2 });
-    expect(events[1]).toEqual({ pid: 'P2', start: 2, end: 4 });
-    expect(events[2]).toEqual({ pid: 'P1', start: 4, end: 6 });
-    expect(events[3]).toEqual({ pid: 'P2', start: 6, end: 7 });
+    expect(events[0]).toEqual({ pid: 'P1', start: 0, end: 2, coreId: 0 });
+    expect(events[1]).toEqual({ pid: 'P2', start: 2, end: 4, coreId: 0 });
+    expect(events[2]).toEqual({ pid: 'P1', start: 4, end: 6, coreId: 0 });
+    expect(events[3]).toEqual({ pid: 'P2', start: 6, end: 7, coreId: 0 });
 
     // Completion times
     expect(metrics.completion['P1']).toBe(6);
@@ -58,11 +58,11 @@ describe('Round Robin (RR) Algorithm', () => {
     // in RR to allow visual stepping of quantums.
 
     expect(events).toHaveLength(5);
-    expect(events[0]).toEqual({ pid: 'P1', start: 0, end: 2 });
-    expect(events[1]).toEqual({ pid: 'P2', start: 2, end: 4 });
-    expect(events[2]).toEqual({ pid: 'P1', start: 4, end: 6 });
-    expect(events[3]).toEqual({ pid: 'P2', start: 6, end: 8 });
-    expect(events[4]).toEqual({ pid: 'P2', start: 8, end: 9 });
+    expect(events[0]).toEqual({ pid: 'P1', start: 0, end: 2, coreId: 0 });
+    expect(events[1]).toEqual({ pid: 'P2', start: 2, end: 4, coreId: 0 });
+    expect(events[2]).toEqual({ pid: 'P1', start: 4, end: 6, coreId: 0 });
+    expect(events[3]).toEqual({ pid: 'P2', start: 6, end: 8, coreId: 0 });
+    expect(events[4]).toEqual({ pid: 'P2', start: 8, end: 9, coreId: 0 });
   });
 
   it('should handle idle time correctly', () => {
@@ -80,8 +80,8 @@ describe('Round Robin (RR) Algorithm', () => {
     // P2: 5-7
 
     expect(events).toHaveLength(3);
-    expect(events[0]).toEqual({ pid: 'P1', start: 0, end: 2 });
-    expect(events[1]).toEqual({ pid: 'IDLE', start: 2, end: 5 });
-    expect(events[2]).toEqual({ pid: 'P2', start: 5, end: 7 });
+    expect(events[0]).toEqual({ pid: 'P1', start: 0, end: 2, coreId: 0 });
+    expect(events[1]).toEqual({ pid: 'IDLE', start: 2, end: 5, coreId: 0 });
+    expect(events[2]).toEqual({ pid: 'P2', start: 5, end: 7, coreId: 0 });
   });
 });

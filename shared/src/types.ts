@@ -31,8 +31,19 @@ export interface Metrics {
   completion: Record<string, number>; // pid -> completion time
   turnaround: Record<string, number>;
   waiting: Record<string, number>;
+  response: Record<string, number>; // Time from arrival to first CPU attention
   avgTurnaround: number;
   avgWaiting: number;
+  avgResponse: number;
+
+  // Statistical distributions
+  p95Turnaround: number;
+  p95Waiting: number;
+  p95Response: number;
+  stdDevTurnaround: number;
+  stdDevWaiting: number;
+  stdDevResponse: number;
+
   contextSwitches?: number;
   cpuUtilization?: number; // 0-100%
   energy?: EnergyMetrics;
@@ -78,5 +89,6 @@ export interface SimulationOptions {
   contextSwitchOverhead?: number;
   enableLogging?: boolean;
   coreCount?: number;
+  enableAffinity?: boolean; // Prefer previously used core for a process
   energyConfig?: EnergyConfig;
 }

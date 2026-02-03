@@ -1,10 +1,17 @@
 import React from 'react';
-import { FolderOpenIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import {
+  FolderOpenIcon,
+  XMarkIcon,
+  TrashIcon,
+  CloudIcon,
+  ComputerDesktopIcon,
+} from '@heroicons/react/24/outline';
 
 interface ScenarioSummary {
   _id: string;
   name: string;
   createdAt: string;
+  source?: 'cloud' | 'local';
 }
 
 interface LoadScenarioModalProps {
@@ -13,6 +20,7 @@ interface LoadScenarioModalProps {
   scenarios: ScenarioSummary[];
   loading: boolean;
   onLoad: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 export const LoadScenarioModal: React.FC<LoadScenarioModalProps> = ({
@@ -21,6 +29,7 @@ export const LoadScenarioModal: React.FC<LoadScenarioModalProps> = ({
   scenarios,
   loading,
   onLoad,
+  onDelete,
 }) => {
   if (!isOpen) return null;
 
@@ -56,18 +65,46 @@ export const LoadScenarioModal: React.FC<LoadScenarioModalProps> = ({
                   className="group border border-gray-200 dark:border-gray-700 p-4 rounded-lg hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 cursor-pointer transition-all flex justify-between items-center"
                   onClick={() => onLoad(s._id)}
                 >
-                  <div>
-                    <p className="font-bold dark:text-white group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors">
-                      {s.name}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
+                  <div className="flex-1 min-w-0 pr-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="font-bold dark:text-white group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors truncate">
+                        {s.name}
+                      </p>
+                      {s.source === 'local' ? (
+                        <span className="inline-flex items-center gap-0.5 rounded bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 text-[10px] font-medium text-gray-600 dark:text-gray-300">
+                          <ComputerDesktopIcon className="w-3 h-3" /> Local
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-0.5 rounded bg-blue-100 dark:bg-blue-900/40 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:text-blue-300">
+                          <CloudIcon className="w-3 h-3" /> Cloud
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                       <span className="opacity-60">Created:</span>{' '}
                       {new Date(s.createdAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <button className="text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">
-                    Load
-                  </button>
+
+                  <div className="flex items-center gap-2">
+                    <button className="text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">
+                      Load
+                    </button>
+                    {onDelete && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm(`Are you sure you want to delete "${s.name}"?`)) {
+                            onDelete(s._id);
+                          }
+                        }}
+                        className="text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Delete Scenario"
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
