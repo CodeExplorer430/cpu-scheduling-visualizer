@@ -1,5 +1,5 @@
-import { GanttEvent, Metrics, Process, SimulationResult, SimulationOptions } from '../types.js';
-import { generateSnapshots } from './utils.js';
+import { GanttEvent, Process, SimulationResult, SimulationOptions, DecisionLog } from '../types.js';
+import { generateSnapshots, calculateMetrics } from './utils.js';
 
 interface MQProcess extends Process {
   remaining: number;
@@ -9,12 +9,24 @@ export function runMQ(
   inputProcesses: Process[],
   options: SimulationOptions = {}
 ): SimulationResult {
-  const {
-    contextSwitchOverhead = 0,
-    quantum = 2,
-    coreCount = 1,
-    energyConfig = { activeWatts: 20, idleWatts: 5, switchJoules: 0.1 },
-  } = options;
+  const { contextSwitchOverhead = 0, quantum = 2, coreCount = 1, enableLogging = false } = options;
+
+  const logs: string[] = [];
+  const stepLogs: DecisionLog[] = [];
+
+  const log = (msg: string) => {
+    if (enableLogging) logs.push(msg);
+  };
+
+  const logDecision = (
+    time: number,
+    coreId: number,
+    message: string,
+    reason: string,
+    queueState: string[]
+  ) => {
+    if (enableLogging) stepLogs.push({ time, coreId, message, reason, queueState });
+  };
 
   const processes: MQProcess[] = inputProcesses.map((p) => ({
     ...p,
@@ -27,10 +39,6 @@ export function runMQ(
   let completedCount = 0;
   const totalProcesses = processes.length;
   const events: GanttEvent[] = [];
-
-  const completionTimes: Record<string, number> = {};
-  const turnaroundTimes: Record<string, number> = {};
-  const waitingTimes: Record<string, number> = {};
 
   const q1: MQProcess[] = []; // RR (Priority === 1)
   const q2: MQProcess[] = []; // FCFS (Priority > 1)
@@ -56,6 +64,7 @@ export function runMQ(
     while (pIndex < totalProcesses && processes[pIndex].arrival <= systemTime) {
       const p = processes[pIndex];
       const prio = p.priority ?? 2;
+      log(`Time ${systemTime}: Process ${p.pid} arrived (Priority ${prio})`);
       if (prio === 1) q1.push(p);
       else q2.push(p);
       pIndex++;
@@ -69,15 +78,32 @@ export function runMQ(
           .filter((c) => c.currentProcessPid && c.currentProcessPid !== 'CS')
           .map((c) => c.currentProcessPid!);
 
+        // Check if current process should be preempted or yield
         if (core.currentProcessPid && core.currentProcessPid !== 'CS') {
           const current = processes.find((p) => p.pid === core.currentProcessPid)!;
           const currentPrio = current.priority ?? 2;
+
+          // If low priority running, check if high priority arrived
           if (
             currentPrio > 1 &&
             q1.filter((p) => !currentlyRunningPids.includes(p.pid)).length > 0
           ) {
+            logDecision(
+              systemTime,
+              core.id,
+              `Preempting ${current.pid}`,
+              `Higher priority process arrived in Q1`,
+              []
+            );
             core.currentProcessPid = undefined;
           } else if (currentPrio === 1 && core.rrQuantumProgress >= quantum) {
+            logDecision(
+              systemTime,
+              core.id,
+              `Quantum expired for ${current.pid}`,
+              `RR Quantum (${quantum}) reached. Moving to back of Q1.`,
+              []
+            );
             q1.shift();
             q1.push(current);
             core.rrQuantumProgress = 0;
@@ -86,18 +112,32 @@ export function runMQ(
         }
 
         if (!core.currentProcessPid) {
-          const currentlyRunningPids = cores
+          const currentlyRunning = cores
             .filter((c) => c.currentProcessPid && c.currentProcessPid !== 'CS')
             .map((c) => c.currentProcessPid!);
-          const availableQ1 = q1.filter((p) => !currentlyRunningPids.includes(p.pid));
-          const availableQ2 = q2.filter((p) => !currentlyRunningPids.includes(p.pid));
+          const availableQ1 = q1.filter((p) => !currentlyRunning.includes(p.pid));
+          const availableQ2 = q2.filter((p) => !currentlyRunning.includes(p.pid));
 
           let selected: MQProcess | undefined;
           if (availableQ1.length > 0) {
             selected = availableQ1[0];
             core.rrQuantumProgress = 0;
+            logDecision(
+              systemTime,
+              core.id,
+              `Selected ${selected.pid} from Q1`,
+              `Q1 (RR) has highest priority`,
+              availableQ1.map((p) => p.pid)
+            );
           } else if (availableQ2.length > 0) {
             selected = availableQ2[0];
+            logDecision(
+              systemTime,
+              core.id,
+              `Selected ${selected.pid} from Q2`,
+              `Q1 is empty, selecting from Q2 (FCFS)`,
+              availableQ2.map((p) => p.pid)
+            );
           }
 
           if (selected) {
@@ -135,7 +175,7 @@ export function runMQ(
             ...cores
               .filter((c) => c.currentProcessPid && c.currentProcessPid !== 'CS')
               .map((c) => {
-                const p = processes.find((p) => p.pid === c.currentProcessPid)!;
+                const p = processes.find((proc) => proc.pid === c.currentProcessPid)!;
                 const timeToComplete = p.remaining;
                 const timeToQuantum =
                   (p.priority ?? 2) === 1 ? quantum - c.rrQuantumProgress : Infinity;
@@ -156,7 +196,7 @@ export function runMQ(
     if (duration > 0) {
       for (const core of cores) {
         if (core.currentProcessPid && core.currentProcessPid !== 'CS') {
-          const p = processes.find((p) => p.pid === core.currentProcessPid)!;
+          const p = processes.find((proc) => proc.pid === core.currentProcessPid)!;
           const lastEvent = events.filter((e) => (e.coreId ?? 0) === core.id).pop();
           if (lastEvent && lastEvent.pid === p.pid && lastEvent.end === systemTime)
             lastEvent.end = nextEventTime;
@@ -169,9 +209,6 @@ export function runMQ(
 
           if (p.remaining <= 0) {
             completedCount++;
-            completionTimes[p.pid] = nextEventTime;
-            turnaroundTimes[p.pid] = nextEventTime - p.arrival;
-            waitingTimes[p.pid] = turnaroundTimes[p.pid] - p.burst;
             core.currentProcessPid = undefined;
             if ((p.priority ?? 2) === 1) q1.shift();
             else q2.shift();
@@ -194,65 +231,13 @@ export function runMQ(
     systemTime = Math.round(systemTime * 100) / 100;
   }
 
-  const totalTurnaround = Object.values(turnaroundTimes).reduce((sum, val) => sum + val, 0);
-  const totalWaiting = Object.values(waitingTimes).reduce((sum, val) => sum + val, 0);
-
-  let contextSwitches = 0;
-  if (contextSwitchOverhead > 0) contextSwitches = events.filter((e) => e.pid === 'CS').length;
-  else {
-    for (let c = 0; c < coreCount; c++) {
-      const coreEvents = events
-        .filter((e) => (e.coreId ?? 0) === c)
-        .sort((a, b) => a.start - b.start);
-      for (let i = 0; i < coreEvents.length - 1; i++) {
-        if (
-          coreEvents[i].pid !== coreEvents[i + 1].pid &&
-          coreEvents[i].pid !== 'IDLE' &&
-          coreEvents[i + 1].pid !== 'IDLE'
-        )
-          contextSwitches++;
-      }
-    }
-  }
-
-  let activeTime = 0;
-  let idleTime = 0;
-  events.forEach((e) => {
-    const duration = e.end - e.start;
-    if (e.pid === 'IDLE') idleTime += duration;
-    else if (e.pid !== 'CS') activeTime += duration;
-  });
-
-  const globalMaxTime = events.length > 0 ? Math.max(...events.map((e) => e.end)) : 0;
-  const cpuUtilization = (activeTime / ((globalMaxTime || 1) * coreCount)) * 100;
-
-  const metrics: Metrics = {
-    completion: completionTimes,
-    turnaround: turnaroundTimes,
-    waiting: waitingTimes,
-    avgTurnaround: totalProcesses > 0 ? totalTurnaround / totalProcesses : 0,
-    avgWaiting: totalProcesses > 0 ? totalWaiting / totalProcesses : 0,
-    contextSwitches,
-    cpuUtilization,
-    energy: {
-      totalEnergy:
-        activeTime * energyConfig.activeWatts +
-        idleTime * energyConfig.idleWatts +
-        contextSwitches * energyConfig.switchJoules,
-      activeEnergy: activeTime * energyConfig.activeWatts,
-      idleEnergy: idleTime * energyConfig.idleWatts,
-      switchEnergy: contextSwitches * energyConfig.switchJoules,
-    },
-  };
-
-  if (coreCount === 1)
-    events.forEach((e) => {
-      delete (e as GanttEvent).coreId;
-    });
+  const metrics = calculateMetrics(events, inputProcesses, options);
 
   return {
     events,
     metrics,
     snapshots: generateSnapshots(events, inputProcesses, coreCount),
+    logs: enableLogging ? logs : undefined,
+    stepLogs: enableLogging ? stepLogs : undefined,
   };
 }

@@ -1,5 +1,5 @@
-import { GanttEvent, Metrics, Process, SimulationResult, SimulationOptions } from '../types.js';
-import { generateSnapshots } from './utils.js';
+import { GanttEvent, Process, SimulationResult, SimulationOptions, DecisionLog } from '../types.js';
+import { generateSnapshots, calculateMetrics } from './utils.js';
 
 interface MLFQProcess extends Process {
   remaining: number;
@@ -11,11 +11,24 @@ export function runMLFQ(
   inputProcesses: Process[],
   options: SimulationOptions = {}
 ): SimulationResult {
-  const {
-    contextSwitchOverhead = 0,
-    coreCount = 1,
-    energyConfig = { activeWatts: 20, idleWatts: 5, switchJoules: 0.1 },
-  } = options;
+  const { contextSwitchOverhead = 0, coreCount = 1, enableLogging = false } = options;
+
+  const logs: string[] = [];
+  const stepLogs: DecisionLog[] = [];
+
+  const log = (msg: string) => {
+    if (enableLogging) logs.push(msg);
+  };
+
+  const logDecision = (
+    time: number,
+    coreId: number,
+    message: string,
+    reason: string,
+    queueState: string[]
+  ) => {
+    if (enableLogging) stepLogs.push({ time, coreId, message, reason, queueState });
+  };
 
   const processes: MLFQProcess[] = inputProcesses.map((p) => ({
     ...p,
@@ -30,10 +43,6 @@ export function runMLFQ(
   let completedCount = 0;
   const totalProcesses = processes.length;
   const events: GanttEvent[] = [];
-
-  const completionTimes: Record<string, number> = {};
-  const turnaroundTimes: Record<string, number> = {};
-  const waitingTimes: Record<string, number> = {};
 
   const queues: MLFQProcess[][] = [[], [], []];
   const quantums = [2, 4, Infinity];
@@ -56,6 +65,7 @@ export function runMLFQ(
   while (completedCount < totalProcesses) {
     // 1. Arrivals
     while (pIndex < totalProcesses && processes[pIndex].arrival <= systemTime) {
+      log(`Time ${systemTime}: Process ${processes[pIndex].pid} arrived -> Q0`);
       queues[0].push(processes[pIndex]);
       pIndex++;
     }
@@ -85,11 +95,26 @@ export function runMLFQ(
           if (higherPriorityReady || current.timeInCurrentQuantum >= quantums[currentQueueIdx]) {
             // Preempt or demote
             if (current.timeInCurrentQuantum >= quantums[currentQueueIdx]) {
+              logDecision(
+                systemTime,
+                core.id,
+                `Demoting ${current.pid}`,
+                `Quantum expired in Q${currentQueueIdx}. Moving to Q${Math.min(2, currentQueueIdx + 1)}.`,
+                []
+              );
               queues[currentQueueIdx].shift();
               const nextQueue = Math.min(2, currentQueueIdx + 1);
               current.currentQueue = nextQueue;
               current.timeInCurrentQuantum = 0;
               queues[nextQueue].push(current);
+            } else if (higherPriorityReady) {
+              logDecision(
+                systemTime,
+                core.id,
+                `Preempting ${current.pid}`,
+                `Higher priority process ready.`,
+                []
+              );
             }
             core.currentProcessPid = undefined;
           }
@@ -106,6 +131,13 @@ export function runMLFQ(
             const available = queues[i].filter((p) => !currentlyRunning.includes(p.pid));
             if (available.length > 0) {
               selected = available[0];
+              logDecision(
+                systemTime,
+                core.id,
+                `Selected ${selected.pid}`,
+                `Selected from Q${i} (highest priority available queue).`,
+                available.map((p) => p.pid)
+              );
               break;
             }
           }
@@ -179,9 +211,6 @@ export function runMLFQ(
 
           if (p.remaining <= 0) {
             completedCount++;
-            completionTimes[p.pid] = nextEventTime;
-            turnaroundTimes[p.pid] = nextEventTime - p.arrival;
-            waitingTimes[p.pid] = turnaroundTimes[p.pid] - p.burst;
             core.currentProcessPid = undefined;
             queues[p.currentQueue].shift();
           }
@@ -203,66 +232,13 @@ export function runMLFQ(
     systemTime = Math.round(systemTime * 100) / 100;
   }
 
-  const totalTurnaround = Object.values(turnaroundTimes).reduce((sum, val) => sum + val, 0);
-  const totalWaiting = Object.values(waitingTimes).reduce((sum, val) => sum + val, 0);
-
-  let contextSwitches = 0;
-  if (contextSwitchOverhead > 0) contextSwitches = events.filter((e) => e.pid === 'CS').length;
-  else {
-    for (let c = 0; c < coreCount; c++) {
-      const coreEvents = events
-        .filter((e) => (e.coreId ?? 0) === c)
-        .sort((a, b) => a.start - b.start);
-      for (let i = 0; i < coreEvents.length - 1; i++) {
-        if (
-          coreEvents[i].pid !== coreEvents[i + 1].pid &&
-          coreEvents[i].pid !== 'IDLE' &&
-          coreEvents[i + 1].pid !== 'IDLE'
-        )
-          contextSwitches++;
-      }
-    }
-  }
-
-  let activeTime = 0;
-  let idleTime = 0;
-  events.forEach((e) => {
-    const duration = e.end - e.start;
-    if (e.pid === 'IDLE') idleTime += duration;
-    else if (e.pid !== 'CS') activeTime += duration;
-  });
-
-  const globalMaxTime = events.length > 0 ? Math.max(...events.map((e) => e.end)) : 0;
-  const totalTime = globalMaxTime > 0 ? globalMaxTime : 1;
-  const cpuUtilization = (activeTime / (totalTime * coreCount)) * 100;
-
-  const metrics: Metrics = {
-    completion: completionTimes,
-    turnaround: turnaroundTimes,
-    waiting: waitingTimes,
-    avgTurnaround: totalProcesses > 0 ? totalTurnaround / totalProcesses : 0,
-    avgWaiting: totalProcesses > 0 ? totalWaiting / totalProcesses : 0,
-    contextSwitches,
-    cpuUtilization,
-    energy: {
-      totalEnergy:
-        activeTime * energyConfig.activeWatts +
-        idleTime * energyConfig.idleWatts +
-        contextSwitches * energyConfig.switchJoules,
-      activeEnergy: activeTime * energyConfig.activeWatts,
-      idleEnergy: idleTime * energyConfig.idleWatts,
-      switchEnergy: contextSwitches * energyConfig.switchJoules,
-    },
-  };
-
-  if (coreCount === 1)
-    events.forEach((e) => {
-      delete (e as GanttEvent).coreId;
-    });
+  const metrics = calculateMetrics(events, inputProcesses, options);
 
   return {
     events,
     metrics,
     snapshots: generateSnapshots(events, inputProcesses, coreCount),
+    logs: enableLogging ? logs : undefined,
+    stepLogs: enableLogging ? stepLogs : undefined,
   };
 }

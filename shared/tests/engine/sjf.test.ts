@@ -35,8 +35,8 @@ describe('SJF (Shortest Job First - Non-Preemptive)', () => {
     // P1 starts at 0. Since it's non-preemptive, it runs until 10.
     // P2 runs after P1.
 
-    expect(events[0]).toEqual({ pid: 'P1', start: 0, end: 10 });
-    expect(events[1]).toEqual({ pid: 'P2', start: 10, end: 12 });
+    expect(events[0]).toEqual({ pid: 'P1', start: 0, end: 10, coreId: 0 });
+    expect(events[1]).toEqual({ pid: 'P2', start: 10, end: 12, coreId: 0 });
   });
 
   it('should handle idle time', () => {

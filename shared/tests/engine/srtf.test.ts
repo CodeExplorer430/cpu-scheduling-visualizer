@@ -19,9 +19,9 @@ describe('SRTF (Shortest Remaining Time First - Preemptive SJF)', () => {
     // t=4: P2 done. Ready=[P1(8)]. Resume P1.
     // t=12: P1 done.
 
-    expect(events[0]).toEqual({ pid: 'P1', start: 0, end: 2 });
-    expect(events[1]).toEqual({ pid: 'P2', start: 2, end: 4 });
-    expect(events[2]).toEqual({ pid: 'P1', start: 4, end: 12 });
+    expect(events[0]).toEqual({ pid: 'P1', start: 0, end: 2, coreId: 0 });
+    expect(events[1]).toEqual({ pid: 'P2', start: 2, end: 4, coreId: 0 });
+    expect(events[2]).toEqual({ pid: 'P1', start: 4, end: 12, coreId: 0 });
   });
 
   it('should not preempt if arriving job is longer than remaining time', () => {
@@ -36,7 +36,7 @@ describe('SRTF (Shortest Remaining Time First - Preemptive SJF)', () => {
     // P1 runs 0-5 uninterrupted.
     // P2 runs 5-15.
 
-    expect(events[0]).toEqual({ pid: 'P1', start: 0, end: 5 });
-    expect(events[1]).toEqual({ pid: 'P2', start: 5, end: 15 });
+    expect(events[0]).toEqual({ pid: 'P1', start: 0, end: 5, coreId: 0 });
+    expect(events[1]).toEqual({ pid: 'P2', start: 5, end: 15, coreId: 0 });
   });
 });

@@ -1,23 +1,11 @@
-import {
-  GanttEvent,
-  Metrics,
-  Process,
-  SimulationResult,
-  SimulationOptions,
-  DecisionLog,
-} from '../types.js';
-import { generateSnapshots } from './utils.js';
+import { GanttEvent, Process, SimulationResult, SimulationOptions, DecisionLog } from '../types.js';
+import { generateSnapshots, calculateMetrics } from './utils.js';
 
 export function runLJF(
   inputProcesses: Process[],
   options: SimulationOptions = {}
 ): SimulationResult {
-  const {
-    contextSwitchOverhead = 0,
-    enableLogging = false,
-    coreCount = 1,
-    energyConfig = { activeWatts: 20, idleWatts: 5, switchJoules: 0.1 },
-  } = options;
+  const { contextSwitchOverhead = 0, enableLogging = false, coreCount = 1 } = options;
 
   const logs: string[] = [];
   const stepLogs: DecisionLog[] = [];
@@ -41,10 +29,6 @@ export function runLJF(
   processes.sort((a, b) => a.arrival - b.arrival);
 
   const events: GanttEvent[] = [];
-  const completionTimes: Record<string, number> = {};
-  const turnaroundTimes: Record<string, number> = {};
-  const waitingTimes: Record<string, number> = {};
-
   const readyQueue: Process[] = [];
   let pIndex = 0;
   let completedCount = 0;
@@ -123,11 +107,6 @@ export function runLJF(
         core.lastPid = currentProcess.pid;
         completedCount++;
         assignedThisStep = true;
-
-        completionTimes[currentProcess.pid] = end;
-        turnaroundTimes[currentProcess.pid] = end - currentProcess.arrival;
-        waitingTimes[currentProcess.pid] =
-          turnaroundTimes[currentProcess.pid] - currentProcess.burst;
       }
     }
 
@@ -165,62 +144,7 @@ export function runLJF(
     systemTime = Math.round(systemTime * 100) / 100;
   }
 
-  // Aggregate metrics
-  const totalTurnaround = Object.values(turnaroundTimes).reduce((sum, val) => sum + val, 0);
-  const totalWaiting = Object.values(waitingTimes).reduce((sum, val) => sum + val, 0);
-
-  let contextSwitches = 0;
-  if (contextSwitchOverhead > 0) {
-    contextSwitches = events.filter((e) => e.pid === 'CS').length;
-  } else {
-    for (let c = 0; c < coreCount; c++) {
-      const coreEvents = events
-        .filter((e) => (e.coreId ?? 0) === c)
-        .sort((a, b) => a.start - b.start);
-      for (let i = 0; i < coreEvents.length - 1; i++) {
-        if (
-          coreEvents[i].pid !== coreEvents[i + 1].pid &&
-          coreEvents[i].pid !== 'IDLE' &&
-          coreEvents[i + 1].pid !== 'IDLE'
-        ) {
-          contextSwitches++;
-        }
-      }
-    }
-  }
-
-  let activeTime = 0;
-  let idleTime = 0;
-  events.forEach((e) => {
-    const duration = e.end - e.start;
-    if (e.pid === 'IDLE') idleTime += duration;
-    else if (e.pid !== 'CS') activeTime += duration;
-  });
-
-  const globalMaxTime = events.length > 0 ? Math.max(...events.map((e) => e.end)) : 0;
-  const totalTime = globalMaxTime > 0 ? globalMaxTime : 1;
-  const cpuUtilization = (activeTime / (totalTime * coreCount)) * 100;
-
-  const metrics: Metrics = {
-    completion: completionTimes,
-    turnaround: turnaroundTimes,
-    waiting: waitingTimes,
-    avgTurnaround: totalProcesses > 0 ? totalTurnaround / totalProcesses : 0,
-    avgWaiting: totalProcesses > 0 ? totalWaiting / totalProcesses : 0,
-    contextSwitches,
-    cpuUtilization,
-    energy: {
-      totalEnergy:
-        activeTime * energyConfig.activeWatts +
-        idleTime * energyConfig.idleWatts +
-        contextSwitches * energyConfig.switchJoules,
-      activeEnergy: activeTime * energyConfig.activeWatts,
-      idleEnergy: idleTime * energyConfig.idleWatts,
-      switchEnergy: contextSwitches * energyConfig.switchJoules,
-    },
-  };
-
-  if (coreCount === 1) events.forEach((e) => delete e.coreId);
+  const metrics = calculateMetrics(events, inputProcesses, options);
 
   return {
     events,
