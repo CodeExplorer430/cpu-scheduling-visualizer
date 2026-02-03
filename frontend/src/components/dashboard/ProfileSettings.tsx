@@ -87,7 +87,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ mode }) => {
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:text-white"
+            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 dark:text-white"
             required
           />
         </div>
@@ -100,7 +100,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ mode }) => {
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             rows={4}
-            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:text-white"
+            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 dark:text-white"
             placeholder={t('dashboard.bioPlaceholder')}
           />
           <p className="mt-2 text-xs text-gray-500">{t('dashboard.bioLimit')}</p>

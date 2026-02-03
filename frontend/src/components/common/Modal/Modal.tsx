@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
 // Headless UI is typically used for accessible modals, but since it wasn't in the original package.json,
@@ -23,12 +24,40 @@ export const Modal: React.FC<ModalProps> = ({
   footer,
   maxWidth = 'max-w-2xl',
 }) => {
-  if (!isOpen) return null;
+  const [mounted, setMounted] = useState(false);
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
+    }
+    
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen || !mounted) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+      {/* Backdrop click handler */}
+      <div className="absolute inset-0" onClick={onClose} aria-hidden="true" />
+      
       <div
-        className={`bg-white dark:bg-gray-800 p-6 rounded-lg shadow-2xl w-full ${maxWidth} max-h-[90vh] flex flex-col transform transition-all scale-100`}
+        className={`bg-white dark:bg-gray-800 p-6 rounded-lg shadow-2xl w-full ${maxWidth} max-h-[90vh] flex flex-col transform transition-all scale-100 relative z-10`}
         role="dialog"
         aria-modal="true"
       >
@@ -51,6 +80,7 @@ export const Modal: React.FC<ModalProps> = ({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
