@@ -46,11 +46,9 @@ describe('TutorialModal Component', () => {
   it('calls onClose when clicking X', () => {
     renderWithTheme(<TutorialModal isOpen={true} onClose={onClose} />);
 
-    // Heroicons usually render as svgs, we might need a test-id or better role
-    // But Headless UI Dialog has a close button we added
-    const closeBtn = screen.getByRole('button', { name: '' }); // The X button has no text
-    // Actually our X button has no aria-label. Let's find by tag or fix it later.
-    // For now, let's just assume it's one of the buttons.
-    // The finish/next/back buttons have text.
+    const closeBtn = screen.getByRole('button', { name: 'Close' });
+    fireEvent.click(closeBtn);
+
+    expect(onClose).toHaveBeenCalled();
   });
 });
