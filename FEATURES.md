@@ -337,10 +337,3 @@ export interface SimulationResult {
 - Implement a `normalizeInput(processes)` util to sanitize inputs (negative numbers, duplicates, etc.).
 
 ---
-
-If you want, I can next:
-
-- scaffold the workspace `package.json` + `pnpm-workspace.yaml` and `shared` engine stubs, or
-- generate the full `frontend` file tree with starter code for FCFS + a minimal Gantt component.
-
-Tell me which you'd like me to generate next and I will produce the files/code.

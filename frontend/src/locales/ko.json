@@ -244,5 +244,65 @@
     "traceError": "Failed to load trace: {{error}}",
     "svgNotFound": "SVG not found",
     "optimalQuantum": "Optimal Quantum found: {{quantum}} (Wait: {{wait}}, Switches: {{switches}})"
+  },
+  "guidePage": {
+    "tabs": {
+      "platform": "Platform Guide",
+      "algorithms": "Algorithms & Traces"
+    },
+    "algo": {
+      "intro": "Detailed breakdown of all supported CPU scheduling algorithms and their behaviors.",
+      "fcfs": {
+        "title": "First-Come, First-Served (FCFS)",
+        "desc": "Non-preemptive. Executes processes in the order they arrive. Simple but suffers from the Convoy Effect."
+      },
+      "sjf": {
+        "title": "Shortest Job First (SJF)",
+        "desc": "Non-preemptive. Selects the process with the shortest burst time. Minimizes average waiting time but can cause starvation for long processes."
+      },
+      "srtf": {
+        "title": "Shortest Remaining Time First (SRTF)",
+        "desc": "Preemptive version of SJF. If a new process arrives with a shorter burst than the current remaining time, it preempts the CPU."
+      },
+      "rr": {
+        "title": "Round Robin (RR)",
+        "desc": "Preemptive. Each process gets a small unit of time (Time Quantum). Designed for time-sharing systems to ensure responsiveness."
+      },
+      "priority": {
+        "title": "Priority (Non-Preemptive)",
+        "desc": "Selects the process with the highest priority (lowest number). Once started, it runs to completion."
+      },
+      "priority_pe": {
+        "title": "Priority (Preemptive)",
+        "desc": "Similar to Priority, but a running process will be preempted if a higher priority process arrives."
+      },
+      "ljf": {
+        "title": "Longest Job First (LJF)",
+        "desc": "Non-preemptive. Selects the process with the longest burst time. Generally inefficient for average waiting time."
+      },
+      "lrtf": {
+        "title": "Longest Remaining Time First (LRTF)",
+        "desc": "Preemptive version of LJF. CPU is switched to the process with the largest remaining time."
+      },
+      "hrrn": {
+        "title": "Highest Response Ratio Next (HRRN)",
+        "desc": "Non-preemptive. Selects based on Response Ratio = (Wait + Burst) / Burst. Prevents starvation by increasing priority as processes wait."
+      },
+      "mq": {
+        "title": "Multilevel Queue (MQ)",
+        "desc": "Maintains separate queues (e.g., Foreground RR, Background FCFS). Processes are permanently assigned to a queue."
+      },
+      "mlfq": {
+        "title": "Multilevel Feedback Queue (MLFQ)",
+        "desc": "Processes can move between queues based on behavior. CPU-bound processes drop to lower priority queues; I/O-bound stay high."
+      }
+    },
+    "trace": {
+      "title": "Trace Logs Support",
+      "desc": "Import real-world operating system traces to visualize actual scheduling behavior.",
+      "formats": "Supported Formats:",
+      "json": "Quantix Native JSON & Chrome Trace Event Format",
+      "ftrace": "Linux Ftrace (sched_switch events text output)"
+    }
   }
 }
