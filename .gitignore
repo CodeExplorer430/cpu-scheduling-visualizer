@@ -33,3 +33,6 @@ pnpm-debug.log*
 
 # OS
 Thumbs.db
+
+*storybook.log
+storybook-static

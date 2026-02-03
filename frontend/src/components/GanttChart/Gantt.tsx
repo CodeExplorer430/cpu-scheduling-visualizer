@@ -129,7 +129,7 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
         .attr('class', 'bar')
         .attr('x', (d) => xScale(d.start))
         .attr('y', 0)
-        .attr('width', (d) => xScale(d.end) - xScale(d.start))
+        .attr('width', (d) => Math.max(1, xScale(d.end) - xScale(d.start))) // Ensure min width of 1px for visibility
         .attr('height', CHART_CONSTANTS.ROW_HEIGHT)
         .attr('fill', (d) => {
           if (d.pid === 'IDLE') return idleColor;
@@ -138,7 +138,18 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
         })
         .attr('stroke', isDarkMode ? '#1f2937' : '#fff') // Dark bg or White
         .attr('stroke-width', 1)
-        .attr('opacity', (d) => (currentTime !== undefined && d.start >= currentTime ? 0.2 : 1));
+        .attr('opacity', (d) => (currentTime !== undefined && d.start >= currentTime ? 0.2 : 1))
+        .attr('cursor', 'pointer'); // Indicate interactivity
+
+      // Add keyboard focus styling (D3 doesn't handle pseudo-classes easily, usually CSS is better)
+      // We'll rely on global CSS or Tailwind's focus-visible if possible, but D3 needs a class.
+      // Let's rely on standard browser outline for now.
+
+      // Add click handler for potential future details view
+      bars.on('click', (event, d) => {
+        // Dispatch a custom event or log for now. In a real app, this could open a modal.
+        console.log('Clicked process:', d);
+      });
 
       // Add title for hover tooltip (native browser behavior)
       bars.append('title').text((d) => `${d.pid} (${d.start} - ${d.end})`);
