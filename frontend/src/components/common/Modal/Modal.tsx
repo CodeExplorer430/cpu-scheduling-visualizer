@@ -36,13 +36,13 @@ export const Modal: React.FC<ModalProps> = ({
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
-    
+
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
       // Prevent body scroll when modal is open
       document.body.style.overflow = 'hidden';
     }
-    
+
     return () => {
       document.removeEventListener('keydown', handleEscape);
       document.body.style.overflow = 'unset';
@@ -55,7 +55,7 @@ export const Modal: React.FC<ModalProps> = ({
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       {/* Backdrop click handler */}
       <div className="absolute inset-0" onClick={onClose} aria-hidden="true" />
-      
+
       <div
         className={`bg-white dark:bg-gray-800 p-6 rounded-lg shadow-2xl w-full ${maxWidth} max-h-[90vh] flex flex-col transform transition-all scale-100 relative z-10`}
         role="dialog"

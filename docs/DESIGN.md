@@ -16,25 +16,25 @@ graph TD
     Layout --> Header
     Layout --> MainContent
     Layout --> Footer
-    
+
     MainContent --> Playground
     MainContent --> Dashboard
     MainContent --> Compare
-    
+
     Playground --> SimulationControls
     Playground --> ProcessTable
     Playground --> Gantt
     Playground --> Stepper
     Playground --> Metrics
-    
+
     ProcessTable --> ScenarioManager
     ScenarioManager --> SaveScenarioModal
     ScenarioManager --> LoadScenarioModal
-    
+
     Dashboard --> SavedScenarios
     Dashboard --> AnalyticsDashboard
     Dashboard --> ProfileSettings
-    
+
     Compare --> ComparisonSettings
     Compare --> ComparisonResults
     ComparisonResults --> Gantt
@@ -94,11 +94,11 @@ classDiagram
     class MLFQ {
         +execute()
     }
-    
+
     Scheduler <|-- FCFS
     Scheduler <|-- RR
     Scheduler <|-- MLFQ
-    
+
     class SimulationResult {
         +events: GanttEvent[]
         +metrics: Metrics
@@ -109,17 +109,17 @@ classDiagram
 ## Key Design Decisions
 
 1.  **Client-Side Simulation**:
-    - *Decision*: Run individual simulations in the browser.
-    - *Reasoning*: Immediate feedback loop for the user without network latency. CPU scheduling algorithms are computationally light enough for modern browsers for typical inputs (N < 100).
+    - _Decision_: Run individual simulations in the browser.
+    - _Reasoning_: Immediate feedback loop for the user without network latency. CPU scheduling algorithms are computationally light enough for modern browsers for typical inputs (N < 100).
 
 2.  **Shared Library (`@cpu-vis/shared`)**:
-    - *Decision*: Extract logic into a shared workspace.
-    - *Reasoning*: Allows the same algorithms to be used by the Frontend (interactive) and Backend (batch processing/validation) without code duplication.
+    - _Decision_: Extract logic into a shared workspace.
+    - _Reasoning_: Allows the same algorithms to be used by the Frontend (interactive) and Backend (batch processing/validation) without code duplication.
 
 3.  **D3.js for Visualization**:
-    - *Decision*: Use D3.js wrapped in React components.
-    - *Reasoning*: Provides fine-grained control over the Gantt chart rendering (SVG) which is difficult to achieve with standard charting libraries like Chart.js.
+    - _Decision_: Use D3.js wrapped in React components.
+    - _Reasoning_: Provides fine-grained control over the Gantt chart rendering (SVG) which is difficult to achieve with standard charting libraries like Chart.js.
 
 4.  **Magic Link Auth**:
-    - *Decision*: Implement passwordless login.
-    - *Reasoning*: Reduces friction for student adoption.
+    - _Decision_: Implement passwordless login.
+    - _Reasoning_: Reduces friction for student adoption.

@@ -43,7 +43,7 @@ export const ComparisonResults: React.FC<Props> = ({ results, algorithms }) => {
           if (container) {
             container.style.width = '1280px';
             // Ensure no overflow hiding prevents full capture
-            container.style.overflow = 'visible'; 
+            container.style.overflow = 'visible';
           }
         },
       });

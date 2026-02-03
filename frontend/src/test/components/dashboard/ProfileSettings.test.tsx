@@ -7,7 +7,7 @@ import { ThemeProvider } from '../../../context/ThemeContext';
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -23,7 +23,7 @@ const mockUser = {
   id: '1',
   username: 'testuser',
   email: 'test@example.com',
-  profile: { bio: 'Hello' }
+  profile: { bio: 'Hello' },
 };
 
 const mockUpdateUser = vi.fn();
@@ -31,15 +31,17 @@ const mockUpdateUser = vi.fn();
 const renderWithContext = (component: React.ReactNode) => {
   return render(
     <ThemeProvider>
-      <AuthContext.Provider value={{ 
-        user: mockUser, 
-        token: 'token', 
-        isAuthenticated: true,
-        login: vi.fn(), 
-        logout: vi.fn(), 
-        updateUser: mockUpdateUser, 
-        isLoading: false 
-      }}>
+      <AuthContext.Provider
+        value={{
+          user: mockUser,
+          token: 'token',
+          isAuthenticated: true,
+          login: vi.fn(),
+          logout: vi.fn(),
+          updateUser: mockUpdateUser,
+          isLoading: false,
+        }}
+      >
         {component}
       </AuthContext.Provider>
     </ThemeProvider>
@@ -49,7 +51,7 @@ const renderWithContext = (component: React.ReactNode) => {
 describe('ProfileSettings', () => {
   it('renders profile inputs with correct padding class', () => {
     renderWithContext(<ProfileSettings mode="profile" />);
-    
+
     const usernameInput = screen.getByDisplayValue('testuser');
     const bioInput = screen.getByDisplayValue('Hello');
 
@@ -61,22 +63,25 @@ describe('ProfileSettings', () => {
   it('updates profile on submit', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ ...mockUser, username: 'newname' })
+      json: async () => ({ ...mockUser, username: 'newname' }),
     });
 
     renderWithContext(<ProfileSettings mode="profile" />);
-    
+
     const usernameInput = screen.getByDisplayValue('testuser');
     fireEvent.change(usernameInput, { target: { value: 'newname' } });
-    
+
     const submitBtn = screen.getByText('common.saveChanges'); // Translation key
     fireEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith('/api/user/profile', expect.objectContaining({
-        method: 'PATCH',
-        body: JSON.stringify({ username: 'newname', bio: 'Hello' })
-      }));
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/user/profile',
+        expect.objectContaining({
+          method: 'PATCH',
+          body: JSON.stringify({ username: 'newname', bio: 'Hello' }),
+        })
+      );
     });
   });
 });

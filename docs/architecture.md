@@ -7,7 +7,7 @@ C4Context
     title System Context Diagram for Quantix
 
     Person(user, "User", "Student or Educator")
-    
+
     System_Boundary(quantix, "Quantix System") {
         Container(web_app, "Frontend Application", "React, Vite, Vercel", "Provides interactive simulation and visualization.")
         Container(api, "Backend API", "Node.js, Express, Render", "Handles persistence, auth, and heavy computations.")
@@ -49,16 +49,16 @@ graph TD
         subgraph Vercel
             Frontend[React Frontend]
         end
-        
+
         subgraph Render
             Backend[Node.js Backend Container]
         end
-        
+
         subgraph Atlas
             DB[(MongoDB Cluster)]
         end
     end
-    
+
     User[Client Browser] -->|HTTPS| Frontend
     Frontend -->|API / HTTPS| Backend
     Backend -->|Mongoose| DB

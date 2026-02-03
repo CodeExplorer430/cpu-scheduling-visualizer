@@ -3,10 +3,15 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
 import { VitePWA } from 'vite-plugin-pwa';
+import Sitemap from 'vite-plugin-sitemap';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     react(),
+    Sitemap({
+      hostname: 'https://quantix-cpu.vercel.app',
+      dynamicRoutes: ['/', '/compare', '/autograder', '/about', '/guide', '/dashboard'],
+    }),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['logo.svg', 'logo-192.png', 'logo-512.png', 'favicon.ico'],

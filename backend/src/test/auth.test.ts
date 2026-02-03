@@ -64,9 +64,7 @@ describe('Auth API Tests', () => {
 
   describe('Magic Link Tests', () => {
     it('POST /api/auth/magic-link should send link', async () => {
-      const res = await request(app)
-        .post('/api/auth/magic-link')
-        .send({ email: testUser.email });
+      const res = await request(app).post('/api/auth/magic-link').send({ email: testUser.email });
 
       expect(res.status).toBe(200);
       expect(res.body.message).toMatch(/sent/i);
@@ -75,11 +73,9 @@ describe('Auth API Tests', () => {
     it('POST /api/auth/magic-link/verify should authenticate with valid token', async () => {
       // Create a valid token manually since we can't intercept the email/console
       const user = await User.findOne({ email: testUser.email });
-      const magicToken = jwt.sign(
-        { userId: user?._id, type: 'magic_link' },
-        JWT_SECRET,
-        { expiresIn: '15m' }
-      );
+      const magicToken = jwt.sign({ userId: user?._id, type: 'magic_link' }, JWT_SECRET, {
+        expiresIn: '15m',
+      });
 
       const res = await request(app)
         .post('/api/auth/magic-link/verify')

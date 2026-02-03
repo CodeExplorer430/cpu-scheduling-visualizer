@@ -31,11 +31,19 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
 
     // Check for dark mode via theme context
     const isDarkMode = theme === 'dark';
-    const axisColor = isDarkMode ? CHART_CONSTANTS.AXIS_COLOR_DARK : CHART_CONSTANTS.AXIS_COLOR_LIGHT;
-    const gridColor = isDarkMode ? CHART_CONSTANTS.GRID_COLOR_DARK : CHART_CONSTANTS.GRID_COLOR_LIGHT;
-    const idleColor = isDarkMode ? CHART_CONSTANTS.IDLE_COLOR_DARK : CHART_CONSTANTS.IDLE_COLOR_LIGHT;
+    const axisColor = isDarkMode
+      ? CHART_CONSTANTS.AXIS_COLOR_DARK
+      : CHART_CONSTANTS.AXIS_COLOR_LIGHT;
+    const gridColor = isDarkMode
+      ? CHART_CONSTANTS.GRID_COLOR_DARK
+      : CHART_CONSTANTS.GRID_COLOR_LIGHT;
+    const idleColor = isDarkMode
+      ? CHART_CONSTANTS.IDLE_COLOR_DARK
+      : CHART_CONSTANTS.IDLE_COLOR_LIGHT;
     const idleTextColor = axisColor;
-    const switchBlockColor = isDarkMode ? CHART_CONSTANTS.SWITCH_BLOCK_COLOR_DARK : CHART_CONSTANTS.SWITCH_BLOCK_COLOR_LIGHT;
+    const switchBlockColor = isDarkMode
+      ? CHART_CONSTANTS.SWITCH_BLOCK_COLOR_DARK
+      : CHART_CONSTANTS.SWITCH_BLOCK_COLOR_LIGHT;
 
     // Determine Cores
     const coreIds = getCoreIds(events);

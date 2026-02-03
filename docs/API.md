@@ -50,6 +50,7 @@ All protected routes require a Bearer Token.
 ### 4. Magic Link
 
 #### Request Link
+
 - **Endpoint**: `POST /auth/magic-link`
 - **Body**:
   ```json
@@ -60,6 +61,7 @@ All protected routes require a Bearer Token.
 - **Description**: Sends a login link to the user's email (or logs to console in development).
 
 #### Verify Link
+
 - **Endpoint**: `POST /auth/magic-link/verify`
 - **Body**:
   ```json
