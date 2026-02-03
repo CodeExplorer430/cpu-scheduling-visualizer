@@ -14,7 +14,9 @@
     "build": "npm run build --workspaces",
     "dev:frontend": "npm run dev -w frontend",
     "dev:backend": "npm run dev -w backend",
-    "postinstall": "npm run build -w shared"
+    "postinstall": "npm run build -w shared",
+    "build-storybook": "npm run build-storybook -w frontend",
+    "chromatic": "npx chromatic --project-token=chpt_d8e726f28427857"
   },
   "keywords": [
     "cpu-scheduling",
