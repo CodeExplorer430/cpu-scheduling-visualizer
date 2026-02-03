@@ -37,27 +37,55 @@ const SEO: React.FC<SEOProps> = ({
   const seoTitle = title ? `${title} | ${name}` : defaultTitle;
   const seoDescription = description || defaultDescription;
 
-  // Supported languages for hreflang
-  const supportedLanguages = ['ar', 'de', 'en', 'es', 'fil', 'fr', 'hi', 'ja', 'ko', 'pt', 'zh'];
+  // Keywords for the application
+  const keywords = [
+    'CPU scheduling',
+    'algorithm visualizer',
+    'operating systems',
+    'process scheduling',
+    'FCFS',
+    'Round Robin',
+    'SJF',
+    'SRTF',
+    'MLFQ',
+    'Gantt chart',
+    'computer science education',
+    'interactive simulation',
+    'quantix',
+  ].join(', ');
+
+  // Breadcrumb Structured Data
+  const breadcrumbList = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: baseUrl,
+      },
+      ...(location.pathname !== '/'
+        ? [
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: seoTitle.split('|')[0].trim(),
+              item: canonicalUrl,
+            },
+          ]
+        : []),
+    ],
+  };
 
   return (
     <Helmet>
       {/* Standard metadata tags */}
       <title>{seoTitle}</title>
       <meta name="description" content={seoDescription} />
+      <meta name="keywords" content={keywords} />
       <link rel="canonical" href={canonicalUrl} />
       <html lang={currentLanguage} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'} />
-
-      {/* hreflang tags for international SEO */}
-      {supportedLanguages.map((lang) => (
-        <link
-          key={lang}
-          rel="alternate"
-          hrefLang={lang}
-          href={`${baseUrl}${location.pathname}`} // Ideally, localized URLs if they exist
-        />
-      ))}
-      <link rel="alternate" hrefLang="x-default" href={`${baseUrl}${location.pathname}`} />
 
       {/* Open Graph / Facebook tags */}
       <meta property="og:type" content={type} />
@@ -75,6 +103,8 @@ const SEO: React.FC<SEOProps> = ({
       <meta name="twitter:image" content={`${baseUrl}${image}`} />
 
       {/* Structured Data (JSON-LD) */}
+      <script type="application/ld+json">{JSON.stringify(breadcrumbList)}</script>
+
       <script type="application/ld+json">
         {JSON.stringify({
           '@context': 'https://schema.org',
