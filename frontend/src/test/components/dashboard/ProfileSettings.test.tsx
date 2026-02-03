@@ -63,6 +63,7 @@ describe('ProfileSettings', () => {
   it('updates profile on submit', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
+      headers: { get: () => 'application/json' },
       json: async () => ({ ...mockUser, username: 'newname' }),
     });
 

@@ -35,8 +35,8 @@ describe('Compare Page', () => {
   it('renders title and process table', () => {
     renderWithProviders(<Compare processes={mockProcesses} onProcessesChange={mockSetProcesses} />);
 
-    expect(screen.getByText('nav.compare')).toBeInTheDocument();
-    expect(screen.getByText('P1')).toBeInTheDocument();
+    expect(screen.getByText('compare.title')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('P1')).toBeInTheDocument();
   });
 
   // Note: Export functionality (PNG/PDF) relies on html2canvas and DOM layout
