@@ -21,7 +21,7 @@ export interface TestCase {
     avgTurnaround?: number;
     avgWaiting?: number;
     totalTime?: number;
-    // We can add stricter checks like execution order later
+    expectedSchedule?: string[]; // Sequence of PIDs
   };
 }
 
@@ -39,6 +39,7 @@ export interface TestResult {
   diff?: {
     turnaroundDiff: number;
     waitingDiff: number;
+    scheduleMismatch?: string;
   };
   error?: string;
 }
@@ -85,7 +86,7 @@ export const runAutoGrader = (testCases: TestCase[]): AutoGradeReport => {
       const actualWT = result.metrics.avgWaiting;
 
       let passed = true;
-      const diff = { turnaroundDiff: 0, waitingDiff: 0 };
+      const diff: TestResult['diff'] = { turnaroundDiff: 0, waitingDiff: 0 };
 
       if (testCase.expected) {
         if (testCase.expected.avgTurnaround !== undefined) {
@@ -98,6 +99,27 @@ export const runAutoGrader = (testCases: TestCase[]): AutoGradeReport => {
           const expectedWT = testCase.expected.avgWaiting;
           if (Math.abs(actualWT - expectedWT) > 0.01) passed = false;
           diff.waitingDiff = actualWT - expectedWT;
+        }
+        
+        // Strict Schedule Validation
+        if (testCase.expected.expectedSchedule) {
+            // Extract actual schedule sequence (ignoring duplicates if contiguous? No, exact events sequence usually matters for slices)
+            // But engine might merge events or split them.
+            // Let's rely on the sequence of PIDs in the events list, filtering out IDLE/CS.
+            const actualSchedule = result.events
+                .filter(e => e.pid !== 'IDLE' && e.pid !== 'CS')
+                .map(e => e.pid);
+            
+            // Compare arrays
+            const expectedSchedule = testCase.expected.expectedSchedule;
+            const isScheduleMatch = 
+                actualSchedule.length === expectedSchedule.length && 
+                actualSchedule.every((pid, i) => pid === expectedSchedule[i]);
+            
+            if (!isScheduleMatch) {
+                passed = false;
+                diff.scheduleMismatch = `Expected [${expectedSchedule.join(', ')}] but got [${actualSchedule.join(', ')}]`;
+            }
         }
       }
 

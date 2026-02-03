@@ -1,262 +1,153 @@
-import React from 'react';
-import { BookOpenIcon } from '@heroicons/react/24/outline';
-import { Modal } from '../common/Modal/Modal';
-import { Button } from '../common/Button/Button';
+import React, { useState } from 'react';
+import { Dialog } from '@headlessui/react';
+import { 
+  XMarkIcon, 
+  LightBulbIcon, 
+  ChevronRightIcon,
+  ChevronLeftIcon,
+  PlayCircleIcon,
+  PauseCircleIcon
+} from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
 }
 
+interface TutorialStep {
+  title: string;
+  description: string;
+  image?: string; // Placeholder for future diagram support
+}
+
+const STEPS: TutorialStep[] = [
+  {
+    title: 'Welcome to Quantix',
+    description: 'This interactive tutorial will guide you through the core concepts of CPU scheduling algorithms. Learn how processes are managed, executed, and prioritized by the operating system.'
+  },
+  {
+    title: 'Processes & The Ready Queue',
+    description: 'A process is a program in execution. In our visualizer, processes waiting for CPU time are placed in the "Ready Queue". Algorithms decide WHICH process from this queue runs next.'
+  },
+  {
+    title: 'The Gantt Chart',
+    description: 'The timeline below is a Gantt Chart. It visualizes the execution order. Blocks represent time slices given to processes. "CS" blocks represent Context Switching overhead.'
+  },
+  {
+    title: 'First-Come, First-Served (FCFS)',
+    description: 'The simplest algorithm. Processes are executed in the exact order they arrive. Great for simplicity, but can lead to the "Convoy Effect" where short processes wait behind long ones.'
+  },
+  {
+    title: 'Round Robin (RR)',
+    description: 'Designed for fair sharing. Each process gets a fixed "Time Quantum" (e.g., 2ms). If it doesn\'t finish, it moves to the back of the queue. Try adjusting the Quantum slider!'
+  },
+  {
+    title: 'Shortest Job First (SJF)',
+    description: 'Optimizes for minimum waiting time. The process with the shortest burst time runs first. However, long processes may starve if short ones keep arriving.'
+  },
+  {
+    title: 'Step-by-Step Execution',
+    description: 'Use the "Step Forward" button to see exactly why an algorithm made a decision. The "Decision Log" panel will explain the logic (e.g., "Selected P1 because priority is highest").'
+  }
+];
+
 export const TutorialModal: React.FC<Props> = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const handleNext = () => {
+    if (currentStep < STEPS.length - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      onClose();
+      setCurrentStep(0);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const step = STEPS[currentStep];
+
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={
-        <>
-          <BookOpenIcon className="w-8 h-8 text-blue-600" />
-          CPU Scheduling Guide
-        </>
-      }
-      footer={
-        <Button variant="secondary" onClick={onClose}>
-          Close
-        </Button>
-      }
-    >
-      <div className="space-y-4 text-gray-700 dark:text-gray-300">
-        <section>
-          <h3 className="text-lg font-bold text-blue-600 dark:text-blue-400">
-            FCFS (First-Come, First-Served)
-          </h3>
-          <p className="text-sm">
-            The simplest algorithm. Processes are executed in the order they arrive. Non-preemptive.
-            <br />
-            <em>Pros:</em> Simple, fair.
-            <br />
-            <em>Cons:</em> Convoy effect (short process waits for long process).
-          </p>
-        </section>
-
-        <section>
-          <h3 className="text-lg font-bold text-green-600 dark:text-green-400">
-            SJF (Shortest Job First)
-          </h3>
-          <p className="text-sm">
-            Selects the waiting process with the smallest execution time. Non-preemptive.
-            <br />
-            <em>Pros:</em> Minimizes average waiting time.
-            <br />
-            <em>Cons:</em> Starvation for long processes. Hard to predict burst time.
-          </p>
-        </section>
-
-        <section>
-          <h3 className="text-lg font-bold text-purple-600 dark:text-purple-400">
-            SRTF (Shortest Remaining Time First)
-          </h3>
-          <p className="text-sm">
-            Preemptive version of SJF. If a new process arrives with a shorter burst than the
-            current remaining time, it preempts the CPU.
-            <br />
-            <em>Pros:</em> Optimal average waiting time.
-            <br />
-            <em>Cons:</em> High context switch overhead potential. Starvation.
-          </p>
-        </section>
-
-        <section>
-          <h3 className="text-lg font-bold text-orange-600 dark:text-orange-400">
-            RR (Round Robin)
-          </h3>
-          <p className="text-sm">
-            Each process gets a small unit of CPU time (Time Quantum). If it doesn't finish, it goes
-            to the back of the queue.
-            <br />
-            <em>Pros:</em> Responsive, fair. Good for time-sharing.
-            <br />
-            <em>Cons:</em> Performance depends heavily on quantum size. High overhead.
-          </p>
-        </section>
-
-        <section>
-          <h3 className="text-lg font-bold text-red-600 dark:text-red-400">Priority</h3>
-          <p className="text-sm">
-            Processes are scheduled based on priority (Number). Lower number usually means higher
-            priority here.
-            <br />
-            <em>Pros:</em> Handles important tasks first.
-            <br />
-            <em>Cons:</em> Indefinite blocking (starvation) of low priority processes.
-          </p>
-        </section>
-
-        <section>
-          <h3 className="text-lg font-bold text-red-600 dark:text-red-400">
-            Priority (Preemptive)
-          </h3>
-          <p className="text-sm">
-            Similar to Priority scheduling, but if a new process arrives with a higher priority than
-            the currently running process, the CPU is preempted.
-            <br />
-            <em>Pros:</em> Responsive to high-priority tasks.
-            <br />
-            <em>Cons:</em> Frequent context switching.
-          </p>
-        </section>
-
-        <section>
-          <h3 className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
-            LJF (Longest Job First)
-          </h3>
-          <p className="text-sm">
-            Selects the waiting process with the largest execution time. Non-preemptive.
-            <br />
-            <em>Pros:</em> Prevents short processes from dominating CPU (rarely used).
-            <br />
-            <em>Cons:</em> Convoy effect, reduced system throughput.
-          </p>
-        </section>
-
-        <section>
-          <h3 className="text-lg font-bold text-pink-600 dark:text-pink-400">
-            LRTF (Longest Remaining Time First)
-          </h3>
-          <p className="text-sm">
-            Preemptive version of LJF.
-            <br />
-            <em>Pros:</em> Forces context switches to share CPU among long tasks.
-            <br />
-            <em>Cons:</em> High average waiting time and turnaround time.
-          </p>
-        </section>
-
-        <section>
-          <h3 className="text-lg font-bold text-teal-600 dark:text-teal-400">
-            HRRN (Highest Response Ratio Next)
-          </h3>
-          <p className="text-sm">
-            Non-preemptive. Calculates Response Ratio = (Waiting Time + Burst Time) / Burst Time.
-            Selects highest ratio.
-            <br />
-            <em>Pros:</em> Prevents starvation (aging), balances short and long jobs.
-            <br />
-            <em>Cons:</em> Overhead of calculating ratios at every step.
-          </p>
-        </section>
-
-        <section>
-          <h3 className="text-lg font-bold text-cyan-600 dark:text-cyan-400">
-            MQ (Multilevel Queue)
-          </h3>
-          <p className="text-sm">
-            Partitions the ready queue into separate queues (e.g., Foreground/Interactive,
-            Background/Batch). Processes are permanently assigned to one queue based on properties.
-            <br />
-            <em>Pros:</em> Customized scheduling for different process types.
-            <br />
-            <em>Cons:</em> Inflexible (fixed assignment), potential starvation for lower-level
-            queues.
-          </p>
-        </section>
-
-        <section>
-          <h3 className="text-lg font-bold text-yellow-600 dark:text-yellow-400">
-            MLFQ (Multilevel Feedback Queue)
-          </h3>
-          <p className="text-sm">
-            Processes can move between queues. New processes start at high priority (short quantum).
-            If they use their full quantum, they degrade to lower priority queues.
-            <br />
-            <em>Pros:</em> Flexible, adaptive. Good for interactive tasks (short bursts stay high
-            priority).
-            <br />
-            <em>Cons:</em> Complex to tune (number of queues, quantums, aging rules).
-          </p>
-        </section>
-
-        <section className="border-t dark:border-gray-700 pt-4 mt-4">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Trace Playback</h3>
-
-          <div className="space-y-4">
+    <Dialog open={isOpen} onClose={onClose} className="relative z-50">
+      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" aria-hidden="true" />
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        <Dialog.Panel className="mx-auto w-full max-w-lg rounded-2xl bg-white dark:bg-gray-800 p-0 shadow-2xl overflow-hidden transition-all transform">
+          {/* Header */}
+          <div className="bg-indigo-600 p-6 text-white flex justify-between items-start">
             <div>
-              <h4 className="font-bold text-blue-600 dark:text-blue-400">
-                1. Perfetto (Protobuf) – Top Priority
-              </h4>
-              <p className="text-sm">
-                The modern standard for system-wide profiling on Android (10+), Linux, and Chrome.
-                <br />
-                <em>Why it's good:</em> Captures high-frequency scheduling activity, task switching
-                latency, and CPU frequency.
-                <br />
-                <em>Implementation:</em> Uses a protocol buffer binary stream. Please use Perfetto’s
-                Trace Processor to convert these into JSON/CSV for this visualizer.
-              </p>
+              <div className="flex items-center gap-2 mb-2">
+                <LightBulbIcon className="w-6 h-6 text-yellow-300" />
+                <span className="text-xs font-bold uppercase tracking-wider opacity-80">Interactive Guide</span>
+              </div>
+              <Dialog.Title className="text-2xl font-bold">
+                {step.title}
+              </Dialog.Title>
             </div>
+            <button 
+              onClick={onClose}
+              className="text-white/70 hover:text-white transition-colors"
+            >
+              <XMarkIcon className="w-6 h-6" />
+            </button>
+          </div>
 
-            <div>
-              <h4 className="font-bold text-green-600 dark:text-green-400">
-                2. Trace Event Format (JSON)
-              </h4>
-              <p className="text-sm">
-                Originally created for the Chrome Tracing tool, this is the easiest format to
-                implement for a web app.
-                <br />
-                <em>Why it's good:</em> Human-readable and structured as a JSON array.
-                <br />
-                <em>Key Events:</em> Visualizes <code>ph: "B"</code> (begin) / <code>"E"</code>{' '}
-                (end) or <code>"X"</code> (complete) events with duration.
-              </p>
+          {/* Content */}
+          <div className="p-8">
+            <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
+              {step.description}
+            </p>
+            
+            {/* Visual indicator of progress */}
+            <div className="flex gap-1 mt-8 mb-2">
+              {STEPS.map((_, idx) => (
+                <div 
+                  key={idx}
+                  className={`h-1.5 flex-1 rounded-full transition-colors ${ 
+                    idx <= currentStep 
+                      ? 'bg-indigo-600 dark:bg-indigo-400' 
+                      : 'bg-gray-200 dark:bg-gray-700'
+                  }`}
+                />
+              ))}
             </div>
-
-            <div>
-              <h4 className="font-bold text-orange-600 dark:text-orange-400">
-                3. Linux ftrace (Textual/Raw)
-              </h4>
-              <p className="text-sm">
-                Internal tracer for the Linux kernel, available on almost every Linux distribution.
-                <br />
-                <em>Why it's good:</em> Generate logs without extra tools via{' '}
-                <code>cat /sys/kernel/debug/tracing/trace</code>.
-                <br />
-                <em>Parsing:</em> Parses lines containing <code>sched_switch</code> events to show
-                task preemption.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="font-bold text-gray-600 dark:text-gray-400">
-                4. Common Trace Format (CTF)
-              </h4>
-              <p className="text-sm">
-                Binary format designed for extremely low overhead (LTTng, Zephyr RTOS).
-                <br />
-                <em>Why it's good:</em> Standard for high-performance tracing in non-Android Linux.
-                <br />
-                <em>Note:</em> This is a binary format requiring metadata to decode. Please convert
-                to JSON or Text first.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="font-bold text-purple-600 dark:text-purple-400">
-                5. Event Trace Log (ETL)
-              </h4>
-              <p className="text-sm">
-                Used primarily in the Windows ecosystem. Native format for Event Tracing for Windows
-                (ETW).
-                <br />
-                <em>Properties:</em> Binary files (.etl) recording system or application events.
-                Viewable with Windows Performance Analyzer.
-                <br />
-                <em>Note:</em> Like CTF, this is a binary format. Please convert to JSON/Text for
-                use here.
-              </p>
+            <div className="text-right text-xs text-gray-400 font-medium">
+              Step {currentStep + 1} of {STEPS.length}
             </div>
           </div>
-        </section>
+
+          {/* Footer / Controls */}
+          <div className="bg-gray-50 dark:bg-gray-900/50 p-6 flex justify-between items-center border-t border-gray-100 dark:border-gray-700">
+            <button
+              onClick={handlePrev}
+              disabled={currentStep === 0}
+              className={`flex items-center gap-1 text-sm font-medium transition-colors ${ 
+                currentStep === 0 
+                  ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed' 
+                  : 'text-gray-600 dark:text-gray-400 hover:text-indigo-600'
+              }`}
+            >
+              <ChevronLeftIcon className="w-4 h-4" /> Back
+            </button>
+
+            <button
+              onClick={handleNext}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg font-bold shadow-lg shadow-indigo-200 dark:shadow-none flex items-center gap-2 transition-all transform hover:scale-105"
+            >
+              {currentStep === STEPS.length - 1 ? (
+                <>Finish Tutorial <PlayCircleIcon className="w-5 h-5" /></>
+              ) : (
+                <>Next <ChevronRightIcon className="w-4 h-4" /></>
+              )}
+            </button>
+          </div>
+        </Dialog.Panel>
       </div>
-    </Modal>
+    </Dialog>
   );
 };

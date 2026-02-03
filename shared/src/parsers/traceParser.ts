@@ -120,8 +120,16 @@ export const TraceEventParser: TraceParser = {
       completion: {},
       turnaround: {},
       waiting: {},
+      response: {},
       avgTurnaround: 0,
       avgWaiting: 0,
+      avgResponse: 0,
+      p95Turnaround: 0,
+      p95Waiting: 0,
+      p95Response: 0,
+      stdDevTurnaround: 0,
+      stdDevWaiting: 0,
+      stdDevResponse: 0,
       contextSwitches: normalizedEvents.length,
     };
 
@@ -132,13 +140,11 @@ export const TraceEventParser: TraceParser = {
   },
 };
 
-// 3. Linux ftrace (sched_switch) - Textual
-// Format: <task>-<pid> [<cpu>] <flags> <timestamp>: sched_switch: prev_comm=<Prev> prev_pid=<PPID> ... ==> next_comm=<Next> next_pid=<NPID>
+// 3. Linux ftrace (sched_switch) - Robust Textual Parser
 export const FtraceParser: TraceParser = {
   name: 'Linux ftrace (sched_switch)',
   canParse: (content) => {
     if (typeof content !== 'string') return false;
-    // Look for typical ftrace header or sched_switch lines
     return content.includes('sched_switch:') || content.includes('# tracer:');
   },
   parse: (content) => {
@@ -148,50 +154,86 @@ export const FtraceParser: TraceParser = {
     let minTime = Infinity;
     let maxTime = 0;
 
-    // Regex to parse sched_switch line
-    // Example: bash-1234 [001] d... 12345.678900: sched_switch: prev_comm=bash prev_pid=1234 ... ==> next_comm=nginx next_pid=5678
-    // Matches: [cpu] timestamp prev_pid next_comm next_pid
-    // Updated to match task-pid at start
-    const regex =
-      /.*?\[(\d+)\]\s+.*?\s+(\d+\.\d+):\s+sched_switch:.*?prev_pid=(\d+).*?==>\s+next_comm=(.*?)\s+next_pid=(\d+)/;
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
 
-    lines.forEach((line) => {
-      const match = line.match(regex);
-      if (match) {
-        const cpu = parseInt(match[1]);
-        const timestamp = parseFloat(match[2]);
-        // const prevPid = match[3];
-        const nextComm = match[4];
-        const nextPid = match[5];
+      // Look for "sched_switch:" marker
+      const switchIndex = trimmed.indexOf('sched_switch:');
+      if (switchIndex === -1) continue;
 
-        if (timestamp < minTime) minTime = timestamp;
-        if (timestamp > maxTime) maxTime = timestamp;
+      // Split into metadata (left) and arguments (right)
+      const metadataPart = trimmed.substring(0, switchIndex);
+      const argsPart = trimmed.substring(switchIndex + 13); // 13 = length of "sched_switch:"
 
-        // Close previous event on this CPU
-        if (activeTasks[cpu]) {
-          const { pid, start } = activeTasks[cpu];
-          // Only record non-idle tasks (usually pid 0 is swapper/idle)
-          if (pid !== '0' && pid !== 'swapper') {
-            ganttEvents.push({
-              pid: pid, // Using PID as name for uniqueness
-              start: start,
-              end: timestamp,
-              coreId: cpu,
-            });
-          }
-        }
-
-        // Start new event
-        // We use nextPid as the identifier
-        activeTasks[cpu] = {
-          pid: nextPid === '0' ? 'IDLE' : `${nextComm}-${nextPid}`,
-          start: timestamp,
-        };
+      // Parse Metadata: <task>-<pid> [<cpu>] <flags> <timestamp>:
+      // We need timestamp and cpu.
+      // Typical format: "bash-1234 [001] d... 12345.678900:"
+      // We can just split by space and look for timestamp (ends with :) and cpu (in brackets)
+      
+      const metaTokens = metadataPart.trim().split(/\s+/);
+      let timestamp = 0;
+      let cpu = 0;
+      
+      // Find timestamp: usually the last token ending with ":"
+      const tsToken = metaTokens[metaTokens.length - 1];
+      if (tsToken && tsToken.endsWith(':')) {
+          timestamp = parseFloat(tsToken.slice(0, -1));
+      } else {
+          // Fallback check
+          continue;
       }
-    });
 
-    // Flush active tasks (assume they end at maxTime found in trace)
-    // This handles the last event on each CPU
+      // Find CPU: token matching [001]
+      const cpuToken = metaTokens.find(t => t.startsWith('[') && t.endsWith(']'));
+      if (cpuToken) {
+          cpu = parseInt(cpuToken.slice(1, -1), 10);
+      }
+
+      if (isNaN(timestamp) || isNaN(cpu)) continue;
+
+      if (timestamp < minTime) minTime = timestamp;
+      if (timestamp > maxTime) maxTime = timestamp;
+
+      // Parse Arguments: prev_comm=bash prev_pid=1234 ... ==> next_comm=nginx next_pid=5678
+      // We want next_comm and next_pid.
+      // We can split by spaces and look for "key=value"
+      
+      const argsTokens = argsPart.trim().split(/\s+/);
+      let nextComm = '';
+      let nextPid = '';
+
+      for (const token of argsTokens) {
+          if (token.startsWith('next_comm=')) {
+              nextComm = token.split('=')[1];
+          } else if (token.startsWith('next_pid=')) {
+              nextPid = token.split('=')[1];
+          }
+      }
+
+      // Close previous event on this CPU
+      if (activeTasks[cpu]) {
+        const { pid, start } = activeTasks[cpu];
+        // Only record non-idle tasks
+        if (pid !== '0' && pid !== 'swapper') {
+          ganttEvents.push({
+            pid: pid,
+            start: start,
+            end: timestamp,
+            coreId: cpu,
+          });
+        }
+      }
+
+      // Start new event
+      // next_pid=0 usually means idle/swapper
+      activeTasks[cpu] = {
+        pid: nextPid === '0' ? 'IDLE' : `${nextComm}-${nextPid}`,
+        start: timestamp,
+      };
+    }
+
+    // Flush active tasks
     Object.entries(activeTasks).forEach(([cpuStr, task]) => {
       const cpu = parseInt(cpuStr);
       if (task.pid !== '0' && task.pid !== 'IDLE' && task.pid !== 'swapper') {
@@ -204,10 +246,10 @@ export const FtraceParser: TraceParser = {
       }
     });
 
-    // Normalize to 0 start
+    // Normalize to 0 start, convert seconds to ms
     const normalizedEvents = ganttEvents.map((e) => ({
       ...e,
-      start: (e.start - minTime) * 1000, // Seconds to ms usually
+      start: (e.start - minTime) * 1000,
       end: (e.end - minTime) * 1000,
     }));
 
@@ -217,8 +259,16 @@ export const FtraceParser: TraceParser = {
         completion: {},
         turnaround: {},
         waiting: {},
+        response: {},
         avgTurnaround: 0,
         avgWaiting: 0,
+        avgResponse: 0,
+        p95Turnaround: 0,
+        p95Waiting: 0,
+        p95Response: 0,
+        stdDevTurnaround: 0,
+        stdDevWaiting: 0,
+        stdDevResponse: 0,
         contextSwitches: normalizedEvents.length,
       },
     };
