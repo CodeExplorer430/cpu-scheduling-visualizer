@@ -146,7 +146,7 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
       // Let's rely on standard browser outline for now.
 
       // Add click handler for potential future details view
-      bars.on('click', (event, d) => {
+      bars.on('click', (_event, d) => {
         // Dispatch a custom event or log for now. In a real app, this could open a modal.
         console.log('Clicked process:', d);
       });
