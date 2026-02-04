@@ -6,7 +6,7 @@ This guide explains how to implement new scheduling algorithms in the `shared` e
 
 ```mermaid
 flowchart TD
-    Start([Start]) --> Init[Initialize Time=0, ReadyQueue=[], Completed=[]]
+    Start([Start]) --> Init["Initialize Time=0, ReadyQueue=[], Completed=[]"]
     Init --> CheckArrivals{New Arrivals?}
     CheckArrivals -- Yes --> AddToQueue[Add to ReadyQueue]
     AddToQueue --> SelectProcess
