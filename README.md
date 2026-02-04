@@ -4,18 +4,22 @@ A comprehensive, interactive web-based visualizer for CPU scheduling algorithms,
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
+![React](https://img.shields.io/badge/React-18-blue.svg)
+![Storybook](https://img.shields.io/badge/Storybook-8-ff4785.svg)
 
 ## 🚀 Features
 
-- **Interactive Gantt Charts**: Visualize process execution, idle times, and context switches in real-time.
+- **Interactive Gantt Charts**: Visualize process execution, idle times, and context switches in real-time. Keyboard-navigable and screen-reader accessible.
 - **Algorithm Comparison**: Run simulations side-by-side to compare metrics like Turnaround Time and Waiting Time.
 - **Step-by-Step Explanations**: Understand _why_ a scheduler made a specific decision at any given tick.
-- **Multi-Core Support**: Simulate scheduling across multiple CPU cores.
+- **Multi-Core Support**: Simulate scheduling across up to 4 CPU cores with processor affinity.
 - **Energy Efficiency Metrics**: Analyze power consumption with configurable Active/Idle Watts and Context Switch energy costs.
-- **Save & Load**: Persist your custom scenarios using MongoDB (via Google, GitHub, GitLab, Discord, LinkedIn, or Guest).
-- **Export**: Download results as PNG, PDF, or CSV.
-- **Internationalization**: Full English and Spanish (Español) support.
+- **Advanced Benchmarks**: Includes Standard Deviation and 95th Percentile distributions for waiting, turnaround, and response times.
+- **Save & Load**: Persist your custom scenarios using MongoDB (via Google, GitHub, GitLab, Discord, LinkedIn, or Guest) or locally via IndexedDB.
+- **Export**: Download results as PNG, PDF, CSV, or SVG.
+- **Internationalization**: Support for 11 languages (English, Spanish, Arabic, German, Filipino, French, Hindi, Japanese, Korean, Portuguese, Chinese).
 - **PWA Ready**: Installable on desktop and mobile for offline usage.
+- **Storybook**: Component-driven development and visual documentation for the UI library.
 
 ## 🏗️ Architecture
 
@@ -28,16 +32,17 @@ graph LR
 
 The project is structured as a Monorepo:
 
-- **`frontend/`**: React 18, Vite, Tailwind CSS, D3.js (Visualization).
+- **`frontend/`**: React 18, Vite, Tailwind CSS, D3.js (Visualization), Storybook.
 - **`backend/`**: Node.js, Express, MongoDB (API & Persistence).
-- **`shared/`**: TypeScript library containing the core deterministic scheduling algorithms.
+- **`shared/`**: TypeScript library containing core deterministic scheduling algorithms and statistical utilities.
 - **`docs/`**: Project documentation.
 
 ## 🛠️ Setup & Installation
 
 ### Prerequisites
 
-- Node.js v18+
+- Node.js v20+
+- npm v10+
 - MongoDB (Local or Atlas) - _Optional for basic usage_
 
 ### Installation
@@ -77,19 +82,24 @@ The project is structured as a Monorepo:
     ```
     Access at `http://localhost:3000`
 
+3.  **Run Storybook:**
+    ```bash
+    npm run storybook -w frontend
+    ```
+
 ## 🧠 Implemented Algorithms
 
 ### Preemptive
 
-- **Round Robin (RR)**: Time-slice based scheduling.
+- **Round Robin (RR)**: Time-slice based scheduling with auto-quantum optimizer.
 - **Shortest Remaining Time First (SRTF)**: Preempts if a shorter job arrives.
 - **Preemptive Priority**: Switches immediately if a higher priority process arrives.
 - **Longest Remaining Time First (LRTF)**: Preempts if a process with a longer remaining time becomes available.
-- **Multilevel Feedback Queue (MLFQ)**: Complex dynamic priority scheduling with 3 queues (High/RR -> Medium/RR -> Low/FCFS) and aging/demotion logic.
+- **Multilevel Feedback Queue (MLFQ)**: Complex dynamic priority scheduling with aging/demotion logic.
 
 ### Non-Preemptive
 
-- **First-Come, First-Served (FCFS)**: Strict arrival order. Supports Multi-Core.
+- **First-Come, First-Served (FCFS)**: Strict arrival order. Supports Multi-Core & Processor Affinity.
 - **Shortest Job First (SJF)**: Prioritizes shortest burst time.
 - **Longest Job First (LJF)**: Prioritizes longest burst time.
 - **Priority Scheduling**: Processes executed based on assigned priority.
@@ -114,3 +124,7 @@ Contributions are welcome! Please check out the `FEATURES.md` for planned improv
 3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4.  Push to the Branch (`git push origin feature/AmazingFeature`)
 5.  Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

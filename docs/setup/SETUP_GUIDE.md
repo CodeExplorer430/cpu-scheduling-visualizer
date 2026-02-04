@@ -6,8 +6,8 @@ This guide will help you set up the project documentation and configuration file
 
 Before you begin, ensure you have the following installed:
 
-- **Node.js** (v18 or higher)
-- **pnpm** (recommended) or `npm`
+- **Node.js** (v20 or higher)
+- **npm** (v10 or higher) or `pnpm`
 - **Git**
 
 ## 2. Directory Structure Setup

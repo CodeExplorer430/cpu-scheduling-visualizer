@@ -27,17 +27,20 @@ C4Context
 The Quantix is a full-stack monorepo designed for interactivity and performance.
 
 - **Frontend**: React/Vite SPA (Vercel)
-  - Interactive Gantt charts with D3.js
+  - Interactive Gantt charts with D3.js (Keyboard & Screen Reader accessible)
   - State management for simulations
   - Offline-first PWA support
-  - Internationalization (i18n)
+  - Internationalization (i18n) with 11 supported languages
+  - Storybook for UI component documentation
 - **Backend**: Express/Node.js API (Render)
   - Heavy simulation offloading
   - Batch processing
   - User authentication (JWT + OAuth Providers)
   - Persistence via MongoDB
 - **Shared**: TypeScript core logic (`@cpu-vis/shared`)
-  - Deterministic scheduling algorithms (FCFS, RR, SJF, etc.)
+  - Deterministic scheduling algorithms (11 total)
+  - Advanced statistical utilities (95th Percentile, Standard Deviation)
+  - Energy consumption modeling
   - Property-based tests
   - Shared types and validation
 

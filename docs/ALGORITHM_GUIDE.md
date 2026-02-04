@@ -63,22 +63,34 @@ Most algorithms follow this pattern:
     - Execute the process (update remaining time).
     - Record events (Gantt chart logs).
 
-### 3. Generate Snapshots
+### 3. Generate Snapshots & Metrics
 
-Use the helper `generateSnapshots` to convert your raw execution logs into the standardized format used by the frontend.
+Use the helper functions from `utils.ts` to convert your raw execution logs into the standardized format and calculate advanced benchmarks.
 
 ```typescript
+import { generateSnapshots, calculateMetrics } from './utils';
+
+// ... inside your run function
+const metrics = calculateMetrics(events, inputProcesses, options);
+
 return {
-  snapshots: generateSnapshots(processes, executionLog, options.timeQuantum),
-  metrics: calculateMetrics(processes, completedProcesses), // You need to implement metric calc
+  events,
+  metrics,
+  snapshots: generateSnapshots(events, inputProcesses, coreCount),
 };
 ```
+
+`calculateMetrics` automatically computes:
+- **Turnaround, Waiting, and Response times** per process.
+- **Averages** across all processes.
+- **Statistical Distributions**: Standard Deviation and 95th Percentile for all time metrics.
+- **CPU Utilization** and **Energy Consumption** (if config provided).
 
 ### 4. Register the Algorithm
 
 1.  Export it in `shared/src/engine/index.ts`.
 2.  Add the algorithm name to the `AlgorithmType` union in `shared/src/types.ts`.
-3.  Update the `AlgorithmSelect` component in the Frontend to include the new option.
+3.  Update the translation files in `frontend/src/locales/` to include the human-readable name.
 
 ## Testing
 
@@ -86,12 +98,12 @@ Always add tests in `shared/tests/engine/`.
 
 1.  Create `ljf.test.ts`.
 2.  Define a simple scenario (e.g., 3 processes).
-3.  Manually calculate the expected start/end times.
+3.  Manually calculate the expected start/end times (including `coreId: 0` for single-core).
 4.  Assert that `runLJF` matches your expectations.
 
 ```typescript
 test('LJF should prioritize longer jobs', () => {
   const result = runLJF(processes, {});
-  // assertions...
+  expect(result.events[0]).toEqual({ pid: 'P1', start: 0, end: 10, coreId: 0 });
 });
 ```
