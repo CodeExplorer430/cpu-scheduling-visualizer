@@ -3,23 +3,23 @@
 ## High-Level Overview (C4 Container)
 
 ```mermaid
-C4Context
-    title System Context Diagram for Quantix
+C4Container
+    title System Architecture Diagram for Quantix
 
     Person(user, "User", "Student or Educator")
 
     System_Boundary(quantix, "Quantix System") {
-        Container(web_app, "Frontend Application", "React, Vite, Vercel", "Provides interactive simulation and visualization.")
-        Container(api, "Backend API", "Node.js, Express, Render", "Handles persistence, auth, and heavy computations.")
-        Container(shared, "Shared Engine", "TypeScript Library", "Core deterministic scheduling algorithms.")
+        Container(web_app, "Frontend Application", "React, Vite", "Interactive simulation and visualization UI.")
+        Container(shared, "Shared Engine", "TypeScript", "Deterministic scheduling algorithms and logic.")
+        Container(api, "Backend API", "Node.js, Express", "Handles persistence, auth, and computations.")
         ContainerDb(database, "Database", "MongoDB Atlas", "Stores users, scenarios, and history.")
     }
 
     Rel(user, web_app, "Uses", "HTTPS")
     Rel(web_app, api, "API Calls", "JSON/HTTPS")
-    Rel(web_app, shared, "Imports", "NPM Workspace")
-    Rel(api, shared, "Imports", "NPM Workspace")
-    Rel(api, database, "Reads/Writes", "Mongo Protocol")
+    Rel(web_app, shared, "Imports", "Local Workspace")
+    Rel(api, shared, "Imports", "Local Workspace")
+    Rel(api, database, "Reads/Writes", "Mongoose")
 ```
 
 ## Overview
