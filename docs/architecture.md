@@ -9,7 +9,7 @@ C4Container
     Person(user, "User", "Student or Educator")
 
     System_Boundary(quantix, "Quantix System") {
-        Container(web_app, "Frontend Application", "React, Vite", "Interactive simulation and visualization UI.")
+        Container(web_app, "Frontend Application", "React, Vite", "Interactive simulation aqwwnd visualization UI.")
         Container(api, "Backend API", "Node.js, Express", "Handles persistence, auth, and computations.")
         Container(shared, "Shared Engine", "TypeScript", "Deterministic scheduling algorithms and logic.")
         ContainerDb(database, "Database", "MongoDB Atlas", "Stores users, scenarios, and history.")
