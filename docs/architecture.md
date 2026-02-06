@@ -21,7 +21,7 @@ C4Container
     Rel(api, shared, "Imports", "Local Workspace")
     Rel(api, database, "Reads/Writes", "Mongoose")
 
-    UpdateLayoutConfig($c4ShapeInRow="1", $c4BoundaryInRow="1")
+    UpdateLayoutConfig($c4ShapeInRow="2", $c4BoundaryInRow="1")
 ```
 
 ## Overview
