@@ -76,9 +76,56 @@ sequenceDiagram
     Backend-->>Frontend: User Profile
 ```
 
+## Data Model
+
+```mermaid
+erDiagram
+    User ||--o{ Scenario : "saves"
+    User ||--o{ SimulationHistory : "generates"
+
+    User {
+        ObjectId _id
+        string username
+        string email
+        string passwordHash
+        object settings
+        object profile
+        string[] oauth_ids
+    }
+
+    Scenario {
+        ObjectId _id
+        ObjectId userId
+        string name
+        Process[] processes
+        Date createdAt
+    }
+
+    SimulationHistory {
+        ObjectId _id
+        ObjectId userId
+        string algorithm
+        int processesCount
+        object metrics
+        Date createdAt
+    }
+```
+
 ## Simulation Engine
 
 The core simulation logic resides in `@cpu-vis/shared`. It is designed to be deterministic and platform-agnostic.
+
+### Process Lifecycle
+
+```mermaid
+stateDiagram-v2
+    [*] --> New
+    New --> Ready : Arrival Time
+    Ready --> Running : Scheduler Dispatch
+    Running --> Terminated : Burst Completed
+    Running --> Ready : Time Quantum / Preemption
+    Terminated --> [*]
+```
 
 ```mermaid
 classDiagram

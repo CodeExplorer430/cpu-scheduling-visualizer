@@ -80,19 +80,63 @@ All protected routes require a Bearer Token.
 
 ---
 
+## Simulation Workflow
+
+### Batch Simulation Sequence
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant API
+    participant Controller
+    participant SharedEngine
+    participant DB
+
+    User->>API: POST /simulate/batch
+    API->>Controller: runBatchSimulation()
+    loop For each Algorithm
+        Controller->>SharedEngine: runAlgorithm(processes)
+        SharedEngine-->>Controller: SimulationResult
+        opt If User Authenticated
+            Controller->>DB: Save History
+        end
+    end
+    Controller-->>API: Combined Results
+    API-->>User: JSON { FCFS: {...}, RR: {...} }
+```
+
 ## Simulation
 
 ### Run Batch Simulation
 
 - **Endpoint**: `POST /simulate/batch`
 - **Description**: Runs multiple algorithms on the same dataset for comparison.
+- **Headers**:
+  - `Content-Type`: `application/json`
+  - `Authorization`: `Bearer <token>` (Optional, required for history tracking)
 - **Body**:
   ```json
   {
     "algorithms": ["FCFS", "RR", "SJF"],
-    "processes": [{ "pid": "P1", "arrival": 0, "burst": 5, "priority": 1 }],
+    "processes": [
+      { "pid": "P1", "arrival": 0, "burst": 5, "priority": 1 },
+      { "pid": "P2", "arrival": 2, "burst": 3, "priority": 2 }
+    ],
     "options": {
       "timeQuantum": 2
+    }
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "FCFS": {
+      "events": [...],
+      "metrics": { "avgTurnaround": 4.5, ... }
+    },
+    "RR": {
+      "events": [...],
+      "metrics": { "avgTurnaround": 5.2, ... }
     }
   }
   ```

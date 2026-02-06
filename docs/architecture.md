@@ -10,8 +10,8 @@ C4Container
 
     System_Boundary(quantix, "Quantix System") {
         Container(web_app, "Frontend Application", "React, Vite", "Interactive simulation and visualization UI.")
-        Container(shared, "Shared Engine", "TypeScript", "Deterministic scheduling algorithms and logic.")
         Container(api, "Backend API", "Node.js, Express", "Handles persistence, auth, and computations.")
+        Container(shared, "Shared Engine", "TypeScript", "Deterministic scheduling algorithms and logic.")
         ContainerDb(database, "Database", "MongoDB Atlas", "Stores users, scenarios, and history.")
     }
 
@@ -20,6 +20,8 @@ C4Container
     Rel(web_app, shared, "Imports", "Local Workspace")
     Rel(api, shared, "Imports", "Local Workspace")
     Rel(api, database, "Reads/Writes", "Mongoose")
+
+    UpdateLayoutConfig($c4ShapeInRow="1", $c4BoundaryInRow="1")
 ```
 
 ## Overview
