@@ -1,8 +1,6 @@
 import React, { useMemo, useRef } from 'react';
 import { SimulationResult, Algorithm } from '@cpu-vis/shared';
 import { Gantt } from '../GanttChart/Gantt';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { ArrowDownTrayIcon } from '@heroicons/react/24/outline';
@@ -11,6 +9,16 @@ interface Props {
   results: Record<Algorithm, SimulationResult>;
   algorithms: Algorithm[];
 }
+
+const loadHtml2Canvas = async () => {
+  const module = await import('html2canvas');
+  return module.default;
+};
+
+const loadJsPDF = async () => {
+  const module = await import('jspdf');
+  return module.default;
+};
 
 export const ComparisonResults: React.FC<Props> = ({ results, algorithms }) => {
   const exportRef = useRef<HTMLDivElement>(null);
@@ -34,6 +42,7 @@ export const ComparisonResults: React.FC<Props> = ({ results, algorithms }) => {
     if (!exportRef.current) return;
 
     const exportPromise = (async () => {
+      const html2canvas = await loadHtml2Canvas();
       const canvas = await html2canvas(exportRef.current!, {
         scale: 2, // Higher resolution
         useCORS: true,
@@ -67,6 +76,8 @@ export const ComparisonResults: React.FC<Props> = ({ results, algorithms }) => {
     if (!exportRef.current) return;
 
     const exportPromise = (async () => {
+      const html2canvas = await loadHtml2Canvas();
+      const jsPDF = await loadJsPDF();
       const canvas = await html2canvas(exportRef.current!, {
         scale: 2,
         useCORS: true,

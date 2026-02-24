@@ -1,20 +1,25 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ComparisonResults } from '../../../components/compare/ComparisonResults';
 import { SimulationResult, Algorithm } from '@cpu-vis/shared';
 import { ThemeProvider } from '../../../context/ThemeContext';
 import React from 'react';
 
+const mockHtml2Canvas = vi.fn().mockResolvedValue({ toDataURL: () => 'data:image/png;base64,' });
+const mockJsPDFSave = vi.fn();
+const mockJsPDFAddImage = vi.fn();
+const mockJsPDF = vi.fn().mockImplementation(() => ({
+  internal: { pageSize: { getWidth: () => 210 } },
+  addImage: mockJsPDFAddImage,
+  save: mockJsPDFSave,
+}));
+
 // Mock html2canvas and jspdf as they might not work well in jsdom
 vi.mock('html2canvas', () => ({
-  default: vi.fn().mockResolvedValue({ toDataURL: () => 'data:image/png;base64,' }),
+  default: mockHtml2Canvas,
 }));
 vi.mock('jspdf', () => ({
-  default: vi.fn().mockImplementation(() => ({
-    internal: { pageSize: { getWidth: () => 210 } },
-    addImage: vi.fn(),
-    save: vi.fn(),
-  })),
+  default: mockJsPDF,
 }));
 
 const renderWithTheme = (component: React.ReactNode) => {
@@ -26,6 +31,10 @@ describe('ComparisonResults Component', () => {
 
   beforeEach(() => {
     anchorClickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    mockHtml2Canvas.mockClear();
+    mockJsPDF.mockClear();
+    mockJsPDFAddImage.mockClear();
+    mockJsPDFSave.mockClear();
   });
 
   afterEach(() => {
@@ -79,5 +88,29 @@ describe('ComparisonResults Component', () => {
 
     expect(mockSerialize).toHaveBeenCalled();
     expect(global.URL.createObjectURL).toHaveBeenCalled();
+  });
+
+  it('exports comparison as PNG', async () => {
+    renderWithTheme(<ComparisonResults results={mockResults} algorithms={algorithms} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'compare.export PNG' }));
+
+    await waitFor(() => {
+      expect(mockHtml2Canvas).toHaveBeenCalledTimes(1);
+    });
+    expect(anchorClickSpy).toHaveBeenCalled();
+  });
+
+  it('exports comparison as PDF', async () => {
+    renderWithTheme(<ComparisonResults results={mockResults} algorithms={algorithms} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'compare.export PDF' }));
+
+    await waitFor(() => {
+      expect(mockHtml2Canvas).toHaveBeenCalledTimes(1);
+      expect(mockJsPDF).toHaveBeenCalledTimes(1);
+    });
+    expect(mockJsPDFAddImage).toHaveBeenCalled();
+    expect(mockJsPDFSave).toHaveBeenCalledWith('quantix-comparison.pdf');
   });
 });
