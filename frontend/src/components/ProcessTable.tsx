@@ -144,7 +144,7 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
         onGenerate={handleGenerate}
       />
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto overflow-y-auto max-h-[28rem]">
         <table className="min-w-[1280px] divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-700 sticky top-0 z-10 shadow-sm">
             <tr>
