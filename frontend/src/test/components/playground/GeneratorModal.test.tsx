@@ -1,18 +1,19 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { GeneratorModal } from '../../../components/playground/GeneratorModal';
+import userEvent from '@testing-library/user-event';
 
 describe('GeneratorModal Component', () => {
-  it('generates fair-share scenario with share fields', () => {
+  it('generates fair-share scenario with share fields', async () => {
     const onGenerate = vi.fn();
     const onClose = vi.fn();
+    const user = userEvent.setup();
 
     render(<GeneratorModal isOpen={true} onClose={onClose} onGenerate={onGenerate} />);
 
-    fireEvent.change(screen.getByDisplayValue('generator.types.random'), {
-      target: { value: 'fair_share_groups' },
-    });
-    fireEvent.click(screen.getByText('generator.generate'));
+    const select = await screen.findByDisplayValue('generator.types.random');
+    await user.selectOptions(select, 'fair_share_groups');
+    await user.click(await screen.findByText('generator.generate'));
 
     expect(onGenerate).toHaveBeenCalled();
     const generated = onGenerate.mock.calls[0][0];
@@ -21,22 +22,23 @@ describe('GeneratorModal Component', () => {
     expect(generated[0]).toHaveProperty('shareWeight');
   });
 
-  it('generates real-time and lottery scenarios with required fields', () => {
+  it('generates real-time and lottery scenarios with required fields', async () => {
     const onGenerate = vi.fn();
     const onClose = vi.fn();
+    const user = userEvent.setup();
 
     render(<GeneratorModal isOpen={true} onClose={onClose} onGenerate={onGenerate} />);
 
-    const select = screen.getByDisplayValue('generator.types.random');
+    const select = await screen.findByDisplayValue('generator.types.random');
 
-    fireEvent.change(select, { target: { value: 'lottery_weighted' } });
-    fireEvent.click(screen.getByText('generator.generate'));
+    await user.selectOptions(select, 'lottery_weighted');
+    await user.click(await screen.findByText('generator.generate'));
     let generated = onGenerate.mock.calls[0][0];
     expect(generated[0]).toHaveProperty('tickets');
 
-    const select2 = screen.getByDisplayValue('generator.types.lottery_weighted');
-    fireEvent.change(select2, { target: { value: 'edf_deadline_driven' } });
-    fireEvent.click(screen.getByText('generator.generate'));
+    const select2 = await screen.findByDisplayValue('generator.types.lottery_weighted');
+    await user.selectOptions(select2, 'edf_deadline_driven');
+    await user.click(await screen.findByText('generator.generate'));
     generated = onGenerate.mock.calls[1][0];
     expect(generated[0]).toHaveProperty('deadline');
   });
