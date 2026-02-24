@@ -9,7 +9,7 @@ C4Container
     Person(user, "User", "Student or Educator")
 
     System_Boundary(quantix, "Quantix System") {
-        Container(web_app, "Frontend Application", "React, Vite", "Interactive simulation aqwwnd visualization UI.")
+        Container(web_app, "Frontend Application", "React, Vite", "Interactive simulation and visualization UI.")
         Container(api, "Backend API", "Node.js, Express", "Handles persistence, auth, and computations.")
         Container(shared, "Shared Engine", "TypeScript", "Deterministic scheduling algorithms and logic.")
         ContainerDb(database, "Database", "MongoDB Atlas", "Stores users, scenarios, and history.")
@@ -41,6 +41,8 @@ The Quantix is a full-stack monorepo designed for interactivity and performance.
   - Persistence via MongoDB
 - **Shared**: TypeScript core logic (`@cpu-vis/shared`)
   - Deterministic scheduling algorithms (15 total)
+  - Extended process model (`priority`, `tickets`, `shareGroup`, `shareWeight`, `deadline`, `period`)
+  - Multi-core scheduling support and context-switch modeling
   - Advanced statistical utilities (95th Percentile, Standard Deviation)
   - Energy consumption modeling
   - Property-based tests

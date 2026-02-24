@@ -56,8 +56,12 @@
       "LJF": "Plus long travail d'abord (LJF - Non-préemptif)",
       "LRTF": "Plus long temps restant d'abord (LRTF - Préemptif)",
       "HRRN": "Plus haut ratio de réponse suivant (HRRN)",
-      "MQ": "File multiniveau (MQ)",
-      "MLFQ": "File multiniveau avec rétroaction (MLFQ)"
+      "MQ": "File multiniveau (MLQ)",
+      "MLFQ": "File multiniveau avec rétroaction (MLFQ)",
+      "FAIR_SHARE": "Fair-Share Scheduling",
+      "LOTTERY": "Lottery Scheduling",
+      "EDF": "Earliest Deadline First (EDF)",
+      "RMS": "Rate-Monotonic Scheduling (RMS)"
     },
     "importTrace": "Import Trace",
     "downloadSVG": "Download SVG"
@@ -152,7 +156,7 @@
     "defaultDescription": "Quantix: A high-performance CPU scheduling visualizer supporting 15 algorithms, multi-core simulation, and detailed analytics.",
     "home": {
       "title": "Quantix | CPU Scheduling Visualizer",
-      "description": "Visualize and compare 11 CPU scheduling algorithms with multi-core support, energy modeling, and real-time Gantt charts."
+      "description": "Visualize and compare 15 CPU scheduling algorithms with multi-core support, energy modeling, and real-time Gantt charts."
     },
     "playground": {
       "title": "Playground | Quantix CPU Visualizer",
@@ -182,7 +186,11 @@
       "io_heavy": "I/O Bound (Short Bursts)",
       "many_short": "Many Short Processes (Stress Test)",
       "long_running": "Long Running (Batch)",
-      "starvation": "Starvation Risk (Priority)"
+      "starvation": "Starvation Risk (Priority)",
+      "fair_share_groups": "Fair-Share Groups",
+      "lottery_weighted": "Lottery Weighted Tickets",
+      "edf_deadline_driven": "EDF Deadline Driven",
+      "rms_periodic": "RMS Periodic Tasks"
     },
     "success": "Processes generated"
   },
@@ -289,7 +297,7 @@
         "desc": "Non-preemptive. Selects based on Response Ratio = (Wait + Burst) / Burst. Prevents starvation by increasing priority as processes wait."
       },
       "mq": {
-        "title": "Multilevel Queue (MQ)",
+        "title": "Multilevel Queue (MLQ)",
         "desc": "Maintains separate queues (e.g., Foreground RR, Background FCFS). Processes are permanently assigned to a queue."
       },
       "mlfq": {

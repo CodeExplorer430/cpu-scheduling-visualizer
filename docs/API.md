@@ -1,170 +1,175 @@
 # API Documentation
 
-The backend provides a RESTful API for managing user scenarios and offloading heavy simulations.
+The backend exposes REST endpoints for authentication, persistence, and server-side scheduling simulation.
 
 ## Base URL
 
-Development: `http://localhost:3000/api`
-Production: `https://quantix-api.onrender.com/api`
+- Development: `http://localhost:3000/api`
+- Production: `https://quantix-api.onrender.com/api`
 
 ## Authentication
 
-All protected routes require a Bearer Token.
+Protected routes require:
 
-**Header:**
-`Authorization: Bearer <jwt_token>`
+- `Authorization: Bearer <jwt_token>`
 
-### 1. Register
+Simulation endpoints accept anonymous requests; authenticated requests additionally record simulation history.
 
-- **Endpoint**: `POST /auth/register`
-- **Body**:
-  ```json
-  {
-    "username": "jdoe",
-    "email": "jdoe@example.com",
-    "password": "securepassword"
-  }
-  ```
+## Auth Endpoints
 
-### 2. Login
+### Register
 
-- **Endpoint**: `POST /auth/login`
-- **Body**:
-  ```json
-  {
-    "email": "jdoe@example.com",
-    "password": "securepassword"
-  }
-  ```
+- `POST /auth/register`
+- Body:
 
-### 3. OAuth Authentication
-
-- **Endpoints**:
-  - `GET /auth/google`
-  - `GET /auth/github`
-  - `GET /auth/gitlab`
-  - `GET /auth/discord`
-  - `GET /auth/linkedin`
-- **Description**: Redirects user to the respective provider's Sign-In page. On success, redirects back to the frontend with `?token=<jwt>`.
-
-### 4. Magic Link
-
-#### Request Link
-
-- **Endpoint**: `POST /auth/magic-link`
-- **Body**:
-  ```json
-  {
-    "email": "jdoe@example.com"
-  }
-  ```
-- **Description**: Sends a login link to the user's email (or logs to console in development).
-
-#### Verify Link
-
-- **Endpoint**: `POST /auth/magic-link/verify`
-- **Body**:
-  ```json
-  {
-    "token": "jwt_from_email_link"
-  }
-  ```
-- **Description**: Verifies the magic link token and returns a session token.
-- **Response**:
-  ```json
-  {
-    "token": "jwt_token",
-    "user": { ... }
-  }
-  ```
-
----
-
-## Simulation Workflow
-
-### Batch Simulation Sequence
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant API
-    participant Controller
-    participant SharedEngine
-    participant DB
-
-    User->>API: POST /simulate/batch
-    API->>Controller: runBatchSimulation()
-    loop For each Algorithm
-        Controller->>SharedEngine: runAlgorithm(processes)
-        SharedEngine-->>Controller: SimulationResult
-        opt If User Authenticated
-            Controller->>DB: Save History
-        end
-    end
-    Controller-->>API: Combined Results
-    API-->>User: JSON { FCFS: {...}, RR: {...} }
+```json
+{
+  "username": "jdoe",
+  "email": "jdoe@example.com",
+  "password": "securepassword"
+}
 ```
 
-## Simulation
+### Login
+
+- `POST /auth/login`
+- Body:
+
+```json
+{
+  "email": "jdoe@example.com",
+  "password": "securepassword"
+}
+```
+
+### OAuth Login
+
+- `GET /auth/google`
+- `GET /auth/github`
+- `GET /auth/gitlab`
+- `GET /auth/discord`
+- `GET /auth/linkedin`
+
+On success, backend redirects to frontend with `?token=<jwt>`.
+
+### Magic Link
+
+- Request: `POST /auth/magic-link`
+- Verify: `POST /auth/magic-link/verify`
+
+## Simulation Endpoints
+
+### Run Single Simulation
+
+- `POST /simulate`
+- Body:
+
+```json
+{
+  "algorithm": "RR",
+  "processes": [
+    {
+      "pid": "P1",
+      "arrival": 0,
+      "burst": 5,
+      "priority": 2,
+      "tickets": 5,
+      "shareGroup": "interactive",
+      "shareWeight": 2,
+      "deadline": 12,
+      "period": 6
+    },
+    {
+      "pid": "P2",
+      "arrival": 1,
+      "burst": 3,
+      "priority": 1
+    }
+  ],
+  "timeQuantum": 2,
+  "randomSeed": 42,
+  "fairShareQuantum": 1
+}
+```
+
+- Notes:
+  - `timeQuantum` maps to shared `quantum` option.
+  - `randomSeed` is used by `LOTTERY`.
+  - `fairShareQuantum` is used by `FAIR_SHARE`.
 
 ### Run Batch Simulation
 
-- **Endpoint**: `POST /simulate/batch`
-- **Description**: Runs multiple algorithms on the same dataset for comparison.
-- **Headers**:
-  - `Content-Type`: `application/json`
-  - `Authorization`: `Bearer <token>` (Optional, required for history tracking)
-- **Body**:
-  ```json
-  {
-    "algorithms": ["FCFS", "RR", "SJF"],
-    "processes": [
-      { "pid": "P1", "arrival": 0, "burst": 5, "priority": 1 },
-      { "pid": "P2", "arrival": 2, "burst": 3, "priority": 2 }
-    ],
-    "options": {
-      "timeQuantum": 2
-    }
+- `POST /simulate/batch`
+- Body:
+
+```json
+{
+  "algorithms": ["FCFS", "RR", "MLFQ", "LOTTERY", "EDF"],
+  "processes": [
+    { "pid": "P1", "arrival": 0, "burst": 5, "priority": 2 },
+    { "pid": "P2", "arrival": 1, "burst": 3, "priority": 1 }
+  ],
+  "timeQuantum": 2,
+  "randomSeed": 42,
+  "fairShareQuantum": 1
+}
+```
+
+- Response shape:
+
+```json
+{
+  "FCFS": {
+    "events": [],
+    "metrics": {}
+  },
+  "RR": {
+    "events": [],
+    "metrics": {}
+  },
+  "LOTTERY": {
+    "events": [],
+    "metrics": {}
   }
-  ```
-- **Response**:
-  ```json
-  {
-    "FCFS": {
-      "events": [...],
-      "metrics": { "avgTurnaround": 4.5, ... }
-    },
-    "RR": {
-      "events": [...],
-      "metrics": { "avgTurnaround": 5.2, ... }
-    }
-  }
-  ```
+}
+```
 
----
+- If one algorithm fails in batch mode, its key returns `{ "error": "..." }` while others still return results.
 
-## Scenarios (Persistence)
+## Supported Algorithm Keys
 
-### Upload CSV
+- `FCFS`, `SJF`, `LJF`, `SRTF`, `RR`
+- `PRIORITY`, `PRIORITY_PE`, `HRRN`
+- `LRTF`, `MQ`, `MLFQ`
+- `FAIR_SHARE`, `LOTTERY`, `EDF`, `RMS`
 
-- **Endpoint**: `POST /scenarios/upload/csv`
-- **Body**: `multipart/form-data` with key `file` (CSV).
-- **Format**: `Process ID, Arrival Time, Burst Time, Priority`
+## Scenario Endpoints
 
 ### Save Scenario
 
-- **Endpoint**: `POST /scenarios`
-- **Auth**: Required
-- **Body**:
-  ```json
-  {
-    "name": "My Custom Test",
-    "processes": [...]
-  }
-  ```
+- `POST /scenarios`
+- Auth required
 
 ### List Scenarios
 
-- **Endpoint**: `GET /scenarios`
-- **Auth**: Required
-- **Description**: Returns all scenarios saved by the logged-in user.
+- `GET /scenarios`
+- Auth required
+
+### Upload CSV
+
+- `POST /scenarios/upload/csv`
+- `multipart/form-data`, field: `file`
+- CSV header supports:
+  - `PID,Arrival,Burst,Priority,Tickets,ShareGroup,ShareWeight,Deadline,Period`
+
+## Health
+
+- `GET /health`
+- Response:
+
+```json
+{
+  "status": "ok",
+  "timestamp": "..."
+}
+```

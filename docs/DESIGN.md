@@ -115,6 +115,25 @@ erDiagram
 
 The core simulation logic resides in `@cpu-vis/shared`. It is designed to be deterministic and platform-agnostic.
 
+### Supported Algorithm Families
+
+- Core: `FCFS`, `SJF`, `SRTF`, `RR`, `PRIORITY`, `PRIORITY_PE`
+- Advanced/Hybrid: `MQ` (MLQ), `MLFQ`, `HRRN`
+- Proportional/Fair-share: `FAIR_SHARE`, `LOTTERY`
+- Real-time: `EDF`, `RMS`
+- Experimental/Extended: `LJF`, `LRTF`
+
+### Process Model Extensions
+
+Beyond classic `(pid, arrival, burst, priority)`, the shared process type supports:
+
+- `tickets` for lottery scheduling
+- `shareGroup` and `shareWeight` for fair-share scheduling
+- `deadline` for EDF
+- `period` for RMS
+
+These fields are optional and algorithm-specific; defaults are applied by the corresponding engine when absent.
+
 ### Process Lifecycle
 
 ```mermaid

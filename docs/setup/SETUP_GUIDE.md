@@ -86,8 +86,23 @@ You need to configure the environment variables for the backend to function corr
 - **Algorithm Guide**: Update `docs/ALGORITHM_GUIDE.md` when adding new scheduling algorithms to `shared/src/engine`.
 - **API Docs**: Keep `docs/API.md` in sync with new endpoints added to `backend/src/routes`.
 - **Deployment**: Refer to `docs/DEPLOYMENT.md` for production release steps.
+- **Locale Docs/UI Copy**: Keep `frontend/src/locales/*.json` in sync for algorithm names, generator scenario labels, and SEO descriptions.
 
-## 5. Running the Project
+## 5. Simulation Data Shape
+
+`Process` entries may include advanced optional fields depending on algorithm:
+
+- `priority`
+- `tickets`
+- `shareGroup`
+- `shareWeight`
+- `deadline`
+- `period`
+
+CSV import/export header:
+`PID,Arrival,Burst,Priority,Tickets,ShareGroup,ShareWeight,Deadline,Period`
+
+## 6. Running the Project
 
 1.  **Install Dependencies**:
     ```bash

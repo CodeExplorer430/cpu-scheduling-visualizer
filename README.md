@@ -12,9 +12,11 @@ A comprehensive, interactive web-based visualizer for CPU scheduling algorithms,
 - **Interactive Gantt Charts**: Visualize process execution, idle times, and context switches in real-time. Keyboard-navigable and screen-reader accessible.
 - **Algorithm Comparison**: Run simulations side-by-side to compare metrics like Turnaround Time and Waiting Time.
 - **Step-by-Step Explanations**: Understand _why_ a scheduler made a specific decision at any given tick.
-- **Multi-Core Support**: Simulate scheduling across up to 4 CPU cores with processor affinity.
+- **Multi-Core Support**: Simulate scheduling across up to 8 CPU cores with processor affinity support.
 - **Energy Efficiency Metrics**: Analyze power consumption with configurable Active/Idle Watts and Context Switch energy costs.
 - **Advanced Benchmarks**: Includes Standard Deviation and 95th Percentile distributions for waiting, turnaround, and response times.
+- **Advanced Process Model**: Configure `tickets`, `shareGroup`, `shareWeight`, `deadline`, and `period` for proportional-share and real-time algorithms.
+- **Scenario Generator Presets**: Generate datasets for Fair-Share, Lottery, EDF, RMS, starvation, and other workload styles.
 - **Save & Load**: Persist your custom scenarios using MongoDB (via Google, GitHub, GitLab, Discord, LinkedIn, or Guest) or locally via IndexedDB.
 - **Export**: Download results as PNG, PDF, CSV, or SVG.
 - **Internationalization**: Support for 11 languages (English, Spanish, Arabic, German, Filipino, French, Hindi, Japanese, Korean, Portuguese, Chinese).
@@ -91,22 +93,37 @@ The project is structured as a Monorepo:
 
 ## 🧠 Implemented Algorithms
 
-### Preemptive
+Quantix currently supports **15** scheduling algorithms:
 
-- **Round Robin (RR)**: Time-slice based scheduling with auto-quantum optimizer.
-- **Shortest Remaining Time First (SRTF)**: Preempts if a shorter job arrives.
-- **Preemptive Priority**: Switches immediately if a higher priority process arrives.
-- **Longest Remaining Time First (LRTF)**: Preempts if a process with a longer remaining time becomes available.
-- **Multilevel Feedback Queue (MLFQ)**: Complex dynamic priority scheduling with aging/demotion logic.
+### Core Scheduling Algorithms
 
-### Non-Preemptive
+- **FCFS**: First-Come, First-Served
+- **SJF**: Shortest Job First (non-preemptive)
+- **SRTF**: Shortest Remaining Time First (preemptive)
+- **RR**: Round Robin
+- **PRIORITY**: Priority (non-preemptive)
+- **PRIORITY_PE**: Priority (preemptive)
 
-- **First-Come, First-Served (FCFS)**: Strict arrival order. Supports Multi-Core & Processor Affinity.
-- **Shortest Job First (SJF)**: Prioritizes shortest burst time.
-- **Longest Job First (LJF)**: Prioritizes longest burst time.
-- **Priority Scheduling**: Processes executed based on assigned priority.
-- **Highest Response Ratio Next (HRRN)**: Dynamic priority based on waiting time to prevent starvation.
-- **Multilevel Queue (MQ)**: Static fixed-priority queues (High: RR, Low: FCFS).
+### Advanced & Hybrid Algorithms
+
+- **MQ (MLQ)**: Multilevel Queue
+- **MLFQ**: Multilevel Feedback Queue
+- **HRRN**: Highest Response Ratio Next
+
+### Proportional/Fair-Share Algorithms
+
+- **FAIR_SHARE**: Group-weighted fair-share scheduling
+- **LOTTERY**: Ticket-based probabilistic scheduling
+
+### Real-Time Algorithms
+
+- **EDF**: Earliest Deadline First
+- **RMS**: Rate-Monotonic Scheduling
+
+### Experimental/Extended
+
+- **LJF**: Longest Job First
+- **LRTF**: Longest Remaining Time First
 
 ## 📚 Documentation
 

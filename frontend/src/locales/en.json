@@ -187,7 +187,7 @@
         "desc": "Non-preemptive. Selects based on Response Ratio = (Wait + Burst) / Burst. Prevents starvation by increasing priority as processes wait."
       },
       "mq": {
-        "title": "Multilevel Queue (MQ)",
+        "title": "Multilevel Queue (MLQ)",
         "desc": "Maintains separate queues (e.g., Foreground RR, Background FCFS). Processes are permanently assigned to a queue."
       },
       "mlfq": {
@@ -296,7 +296,7 @@
     "defaultDescription": "Quantix: A high-performance CPU scheduling visualizer supporting 15 algorithms, multi-core simulation, and detailed analytics.",
     "home": {
       "title": "Quantix | CPU Scheduling Visualizer",
-      "description": "Visualize and compare 11 CPU scheduling algorithms with multi-core support, energy modeling, and real-time Gantt charts."
+      "description": "Visualize and compare 15 CPU scheduling algorithms with multi-core support, energy modeling, and real-time Gantt charts."
     },
     "playground": {
       "title": "Playground | Quantix CPU Visualizer",
