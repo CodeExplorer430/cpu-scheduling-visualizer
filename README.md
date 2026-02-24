@@ -77,9 +77,11 @@ The project is structured as a Monorepo:
 
 2.  **Start the Backend (Optional):**
     Create a `.env` file in `backend/` (see [MongoDB Setup](docs/MONGODB_SETUP.md) and [OAuth Setup Guides](docs/)) and run:
+
     ```bash
     npm run dev:backend
     ```
+
     Access at `http://localhost:3000`
 
 3.  **Run Storybook:**

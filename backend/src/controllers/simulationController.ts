@@ -11,6 +11,10 @@ import {
   runMQ,
   runMLFQ,
   runHRRN,
+  runFairShare,
+  runLottery,
+  runEDF,
+  runRMS,
   validateProcesses,
   Process,
   Algorithm,
@@ -42,12 +46,14 @@ const recordHistory = async (
       },
     });
   } catch (error) {
-    console.error('Failed to record simulation history:', error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Failed to record simulation history:', error);
+    }
   }
 };
 
 export const runSimulation = async (req: AuthRequest, res: Response) => {
-  const { algorithm, processes, timeQuantum } = req.body;
+  const { algorithm, processes, timeQuantum, randomSeed, fairShareQuantum } = req.body;
   const userId = req.auth?.userId;
 
   // Validate input
@@ -58,7 +64,7 @@ export const runSimulation = async (req: AuthRequest, res: Response) => {
 
   const algo = algorithm as Algorithm;
   const quantum = typeof timeQuantum === 'number' ? timeQuantum : 2; // Default quantum
-  const options = { quantum };
+  const options = { quantum, randomSeed, fairShareQuantum };
 
   try {
     let result: SimulationResult;
@@ -96,6 +102,18 @@ export const runSimulation = async (req: AuthRequest, res: Response) => {
       case 'HRRN':
         result = runHRRN(processes as Process[], options);
         break;
+      case 'FAIR_SHARE':
+        result = runFairShare(processes as Process[], options);
+        break;
+      case 'LOTTERY':
+        result = runLottery(processes as Process[], options);
+        break;
+      case 'EDF':
+        result = runEDF(processes as Process[], options);
+        break;
+      case 'RMS':
+        result = runRMS(processes as Process[], options);
+        break;
       default:
         // Default to FCFS if unknown, or return error
         if (!algo) {
@@ -111,17 +129,21 @@ export const runSimulation = async (req: AuthRequest, res: Response) => {
 
     return res.json(result);
   } catch (error) {
-    console.error('Simulation error:', error);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Simulation error:', error);
+    }
     // Explicitly casting error to check message/stack if needed, but for now generic 500
     return res.status(500).json({ error: 'Internal simulation error' });
   }
 };
 
 export const runBatchSimulation = async (req: AuthRequest, res: Response) => {
-  const { algorithms, processes, timeQuantum } = req.body;
+  const { algorithms, processes, timeQuantum, randomSeed, fairShareQuantum } = req.body;
   const userId = req.auth?.userId;
 
-  console.log(`[BatchSim] Request received for algorithms: ${algorithms?.join(', ')}`);
+  if (process.env.NODE_ENV !== 'test') {
+    console.log(`[BatchSim] Request received for algorithms: ${algorithms?.join(', ')}`);
+  }
 
   if (!Array.isArray(algorithms) || algorithms.length === 0) {
     return res.status(400).json({ error: 'Algorithms array is required' });
@@ -130,18 +152,22 @@ export const runBatchSimulation = async (req: AuthRequest, res: Response) => {
   // Validate input
   const validation = validateProcesses(processes);
   if (!validation.valid) {
-    console.warn(`[BatchSim] Validation failed: ${validation.error}`);
+    if (process.env.NODE_ENV !== 'test') {
+      console.warn(`[BatchSim] Validation failed: ${validation.error}`);
+    }
     return res.status(400).json({ error: validation.error });
   }
 
   const quantum = typeof timeQuantum === 'number' ? timeQuantum : 2;
-  const options = { quantum };
+  const options = { quantum, randomSeed, fairShareQuantum };
   const results: Record<string, SimulationResult | { error: string }> = {};
 
   const processCount = (processes as Process[]).length;
-  console.log(
-    `[BatchSim] Starting simulation for ${algorithms.length} algorithms. Process count: ${processCount}`
-  );
+  if (process.env.NODE_ENV !== 'test') {
+    console.log(
+      `[BatchSim] Starting simulation for ${algorithms.length} algorithms. Process count: ${processCount}`
+    );
+  }
 
   for (const algoName of algorithms) {
     try {
@@ -181,6 +207,18 @@ export const runBatchSimulation = async (req: AuthRequest, res: Response) => {
         case 'HRRN':
           result = runHRRN(processes as Process[], options);
           break;
+        case 'FAIR_SHARE':
+          result = runFairShare(processes as Process[], options);
+          break;
+        case 'LOTTERY':
+          result = runLottery(processes as Process[], options);
+          break;
+        case 'EDF':
+          result = runEDF(processes as Process[], options);
+          break;
+        case 'RMS':
+          result = runRMS(processes as Process[], options);
+          break;
         default:
           results[algoName] = { error: `Algorithm '${algoName}' not supported` };
           continue;
@@ -190,7 +228,9 @@ export const runBatchSimulation = async (req: AuthRequest, res: Response) => {
         recordHistory(userId, algo, result, processCount);
       }
     } catch (error) {
-      console.error(`Batch simulation error for ${algoName}:`, error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error(`Batch simulation error for ${algoName}:`, error);
+      }
       const message = error instanceof Error ? error.message : 'Internal error';
       results[algoName] = { error: message };
     }

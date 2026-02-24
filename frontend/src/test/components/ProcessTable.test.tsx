@@ -78,4 +78,21 @@ describe('ProcessTable Component', () => {
     expect(updatedProcesses).toHaveLength(1);
     expect(updatedProcesses[0].pid).toBe('P2');
   });
+
+  it('renders advanced fields and updates share group via dropdown', () => {
+    renderWithAuth(
+      <ProcessTable processes={initialProcesses} onProcessChange={mockProcessChange} />
+    );
+
+    expect(screen.getByText('Share Group')).toBeInTheDocument();
+    expect(screen.getByText('Tickets')).toBeInTheDocument();
+
+    const shareGroupSelect = screen.getAllByDisplayValue('default')[0];
+    fireEvent.change(shareGroupSelect, { target: { value: 'interactive' } });
+
+    expect(mockProcessChange).toHaveBeenCalled();
+    const updatedProcesses =
+      mockProcessChange.mock.calls[mockProcessChange.mock.calls.length - 1][0];
+    expect(updatedProcesses[0].shareGroup).toBe('interactive');
+  });
 });

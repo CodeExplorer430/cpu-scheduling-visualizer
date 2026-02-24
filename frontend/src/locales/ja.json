@@ -149,7 +149,7 @@
     }
   },
   "seo": {
-    "defaultDescription": "Quantix: A high-performance CPU scheduling visualizer supporting 11 algorithms, multi-core simulation, and detailed analytics.",
+    "defaultDescription": "Quantix: A high-performance CPU scheduling visualizer supporting 15 algorithms, multi-core simulation, and detailed analytics.",
     "home": {
       "title": "Quantix | CPU Scheduling Visualizer",
       "description": "Visualize and compare 11 CPU scheduling algorithms with multi-core support, energy modeling, and real-time Gantt charts."

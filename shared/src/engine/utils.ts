@@ -7,7 +7,7 @@ export function generateSnapshots(
 ): Snapshot[] {
   if (events.length === 0) return [];
 
-  const maxTime = events[events.length - 1].end;
+  const maxTime = Math.max(...events.map((e) => e.end));
   const snapshots: Snapshot[] = [];
 
   for (let t = 0; t < maxTime; t++) {

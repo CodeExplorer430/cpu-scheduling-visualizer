@@ -44,9 +44,9 @@ function getRandomColor(): string {
 }
 
 export function exportToCSV(processes: Process[]): string {
-  const header = 'PID,Arrival,Burst,Priority';
+  const header = 'PID,Arrival,Burst,Priority,Tickets,ShareGroup,ShareWeight,Deadline,Period';
   const rows = processes.map((p) => {
-    return `${p.pid},${p.arrival},${p.burst},${p.priority || ''}`;
+    return `${p.pid},${p.arrival},${p.burst},${p.priority || ''},${p.tickets || ''},${p.shareGroup || ''},${p.shareWeight || ''},${p.deadline || ''},${p.period || ''}`;
   });
   return [header, ...rows].join('\n');
 }
@@ -62,10 +62,25 @@ export function parseCSV(csvContent: string): Process[] {
     const line = lines[i].trim();
     if (!line) continue;
 
-    const [pid, arrivalStr, burstStr, priorityStr] = line.split(',');
+    const [
+      pid,
+      arrivalStr,
+      burstStr,
+      priorityStr,
+      ticketsStr,
+      shareGroupStr,
+      shareWeightStr,
+      deadlineStr,
+      periodStr,
+    ] = line.split(',');
     const arrival = parseInt(arrivalStr, 10);
     const burst = parseInt(burstStr, 10);
     const priority = priorityStr ? parseInt(priorityStr, 10) : undefined;
+    const tickets = ticketsStr ? parseInt(ticketsStr, 10) : undefined;
+    const shareGroup = shareGroupStr ? shareGroupStr.trim() : undefined;
+    const shareWeight = shareWeightStr ? parseInt(shareWeightStr, 10) : undefined;
+    const deadline = deadlineStr ? parseInt(deadlineStr, 10) : undefined;
+    const period = periodStr ? parseInt(periodStr, 10) : undefined;
 
     if (isNaN(arrival) || isNaN(burst)) {
       console.warn(`Skipping invalid CSV line: ${line}`);
@@ -77,6 +92,11 @@ export function parseCSV(csvContent: string): Process[] {
       arrival,
       burst,
       priority,
+      tickets,
+      shareGroup,
+      shareWeight,
+      deadline,
+      period,
       color: getRandomColor(),
     });
   }

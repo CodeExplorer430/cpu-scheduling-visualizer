@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ComparisonResults } from '../../../components/compare/ComparisonResults';
 import { SimulationResult, Algorithm } from '@cpu-vis/shared';
@@ -22,6 +22,16 @@ const renderWithTheme = (component: React.ReactNode) => {
 };
 
 describe('ComparisonResults Component', () => {
+  let anchorClickSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    anchorClickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    anchorClickSpy.mockRestore();
+  });
+
   const mockResults: Record<Algorithm, SimulationResult> = {
     FCFS: {
       events: [{ pid: 'P1', start: 0, end: 5, coreId: 0 }],

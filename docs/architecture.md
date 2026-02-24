@@ -40,7 +40,7 @@ The Quantix is a full-stack monorepo designed for interactivity and performance.
   - User authentication (JWT + OAuth Providers)
   - Persistence via MongoDB
 - **Shared**: TypeScript core logic (`@cpu-vis/shared`)
-  - Deterministic scheduling algorithms (11 total)
+  - Deterministic scheduling algorithms (15 total)
   - Advanced statistical utilities (95th Percentile, Standard Deviation)
   - Energy consumption modeling
   - Property-based tests
@@ -99,8 +99,13 @@ sequenceDiagram
 - **RR**: Round Robin (Time Quantum)
 - **PRIORITY**: Priority Scheduling (Preemptive/Non-preemptive)
 - **MLFQ**: Multilevel Feedback Queue
+- **MQ (MLQ)**: Multilevel Queue
 - **LJF/LRTF**: Longest Job/Remaining Time First
 - **HRRN**: Highest Response Ratio Next
+- **FAIR_SHARE**: Group-weighted fair-share scheduling
+- **LOTTERY**: Probabilistic ticket-based proportional sharing
+- **EDF**: Earliest Deadline First
+- **RMS**: Rate Monotonic Scheduling
 
 ## Security
 

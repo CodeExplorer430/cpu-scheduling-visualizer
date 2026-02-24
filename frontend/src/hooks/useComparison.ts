@@ -14,6 +14,10 @@ import {
   runMQ,
   runMLFQ,
   runHRRN,
+  runFairShare,
+  runLottery,
+  runEDF,
+  runRMS,
 } from '@cpu-vis/shared';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
@@ -43,6 +47,10 @@ export const useComparison = (processes: Process[]) => {
         newResults['MQ'] = runMQ(processes, options);
         newResults['MLFQ'] = runMLFQ(processes, options);
         newResults['HRRN'] = runHRRN(processes, options);
+        newResults['FAIR_SHARE'] = runFairShare(processes, options);
+        newResults['LOTTERY'] = runLottery(processes, options);
+        newResults['EDF'] = runEDF(processes, options);
+        newResults['RMS'] = runRMS(processes, options);
 
         setResults(newResults as Record<Algorithm, SimulationResult>);
         toast.success(t('common.run') + ' ' + t('common.play'));

@@ -17,6 +17,10 @@ vi.mock('@cpu-vis/shared', () => ({
   runMQ: vi.fn(),
   runMLFQ: vi.fn(),
   runHRRN: vi.fn(),
+  runFairShare: vi.fn(),
+  runLottery: vi.fn(),
+  runEDF: vi.fn(),
+  runRMS: vi.fn(),
 }));
 
 describe('Simulation Controller', () => {

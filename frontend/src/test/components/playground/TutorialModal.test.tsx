@@ -1,8 +1,9 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { TutorialModal } from '../../../components/playground/TutorialModal';
 import { ThemeProvider } from '../../../context/ThemeContext';
 import React from 'react';
+import userEvent from '@testing-library/user-event';
 
 const renderWithTheme = (ui: React.ReactNode) => {
   return render(<ThemeProvider>{ui}</ThemeProvider>);
@@ -11,43 +12,45 @@ const renderWithTheme = (ui: React.ReactNode) => {
 describe('TutorialModal Component', () => {
   const onClose = vi.fn();
 
-  it('renders correctly when open', () => {
+  it('renders correctly when open', async () => {
     renderWithTheme(<TutorialModal isOpen={true} onClose={onClose} />);
 
-    // Check for title of first step
-    expect(screen.getByText('tutorial.steps.welcome.title')).toBeInTheDocument();
-    expect(screen.getByText('tutorial.next')).toBeInTheDocument();
+    expect(await screen.findByText('tutorial.steps.welcome.title')).toBeInTheDocument();
+    expect(await screen.findByText('tutorial.next')).toBeInTheDocument();
   });
 
-  it('navigates through steps', () => {
+  it('navigates through steps', async () => {
+    const user = userEvent.setup();
     renderWithTheme(<TutorialModal isOpen={true} onClose={onClose} />);
 
-    const nextBtn = screen.getByText('tutorial.next');
-    fireEvent.click(nextBtn);
+    const nextBtn = await screen.findByText('tutorial.next');
+    await user.click(nextBtn);
 
-    expect(screen.getByText('tutorial.steps.processes.title')).toBeInTheDocument();
-    expect(screen.getByText('tutorial.back')).toBeInTheDocument();
+    expect(await screen.findByText('tutorial.steps.processes.title')).toBeInTheDocument();
+    expect(await screen.findByText('tutorial.back')).toBeInTheDocument();
   });
 
-  it('calls onClose when reaching the end', () => {
+  it('calls onClose when reaching the end', async () => {
+    const user = userEvent.setup();
     renderWithTheme(<TutorialModal isOpen={true} onClose={onClose} />);
 
     // There are 7 steps
     for (let i = 0; i < 6; i++) {
-      fireEvent.click(screen.getByText('tutorial.next'));
+      await user.click(await screen.findByText('tutorial.next'));
     }
 
-    const finishBtn = screen.getByText('tutorial.finish');
-    fireEvent.click(finishBtn);
+    const finishBtn = await screen.findByText('tutorial.finish');
+    await user.click(finishBtn);
 
     expect(onClose).toHaveBeenCalled();
   });
 
-  it('calls onClose when clicking X', () => {
+  it('calls onClose when clicking X', async () => {
+    const user = userEvent.setup();
     renderWithTheme(<TutorialModal isOpen={true} onClose={onClose} />);
 
-    const closeBtn = screen.getByRole('button', { name: 'Close' });
-    fireEvent.click(closeBtn);
+    const closeBtn = await screen.findByRole('button', { name: 'Close' });
+    await user.click(closeBtn);
 
     expect(onClose).toHaveBeenCalled();
   });

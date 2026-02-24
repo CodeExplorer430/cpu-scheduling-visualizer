@@ -81,6 +81,7 @@ return {
 ```
 
 `calculateMetrics` automatically computes:
+
 - **Turnaround, Waiting, and Response times** per process.
 - **Averages** across all processes.
 - **Statistical Distributions**: Standard Deviation and 95th Percentile for all time metrics.

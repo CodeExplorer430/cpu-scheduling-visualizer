@@ -11,6 +11,10 @@ import {
   runLRTF,
   runMQ,
   runMLFQ,
+  runFairShare,
+  runLottery,
+  runEDF,
+  runRMS,
   Process,
   SimulationResult,
   Algorithm,
@@ -22,6 +26,8 @@ import { findOptimalQuantum } from '../lib/optimizer';
 export const useSimulation = (processes: Process[]) => {
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<Algorithm>('FCFS');
   const [quantum, setQuantum] = useState<number>(2);
+  const [randomSeed, setRandomSeed] = useState<number>(42);
+  const [fairShareQuantum, setFairShareQuantum] = useState<number>(1);
   const [contextSwitch, setContextSwitch] = useState<number>(0);
   const [coreCount, setCoreCount] = useState<number>(1);
   const [zoomLevel, setZoomLevel] = useState<number>(1);
@@ -41,6 +47,8 @@ export const useSimulation = (processes: Process[]) => {
       contextSwitchOverhead: contextSwitch,
       enableLogging: true,
       coreCount,
+      randomSeed,
+      fairShareQuantum,
       energyConfig,
     };
 
@@ -78,6 +86,18 @@ export const useSimulation = (processes: Process[]) => {
       case 'MLFQ':
         result = runMLFQ(processes, options);
         break;
+      case 'FAIR_SHARE':
+        result = runFairShare(processes, options);
+        break;
+      case 'LOTTERY':
+        result = runLottery(processes, options);
+        break;
+      case 'EDF':
+        result = runEDF(processes, options);
+        break;
+      case 'RMS':
+        result = runRMS(processes, options);
+        break;
       default:
         result = runFCFS(processes, options);
     }
@@ -86,7 +106,16 @@ export const useSimulation = (processes: Process[]) => {
     setCurrentTime(0);
     setIsPlaying(false);
     toast.success('Simulation started');
-  }, [processes, selectedAlgorithm, quantum, contextSwitch, coreCount, energyConfig]);
+  }, [
+    processes,
+    selectedAlgorithm,
+    quantum,
+    randomSeed,
+    fairShareQuantum,
+    contextSwitch,
+    coreCount,
+    energyConfig,
+  ]);
 
   const optimizeQuantum = useCallback(() => {
     const { optimalQuantum, metrics } = findOptimalQuantum(processes);
@@ -102,7 +131,7 @@ export const useSimulation = (processes: Process[]) => {
     if (isPlaying && simulationResult) {
       const maxTime =
         simulationResult.events.length > 0
-          ? simulationResult.events[simulationResult.events.length - 1].end
+          ? Math.max(...simulationResult.events.map((e) => e.end))
           : 0;
 
       if (currentTime < maxTime) {
@@ -121,6 +150,10 @@ export const useSimulation = (processes: Process[]) => {
     setSelectedAlgorithm,
     quantum,
     setQuantum,
+    randomSeed,
+    setRandomSeed,
+    fairShareQuantum,
+    setFairShareQuantum,
     contextSwitch,
     setContextSwitch,
     coreCount,

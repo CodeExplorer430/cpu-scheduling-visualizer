@@ -10,6 +10,10 @@ import { runPriorityPreemptive } from '../engine/priority_preemptive.js';
 import { runHRRN } from '../engine/hrrn.js';
 import { runMQ } from '../engine/mq.js';
 import { runMLFQ } from '../engine/mlfq.js';
+import { runFairShare } from '../engine/fair_share.js';
+import { runLottery } from '../engine/lottery.js';
+import { runEDF } from '../engine/edf.js';
+import { runRMS } from '../engine/rms.js';
 
 export interface TestCase {
   id: string;
@@ -63,6 +67,10 @@ const engineMap: Record<Algorithm, (p: Process[], o?: SimulationOptions) => Simu
   HRRN: runHRRN,
   MQ: runMQ,
   MLFQ: runMLFQ,
+  FAIR_SHARE: runFairShare,
+  LOTTERY: runLottery,
+  EDF: runEDF,
+  RMS: runRMS,
 };
 
 export const runAutoGrader = (testCases: TestCase[]): AutoGradeReport => {

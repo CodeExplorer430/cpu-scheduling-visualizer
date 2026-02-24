@@ -10,6 +10,10 @@ export * from './hrrn.js';
 export * from './lrtf.js';
 export * from './mq.js';
 export * from './mlfq.js';
+export * from './fair_share.js';
+export * from './lottery.js';
+export * from './edf.js';
+export * from './rms.js';
 
 // Stub for future engine implementations
 export const Engine = {

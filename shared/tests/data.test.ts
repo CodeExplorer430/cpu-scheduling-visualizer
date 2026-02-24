@@ -38,9 +38,11 @@ describe('Data Utilities', () => {
     it('should export to CSV correctly', () => {
       const csv = exportToCSV(processes);
       const lines = csv.split('\n');
-      expect(lines[0]).toBe('PID,Arrival,Burst,Priority');
-      expect(lines[1]).toContain('P1,0,5,1');
-      expect(lines[2]).toContain('P2,2,3,');
+      expect(lines[0]).toBe(
+        'PID,Arrival,Burst,Priority,Tickets,ShareGroup,ShareWeight,Deadline,Period'
+      );
+      expect(lines[1]).toContain('P1,0,5,1,,,,,');
+      expect(lines[2]).toContain('P2,2,3,,,,,,');
     });
 
     it('should parse CSV correctly', () => {
@@ -52,7 +54,12 @@ P2,2,3,`;
       expect(parsed).toHaveLength(2);
       expect(parsed[0]).toMatchObject({ pid: 'P1', arrival: 0, burst: 5, priority: 1 });
       expect(parsed[1]).toMatchObject({ pid: 'P2', arrival: 2, burst: 3 });
-      expect(parsed[1].priority).toBeUndefined(); // or undefined? parseInt('') is NaN
+      expect(parsed[1].priority).toBeUndefined();
+      expect(parsed[1].tickets).toBeUndefined();
+      expect(parsed[1].shareGroup).toBeUndefined();
+      expect(parsed[1].shareWeight).toBeUndefined();
+      expect(parsed[1].deadline).toBeUndefined();
+      expect(parsed[1].period).toBeUndefined();
     });
   });
 });

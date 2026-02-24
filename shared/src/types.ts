@@ -4,6 +4,11 @@ export interface Process {
   burst: number; // integer (time units)
   remaining?: number; // used for preemptive algorithms
   priority?: number; // lower => higher priority (configurable)
+  tickets?: number; // Lottery scheduling weight
+  shareGroup?: string; // Fair-share group identifier
+  shareWeight?: number; // Fair-share group weight
+  deadline?: number; // Absolute deadline for EDF
+  period?: number; // Period for RMS
   color?: string; // For UI visualization
 }
 
@@ -60,7 +65,11 @@ export type Algorithm =
   | 'HRRN'
   | 'LRTF'
   | 'MQ'
-  | 'MLFQ';
+  | 'MLFQ'
+  | 'FAIR_SHARE'
+  | 'LOTTERY'
+  | 'EDF'
+  | 'RMS';
 
 export interface Snapshot {
   time: number;
@@ -90,5 +99,7 @@ export interface SimulationOptions {
   enableLogging?: boolean;
   coreCount?: number;
   enableAffinity?: boolean; // Prefer previously used core for a process
+  fairShareQuantum?: number;
+  randomSeed?: number;
   energyConfig?: EnergyConfig;
 }

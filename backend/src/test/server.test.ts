@@ -47,6 +47,10 @@ describe('Backend Integration Tests', () => {
       'MQ',
       'MLFQ',
       'HRRN',
+      'FAIR_SHARE',
+      'LOTTERY',
+      'EDF',
+      'RMS',
     ];
 
     for (const algo of algorithms) {
@@ -62,7 +66,7 @@ describe('Backend Integration Tests', () => {
 
   it('POST /api/simulate/batch should run multiple simulations', async () => {
     const processes: Process[] = [{ pid: 'P1', arrival: 0, burst: 5 }];
-    const algorithms = ['FCFS', 'RR', 'MLFQ'];
+    const algorithms = ['FCFS', 'RR', 'MLFQ', 'EDF'];
 
     const res = await request(app).post('/api/simulate/batch').send({
       algorithms,
@@ -74,6 +78,7 @@ describe('Backend Integration Tests', () => {
     expect(res.body).toHaveProperty('FCFS');
     expect(res.body).toHaveProperty('RR');
     expect(res.body).toHaveProperty('MLFQ');
+    expect(res.body).toHaveProperty('EDF');
   });
 
   it('POST /api/simulate should handle invalid algorithm', async () => {

@@ -18,6 +18,8 @@ interface Props {
   onProcessChange: (processes: Process[]) => void;
 }
 
+const SHARE_GROUP_OPTIONS = ['default', 'system', 'interactive', 'batch', 'realtime'];
+
 export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showGenerator, setShowGenerator] = useState(false);
@@ -143,7 +145,7 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
       />
 
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <table className="min-w-[1280px] divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-700 sticky top-0 z-10 shadow-sm">
             <tr>
               <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -158,6 +160,21 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
               <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 {t('processTable.priority')}
               </th>
+              <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Tickets
+              </th>
+              <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Share Group
+              </th>
+              <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Share Weight
+              </th>
+              <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Deadline
+              </th>
+              <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Period
+              </th>
               <th className="px-3 sm:px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 {t('processTable.actions')}
               </th>
@@ -171,7 +188,7 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
                     type="text"
                     value={process.pid}
                     onChange={(e) => updateProcess(index, 'pid', e.target.value)}
-                    className="bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white border rounded px-2 py-1 w-16 sm:w-full max-w-[5rem] text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    className="bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white border rounded px-2 py-2 w-24 sm:w-full min-w-[7rem] text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   />
                 </td>
                 <td className="px-3 sm:px-4 py-4 whitespace-nowrap">
@@ -201,6 +218,55 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
                     className="bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors w-24 sm:w-full min-w-[6rem]"
                   />
                 </td>
+                <td className="px-3 sm:px-4 py-4 whitespace-nowrap">
+                  <NumberInput
+                    value={process.tickets || 1}
+                    onChange={(val) => updateProcess(index, 'tickets', val)}
+                    min={1}
+                    placeholder="1"
+                    className="bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors w-24 sm:w-full min-w-[6rem]"
+                  />
+                </td>
+                <td className="px-3 sm:px-4 py-4 whitespace-nowrap">
+                  <select
+                    value={process.shareGroup || 'default'}
+                    onChange={(e) => updateProcess(index, 'shareGroup', e.target.value)}
+                    className="bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white border rounded px-2 py-2 w-32 sm:w-full min-w-[8rem] text-sm focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  >
+                    {SHARE_GROUP_OPTIONS.map((group) => (
+                      <option key={group} value={group}>
+                        {group}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className="px-3 sm:px-4 py-4 whitespace-nowrap">
+                  <NumberInput
+                    value={process.shareWeight || 1}
+                    onChange={(val) => updateProcess(index, 'shareWeight', val)}
+                    min={1}
+                    placeholder="1"
+                    className="bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors w-24 sm:w-full min-w-[6rem]"
+                  />
+                </td>
+                <td className="px-3 sm:px-4 py-4 whitespace-nowrap">
+                  <NumberInput
+                    value={process.deadline ?? process.arrival + process.burst}
+                    onChange={(val) => updateProcess(index, 'deadline', val)}
+                    min={0}
+                    placeholder="arrival+burst"
+                    className="bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors w-24 sm:w-full min-w-[6rem]"
+                  />
+                </td>
+                <td className="px-3 sm:px-4 py-4 whitespace-nowrap">
+                  <NumberInput
+                    value={process.period || process.burst}
+                    onChange={(val) => updateProcess(index, 'period', val)}
+                    min={1}
+                    placeholder="burst"
+                    className="bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors w-24 sm:w-full min-w-[6rem]"
+                  />
+                </td>
                 <td className="px-3 sm:px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button
                     onClick={() => removeProcess(index)}
@@ -215,7 +281,7 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
             {processes.length === 0 && (
               <tr>
                 <td
-                  colSpan={5}
+                  colSpan={10}
                   className="px-6 py-4 text-center text-gray-500 dark:text-gray-400 text-sm"
                 >
                   No processes added.

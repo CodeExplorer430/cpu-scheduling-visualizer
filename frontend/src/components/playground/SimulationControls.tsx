@@ -14,6 +14,10 @@ interface Props {
   setSelectedAlgorithm: (algo: Algorithm) => void;
   quantum: number;
   setQuantum: (q: number) => void;
+  randomSeed: number;
+  setRandomSeed: (seed: number) => void;
+  fairShareQuantum: number;
+  setFairShareQuantum: (q: number) => void;
   contextSwitch: number;
   setContextSwitch: (cs: number) => void;
   coreCount: number;
@@ -33,6 +37,10 @@ export const SimulationControls: React.FC<Props> = ({
   setSelectedAlgorithm,
   quantum,
   setQuantum,
+  randomSeed,
+  setRandomSeed,
+  fairShareQuantum,
+  setFairShareQuantum,
   contextSwitch,
   setContextSwitch,
   coreCount,
@@ -110,17 +118,31 @@ export const SimulationControls: React.FC<Props> = ({
             onChange={(e) => setSelectedAlgorithm(e.target.value as Algorithm)}
             className="w-full bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors"
           >
-            <option value="FCFS">{t('controls.algorithms.FCFS')}</option>
-            <option value="SJF">{t('controls.algorithms.SJF')}</option>
-            <option value="LJF">{t('controls.algorithms.LJF')}</option>
-            <option value="SRTF">{t('controls.algorithms.SRTF')}</option>
-            <option value="RR">{t('controls.algorithms.RR')}</option>
-            <option value="PRIORITY">{t('controls.algorithms.PRIORITY')}</option>
-            <option value="PRIORITY_PE">{t('controls.algorithms.PRIORITY_PE')}</option>
-            <option value="HRRN">{t('controls.algorithms.HRRN')}</option>
-            <option value="LRTF">{t('controls.algorithms.LRTF')}</option>
-            <option value="MQ">{t('controls.algorithms.MQ')}</option>
-            <option value="MLFQ">{t('controls.algorithms.MLFQ')}</option>
+            <optgroup label="Core Scheduling Algorithms">
+              <option value="FCFS">{t('controls.algorithms.FCFS')}</option>
+              <option value="SJF">{t('controls.algorithms.SJF')}</option>
+              <option value="SRTF">{t('controls.algorithms.SRTF')}</option>
+              <option value="RR">{t('controls.algorithms.RR')}</option>
+              <option value="PRIORITY">{t('controls.algorithms.PRIORITY')}</option>
+              <option value="PRIORITY_PE">{t('controls.algorithms.PRIORITY_PE')}</option>
+            </optgroup>
+            <optgroup label="Advanced & Hybrid Algorithms">
+              <option value="MQ">{t('controls.algorithms.MQ')}</option>
+              <option value="MLFQ">{t('controls.algorithms.MLFQ')}</option>
+              <option value="HRRN">{t('controls.algorithms.HRRN')}</option>
+            </optgroup>
+            <optgroup label="Proportional/Fair-Share Algorithms">
+              <option value="FAIR_SHARE">{t('controls.algorithms.FAIR_SHARE')}</option>
+              <option value="LOTTERY">{t('controls.algorithms.LOTTERY')}</option>
+            </optgroup>
+            <optgroup label="Real-Time Scheduling Algorithms">
+              <option value="EDF">{t('controls.algorithms.EDF')}</option>
+              <option value="RMS">{t('controls.algorithms.RMS')}</option>
+            </optgroup>
+            <optgroup label="Experimental/Extended">
+              <option value="LJF">{t('controls.algorithms.LJF')}</option>
+              <option value="LRTF">{t('controls.algorithms.LRTF')}</option>
+            </optgroup>
           </select>
         </div>
 
@@ -135,6 +157,7 @@ export const SimulationControls: React.FC<Props> = ({
             id="core-count-input"
             min={1}
             max={8}
+            commitOnChange={true}
             value={coreCount}
             onChange={setCoreCount}
             className="w-full bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors"
@@ -183,6 +206,42 @@ export const SimulationControls: React.FC<Props> = ({
                 </button>
               )}
             </div>
+          </div>
+        )}
+
+        {selectedAlgorithm === 'LOTTERY' && (
+          <div className="col-span-1 md:col-span-2">
+            <label
+              htmlFor="random-seed-input"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              {t('controls.randomSeed')}
+            </label>
+            <NumberInput
+              id="random-seed-input"
+              min={0}
+              value={randomSeed}
+              onChange={setRandomSeed}
+              className="w-full bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors"
+            />
+          </div>
+        )}
+
+        {selectedAlgorithm === 'FAIR_SHARE' && (
+          <div className="col-span-1 md:col-span-2">
+            <label
+              htmlFor="fair-share-quantum-input"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              {t('controls.fairShareQuantum')}
+            </label>
+            <NumberInput
+              id="fair-share-quantum-input"
+              min={1}
+              value={fairShareQuantum}
+              onChange={setFairShareQuantum}
+              className="w-full bg-white text-gray-900 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border transition-colors"
+            />
           </div>
         )}
       </div>

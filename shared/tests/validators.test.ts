@@ -32,4 +32,33 @@ describe('Validators', () => {
     expect(validateProcesses(null).valid).toBe(false);
     expect(validateProcesses({}).valid).toBe(false);
   });
+
+  it('should validate advanced scheduling fields', () => {
+    const processes = [
+      {
+        pid: 'P1',
+        arrival: 0,
+        burst: 5,
+        tickets: 5,
+        shareGroup: 'team-a',
+        shareWeight: 2,
+        deadline: 8,
+        period: 4,
+      },
+    ];
+    const result = validateProcesses(processes);
+    expect(result.valid).toBe(true);
+  });
+
+  it('should fail on invalid tickets', () => {
+    const result = validateProcesses([{ pid: 'P1', arrival: 0, burst: 2, tickets: 0 }]);
+    expect(result.valid).toBe(false);
+    expect(result.error).toContain('tickets');
+  });
+
+  it('should fail when deadline is before arrival', () => {
+    const result = validateProcesses([{ pid: 'P1', arrival: 3, burst: 2, deadline: 2 }]);
+    expect(result.valid).toBe(false);
+    expect(result.error).toContain('Deadline');
+  });
 });

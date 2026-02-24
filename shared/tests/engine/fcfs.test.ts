@@ -78,4 +78,25 @@ describe('FCFS Algorithm', () => {
     expect(events[0].pid).toBe('P1');
     expect(events[1].pid).toBe('P2');
   });
+
+  it('should respect arrival times and use multiple cores when available', () => {
+    const processes: Process[] = [
+      { pid: 'P1', arrival: 0, burst: 4 },
+      { pid: 'P2', arrival: 1, burst: 3 },
+      { pid: 'P3', arrival: 2, burst: 1 },
+      { pid: 'P4', arrival: 5, burst: 2 },
+    ];
+
+    const result = runFCFS(processes, { coreCount: 4 });
+    const { events } = result;
+
+    const processEvents = events.filter((e) => e.pid !== 'IDLE' && e.pid !== 'CS');
+    processEvents.forEach((event) => {
+      const process = processes.find((p) => p.pid === event.pid)!;
+      expect(event.start).toBeGreaterThanOrEqual(process.arrival);
+    });
+
+    const usedCores = new Set(processEvents.map((e) => e.coreId ?? 0));
+    expect(usedCores.size).toBeGreaterThan(1);
+  });
 });

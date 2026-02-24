@@ -11,8 +11,12 @@ export const AlgorithmList: React.FC = () => {
     'Longest Job First (LJF)',
     'Longest Remaining Time First (LRTF)',
     'Highest Response Ratio Next (HRRN)',
-    'Multilevel Queue (MQ)',
+    'Multilevel Queue (MLQ)',
     'Multilevel Feedback Queue (MLFQ)',
+    'Fair-Share Scheduling',
+    'Lottery Scheduling',
+    'Earliest Deadline First (EDF)',
+    'Rate-Monotonic Scheduling (RMS)',
   ];
 
   return (

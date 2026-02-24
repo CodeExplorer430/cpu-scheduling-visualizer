@@ -137,7 +137,7 @@ const SEO: React.FC<SEOProps> = ({
               {
                 '@type': 'HowToStep',
                 name: 'Choose Algorithm',
-                text: 'Select one of the 11 supported scheduling algorithms like Round Robin or MLFQ.',
+                text: 'Select one of the 15 supported scheduling algorithms like Round Robin or MLFQ.',
               },
               {
                 '@type': 'HowToStep',

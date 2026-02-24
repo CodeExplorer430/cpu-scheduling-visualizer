@@ -17,7 +17,11 @@ type ScenarioType =
   | 'io_heavy'
   | 'many_short'
   | 'long_running'
-  | 'starvation';
+  | 'starvation'
+  | 'fair_share_groups'
+  | 'lottery_weighted'
+  | 'edf_deadline_driven'
+  | 'rms_periodic';
 
 export const GeneratorModal: React.FC<Props> = ({ isOpen, onClose, onGenerate }) => {
   const { t } = useTranslation();
@@ -77,6 +81,59 @@ export const GeneratorModal: React.FC<Props> = ({ isOpen, onClose, onGenerate })
         processes = [longP, ...shorts];
         break;
       }
+      case 'fair_share_groups': {
+        processes = generateRandomProcesses({
+          count,
+          arrivalRange: [0, 20],
+          burstRange: [2, 12],
+        }).map((p, idx) => {
+          const groupIdx = idx % 3;
+          const group = ['system', 'interactive', 'batch'][groupIdx];
+          const weight = [3, 2, 1][groupIdx];
+          return {
+            ...p,
+            shareGroup: group,
+            shareWeight: weight,
+          };
+        });
+        break;
+      }
+      case 'lottery_weighted': {
+        processes = generateRandomProcesses({
+          count,
+          arrivalRange: [0, 15],
+          burstRange: [2, 10],
+        }).map((p, idx) => {
+          const highWeight = idx % 3 === 0;
+          return {
+            ...p,
+            tickets: highWeight ? 10 : 1,
+          };
+        });
+        break;
+      }
+      case 'edf_deadline_driven': {
+        processes = generateRandomProcesses({
+          count,
+          arrivalRange: [0, 20],
+          burstRange: [1, 8],
+        }).map((p) => ({
+          ...p,
+          deadline: p.arrival + p.burst + Math.floor(Math.random() * 6) + 1,
+        }));
+        break;
+      }
+      case 'rms_periodic': {
+        processes = generateRandomProcesses({
+          count,
+          arrivalRange: [0, 10],
+          burstRange: [1, 6],
+        }).map((p, idx) => ({
+          ...p,
+          period: (idx % 5) + 2,
+        }));
+        break;
+      }
       case 'random':
       default:
         processes = generateRandomProcesses({
@@ -97,6 +154,10 @@ export const GeneratorModal: React.FC<Props> = ({ isOpen, onClose, onGenerate })
     'many_short',
     'long_running',
     'starvation',
+    'fair_share_groups',
+    'lottery_weighted',
+    'edf_deadline_driven',
+    'rms_periodic',
   ];
 
   return (

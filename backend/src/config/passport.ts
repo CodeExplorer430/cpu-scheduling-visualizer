@@ -20,7 +20,9 @@ const getAuthConfig = (provider: string) => {
         `Missing ${upper} credentials. Please set ${upper}_CLIENT_ID and ${upper}_CLIENT_SECRET.`
       );
     }
-    console.warn(`Missing ${upper} credentials. ${provider} OAuth will not work.`);
+    if (process.env.NODE_ENV !== 'test') {
+      console.warn(`Missing ${upper} credentials. ${provider} OAuth will not work.`);
+    }
     return null;
   }
   return { clientID, clientSecret, callbackURL };
@@ -85,7 +87,9 @@ export const handleOAuthLogin = async (
 // 1. Google
 const googleConfig = getAuthConfig('google');
 if (googleConfig) {
-  console.log(`Google Callback: ${googleConfig.callbackURL}`);
+  if (process.env.NODE_ENV !== 'test') {
+    console.log(`Google Callback: ${googleConfig.callbackURL}`);
+  }
   passport.use(
     new GoogleStrategy(
       {

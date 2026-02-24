@@ -3,6 +3,7 @@ import React, { useState, useEffect, KeyboardEvent } from 'react';
 interface NumberInputProps {
   value: number;
   onChange: (value: number) => void;
+  commitOnChange?: boolean;
   className?: string;
   min?: number;
   max?: number;
@@ -15,6 +16,7 @@ interface NumberInputProps {
 export const NumberInput: React.FC<NumberInputProps> = ({
   value,
   onChange,
+  commitOnChange = false,
   className = '',
   min,
   max,
@@ -38,7 +40,16 @@ export const NumberInput: React.FC<NumberInputProps> = ({
   }, [value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocalValue(e.target.value);
+    const next = e.target.value;
+    setLocalValue(next);
+
+    if (!commitOnChange || next === '') return;
+
+    let parsed = parseFloat(next);
+    if (isNaN(parsed)) return;
+    if (min !== undefined && parsed < min) parsed = min;
+    if (max !== undefined && parsed > max) parsed = max;
+    onChange(parsed);
   };
 
   const commit = () => {

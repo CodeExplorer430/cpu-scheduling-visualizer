@@ -26,8 +26,11 @@ export const getChartDimensions = (numCores: number, containerWidth: number) => 
   return { width, height };
 };
 
-export const getCoreIds = (events: GanttEvent[]) => {
-  return Array.from(new Set(events.map((e) => e.coreId ?? 0))).sort((a, b) => a - b);
+export const getCoreIds = (events: GanttEvent[], expectedCoreCount?: number) => {
+  const fromEvents = Array.from(new Set(events.map((e) => e.coreId ?? 0))).sort((a, b) => a - b);
+  if (!expectedCoreCount || expectedCoreCount <= 0) return fromEvents;
+  const expected = Array.from({ length: expectedCoreCount }, (_, i) => i);
+  return Array.from(new Set([...fromEvents, ...expected])).sort((a, b) => a - b);
 };
 
 export const getMaxTime = (events: GanttEvent[], domainMax?: number) => {

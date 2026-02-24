@@ -14,9 +14,10 @@ interface Props {
   events: GanttEvent[];
   currentTime?: number;
   domainMax?: number; // Optional prop to force a specific X-axis range
+  coreCount?: number;
 }
 
-export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
+export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax, coreCount }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const { theme } = useTheme();
 
@@ -46,7 +47,7 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
       : CHART_CONSTANTS.SWITCH_BLOCK_COLOR_LIGHT;
 
     // Determine Cores
-    const coreIds = getCoreIds(events);
+    const coreIds = getCoreIds(events, coreCount);
     const numCores = coreIds.length;
 
     // Dimensions
@@ -217,7 +218,7 @@ export const Gantt: React.FC<Props> = ({ events, currentTime, domainMax }) => {
         .attr('font-weight', 'bold')
         .text(`t=${currentTime}`);
     }
-  }, [events, currentTime, theme, domainMax]);
+  }, [events, currentTime, theme, domainMax, coreCount]);
 
   return (
     <div className="w-full bg-white dark:bg-gray-800 shadow rounded-lg p-4 transition-colors duration-200">

@@ -25,6 +25,10 @@ export const Compare: React.FC<Props> = ({ processes, onProcessesChange }) => {
     'MQ',
     'MLFQ',
     'HRRN',
+    'FAIR_SHARE',
+    'LOTTERY',
+    'EDF',
+    'RMS',
   ];
 
   return (

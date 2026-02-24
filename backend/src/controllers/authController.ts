@@ -134,7 +134,9 @@ export const requestMagicLink = async (req: Request, res: Response) => {
 
     // In a real app, we would use an email service here.
     // For this project, we'll log it to console and return success.
-    console.log(`[MAGIC LINK] Sent to ${email}: ${magicLink}`);
+    if (process.env.NODE_ENV !== 'test') {
+      console.log(`[MAGIC LINK] Sent to ${email}: ${magicLink}`);
+    }
 
     res.json({ message: 'Magic link sent! Check your console (in dev) or email.' });
   } catch (error) {

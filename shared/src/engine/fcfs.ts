@@ -29,8 +29,10 @@ export function runFCFS(
     if (enableLogging) stepLogs.push({ time, coreId, message, reason, queueState });
   };
 
-  // 1. Sort by arrival time (FCFS rule)
-  const processes = [...inputProcesses].sort((a, b) => a.arrival - b.arrival);
+  // 1. Sort by arrival time (FCFS rule), preserving input order for ties.
+  const processes = inputProcesses
+    .map((p, order) => ({ ...p, order }))
+    .sort((a, b) => a.arrival - b.arrival || a.order - b.order);
 
   const events: GanttEvent[] = [];
   const processCoreMap: Record<string, number> = {};
@@ -53,74 +55,56 @@ export function runFCFS(
   let pIndex = 0; // Index in sorted arrival list
   const readyQueue: Process[] = [];
 
+  const enqueueArrivals = (upToTime: number) => {
+    while (pIndex < totalProcesses && processes[pIndex].arrival <= upToTime) {
+      readyQueue.push(processes[pIndex]);
+      pIndex++;
+    }
+  };
+
   while (completedCount < totalProcesses) {
-    // 1. Find earliest time something happens
-    // Next arrival?
-    const nextArrival = pIndex < totalProcesses ? processes[pIndex].arrival : Infinity;
-
-    // Sort cores by free time
-    cores.sort((a, b) => a.currentTime - b.currentTime);
-
-    // Determine the available core
-    // Standard: Pick the earliest free core (cores[0])
-    // Affinity: If the *next* process to be scheduled has an affinity for a core that is ALSO free at the same minimal time (or close?), prefer it.
-    // However, FCFS strictly schedules the head of the queue.
-    // So we look at readyQueue[0].
-
+    // Pick earliest-free core (deterministic tie-break by core id).
+    cores.sort((a, b) => a.currentTime - b.currentTime || a.id - b.id);
     let availableCore = cores[0];
 
+    // Bring in all arrivals visible at this core's current time.
+    enqueueArrivals(availableCore.currentTime);
+
+    // If no work is ready, this core idles until next arrival.
+    if (readyQueue.length === 0) {
+      if (pIndex >= totalProcesses) break;
+      const nextArrival = processes[pIndex].arrival;
+      if (nextArrival > availableCore.currentTime) {
+        log(`Core ${availableCore.id}: IDLE from ${availableCore.currentTime} to ${nextArrival}`);
+        logDecision(
+          availableCore.currentTime,
+          availableCore.id,
+          `IDLE until ${nextArrival}`,
+          `No process available in ready queue. Next arrival at ${nextArrival}.`,
+          []
+        );
+        events.push({
+          pid: 'IDLE',
+          start: availableCore.currentTime,
+          end: nextArrival,
+          coreId: availableCore.id,
+        });
+        availableCore.currentTime = nextArrival;
+        availableCore.lastPid = 'IDLE';
+      }
+      enqueueArrivals(availableCore.currentTime);
+      if (readyQueue.length === 0) continue;
+    }
+
+    // Optional strict affinity: only when preferred core is tied for earliest availability.
     if (enableAffinity && readyQueue.length > 0) {
       const nextProcess = readyQueue[0];
-      const lastCoreId = processCoreMap[nextProcess.pid];
-
-      if (lastCoreId !== undefined) {
-        // Check if this preferred core is also free at the minimal time (or reasonably close? For now, strict minimal time to avoid inserting IDLE gaps unnecessarily)
-        // Actually, if we wait for affinity, we might insert IDLE.
-        // Let's implement strict affinity: If preferred core is available at <= cores[0].currentTime, take it.
-        // But cores are sorted. So cores[0] is min time.
-        // We only check if the preferred core has same currentTime as cores[0].
-
-        const preferredCore = cores.find((c) => c.id === lastCoreId);
+      const preferredCoreId = processCoreMap[nextProcess.pid];
+      if (preferredCoreId !== undefined) {
+        const preferredCore = cores.find((c) => c.id === preferredCoreId);
         if (preferredCore && preferredCore.currentTime === availableCore.currentTime) {
           availableCore = preferredCore;
         }
-      }
-    }
-
-    // If ready queue is empty, we must jump to next arrival
-    if (readyQueue.length === 0) {
-      if (pIndex < totalProcesses) {
-        const timeToJump = Math.max(availableCore.currentTime, nextArrival);
-
-        // Record IDLE if jump > current
-        if (timeToJump > availableCore.currentTime) {
-          log(`Core ${availableCore.id}: IDLE from ${availableCore.currentTime} to ${timeToJump}`);
-          logDecision(
-            availableCore.currentTime,
-            availableCore.id,
-            `IDLE until ${timeToJump}`,
-            `No process available in ready queue. Next arrival at ${nextArrival}.`,
-            []
-          );
-          events.push({
-            pid: 'IDLE',
-            start: availableCore.currentTime,
-            end: timeToJump,
-            coreId: availableCore.id,
-          });
-          availableCore.currentTime = timeToJump;
-          availableCore.lastPid = 'IDLE';
-        }
-
-        // Add all arrivals at this new time
-        while (pIndex < totalProcesses && processes[pIndex].arrival <= availableCore.currentTime) {
-          readyQueue.push(processes[pIndex]);
-          pIndex++;
-        }
-        // Continue loop to pick up from readyQueue
-        continue;
-      } else {
-        break;
       }
     }
 
@@ -158,7 +142,15 @@ export function runFCFS(
       c.currentTime += contextSwitchOverhead;
     }
 
-    const start = c.currentTime;
+    const start = Math.max(c.currentTime, arrival);
+    if (start > c.currentTime) {
+      events.push({
+        pid: 'IDLE',
+        start: c.currentTime,
+        end: start,
+        coreId: c.id,
+      });
+    }
     const end = start + burst;
 
     log(`Core ${c.id}: Runs ${pid} (${start}-${end})`);
@@ -175,11 +167,10 @@ export function runFCFS(
     completedCount++;
 
     // Check arrivals up to new time
-    while (pIndex < totalProcesses && processes[pIndex].arrival <= c.currentTime) {
-      readyQueue.push(processes[pIndex]);
-      pIndex++;
-    }
+    enqueueArrivals(c.currentTime);
   }
+
+  events.sort((a, b) => a.start - b.start || a.end - b.end || (a.coreId ?? 0) - (b.coreId ?? 0));
 
   const metrics = calculateMetrics(events, inputProcesses, options);
 

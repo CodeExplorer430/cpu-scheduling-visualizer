@@ -24,6 +24,10 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
     setSelectedAlgorithm,
     quantum,
     setQuantum,
+    randomSeed,
+    setRandomSeed,
+    fairShareQuantum,
+    setFairShareQuantum,
     contextSwitch,
     setContextSwitch,
     coreCount,
@@ -45,7 +49,7 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
   const metrics = simulationResult?.metrics;
   const currentSnapshot = simulationResult?.snapshots?.find((s) => s.time === currentTime);
   const maxTime = simulationResult?.events.length
-    ? simulationResult.events[simulationResult.events.length - 1].end
+    ? Math.max(...simulationResult.events.map((e) => e.end))
     : 0;
 
   return (
@@ -59,6 +63,10 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
             setSelectedAlgorithm={setSelectedAlgorithm}
             quantum={quantum}
             setQuantum={setQuantum}
+            randomSeed={randomSeed}
+            setRandomSeed={setRandomSeed}
+            fairShareQuantum={fairShareQuantum}
+            setFairShareQuantum={setFairShareQuantum}
             contextSwitch={contextSwitch}
             setContextSwitch={setContextSwitch}
             coreCount={coreCount}
@@ -106,7 +114,7 @@ export const Playground: React.FC<Props> = ({ processes, onProcessesChange }) =>
 
         {/* Gantt Chart */}
         {simulationResult ? (
-          <Gantt events={simulationResult.events} currentTime={currentTime} />
+          <Gantt events={simulationResult.events} currentTime={currentTime} coreCount={coreCount} />
         ) : (
           <div className="h-40 bg-white dark:bg-gray-800 rounded-lg shadow flex items-center justify-center text-gray-400 dark:text-gray-500 transition-colors duration-200">
             Run simulation to see Gantt Chart
