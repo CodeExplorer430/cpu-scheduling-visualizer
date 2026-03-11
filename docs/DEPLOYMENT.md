@@ -81,6 +81,8 @@ GitHub Actions secrets required for CLI deploys:
 - `RENDER_SERVICE_ID`
 - `RENDER_WORKSPACE_ID`
 
+In GitHub Actions, Render blueprint validation is still executed for visibility, but the workflow treats a validation result containing only `need_payment_info` as informational. That specific error can appear even when the existing backend service is deployable by `RENDER_SERVICE_ID`. Any other validation error remains blocking.
+
 Disable Render's Git auto-deploy if GitHub Actions will be the single production deploy trigger.
 
 ---
@@ -179,6 +181,7 @@ This repository now supports CLI-driven deployments from GitHub Actions:
 - `.github/workflows/cd.yml` deploys only after CI succeeds for `main`
 - Frontend deploys use Vercel CLI from the `frontend/` workspace and build remotely on Vercel
 - Backend deploys use Render CLI against the configured `RENDER_SERVICE_ID`
+- Render blueprint validation stays in CD, but only `need_payment_info` is treated as non-blocking
 
 Recommended platform settings:
 

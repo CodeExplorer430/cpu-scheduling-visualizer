@@ -65,7 +65,57 @@ jobs:
           sudo install "$tmpdir/cli_v${RENDER_CLI_VERSION}" /usr/local/bin/render
 
       - name: Validate Render blueprint
-        run: render blueprints validate render.yaml --workspace ${{ secrets.RENDER_WORKSPACE_ID }} --output json --confirm
+        shell: bash
+        run: |
+          validation_file="$(mktemp)"
+
+          set +e
+          render blueprints validate render.yaml \
+            --workspace ${{ secrets.RENDER_WORKSPACE_ID }} \
+            --output json \
+            --confirm >"$validation_file"
+          validation_status=$?
+          set -e
+
+          cat "$validation_file"
+
+          if [ "$validation_status" -ne 0 ]; then
+            echo "Render blueprint validation command failed."
+            exit "$validation_status"
+          fi
+
+          node - "$validation_file" <<'EOF'
+          const fs = require('node:fs');
+
+          const validationPath = process.argv[2];
+          const raw = fs.readFileSync(validationPath, 'utf8').trim();
+
+          let payload;
+          try {
+            payload = JSON.parse(raw);
+          } catch (error) {
+            console.error('Render blueprint validation did not return valid JSON.');
+            console.error(raw);
+            process.exit(1);
+          }
+
+          if (payload.valid === true) {
+            process.exit(0);
+          }
+
+          const errors = Array.isArray(payload.errors) ? payload.errors : [];
+          const nonPaymentErrors = errors.filter((entry) => entry?.error !== 'need_payment_info');
+
+          if (errors.length > 0 && nonPaymentErrors.length === 0) {
+            console.warn(
+              'Render blueprint validation returned only need_payment_info. Continuing because backend deploys target the existing service by RENDER_SERVICE_ID.'
+            );
+            process.exit(0);
+          }
+
+          console.error('Render blueprint validation failed with blocking errors.');
+          process.exit(1);
+          EOF
 
       - name: Deploy backend to Render
         run: |
