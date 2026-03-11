@@ -133,6 +133,8 @@ Local deploy commands:
 - Preview: `npm run deploy:frontend:preview`
 - Production: `npm run deploy:frontend:prod`
 
+For GitHub Actions and local CLI deploys, the Vercel build is performed remotely on Vercel by `vercel deploy`. This avoids local `vercel build` issues in CI runners and keeps the CLI as the deployment trigger rather than the build executor.
+
 GitHub Actions secrets required for CLI deploys:
 
 - `VERCEL_TOKEN`
@@ -172,7 +174,7 @@ This repository now supports CLI-driven deployments from GitHub Actions:
 
 - `.github/workflows/ci.yml` remains the quality gate
 - `.github/workflows/cd.yml` deploys only after CI succeeds for `main`
-- Frontend deploys use Vercel CLI from the `frontend/` workspace
+- Frontend deploys use Vercel CLI from the `frontend/` workspace and build remotely on Vercel
 - Backend deploys use Render CLI against the configured `RENDER_SERVICE_ID`
 
 Recommended platform settings:
