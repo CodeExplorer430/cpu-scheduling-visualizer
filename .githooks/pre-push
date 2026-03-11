@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Running pre-push verification..."
+echo "-> npm run verify"
+
+npm run verify
+
+echo "Pre-push verification passed."

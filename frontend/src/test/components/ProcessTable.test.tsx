@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ProcessTable } from '../../components/ProcessTable';
 import { Process } from '@cpu-vis/shared';
 import { AuthProvider } from '../../context/AuthContext';
@@ -7,6 +7,7 @@ import React from 'react';
 
 describe('ProcessTable Component', () => {
   const mockProcessChange = vi.fn();
+  const originalFetch = global.fetch;
   const initialProcesses: Process[] = [
     { pid: 'P1', arrival: 0, burst: 5 },
     { pid: 'P2', arrival: 2, burst: 3 },
@@ -18,6 +19,10 @@ describe('ProcessTable Component', () => {
 
   beforeEach(() => {
     mockProcessChange.mockClear();
+  });
+
+  afterEach(() => {
+    global.fetch = originalFetch;
   });
 
   it('renders correctly with initial processes', () => {
@@ -94,5 +99,97 @@ describe('ProcessTable Component', () => {
     const updatedProcesses =
       mockProcessChange.mock.calls[mockProcessChange.mock.calls.length - 1][0];
     expect(updatedProcesses[0].shareGroup).toBe('interactive');
+  });
+
+  it('reviews OCR results before replacing the process table', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers({ 'content-type': 'application/json' }),
+      json: async () => ({
+        processes: [
+          {
+            pid: 'P3',
+            arrival: 1,
+            burst: 4,
+            priority: 1,
+            tickets: 1,
+            shareGroup: 'default',
+            shareWeight: 1,
+            deadline: 5,
+            period: 4,
+          },
+        ],
+        warnings: ['Row 1: missing tickets, defaulted to 1.'],
+      }),
+    }) as typeof global.fetch;
+
+    renderWithAuth(
+      <ProcessTable processes={initialProcesses} onProcessChange={mockProcessChange} />
+    );
+
+    const input = document.querySelector(
+      'input[type="file"][accept="image/*"]'
+    ) as HTMLInputElement;
+    const file = new File(['image'], 'process-table.png', { type: 'image/png' });
+
+    fireEvent.change(input, { target: { files: [file] } });
+
+    await screen.findByText('Review OCR Import');
+    expect(screen.getByText('Row 1: missing tickets, defaulted to 1.')).toBeInTheDocument();
+    expect(mockProcessChange).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByText('Replace Process Table'));
+
+    await waitFor(() => {
+      expect(mockProcessChange).toHaveBeenCalledWith([
+        expect.objectContaining({
+          pid: 'P3',
+          arrival: 1,
+          burst: 4,
+        }),
+      ]);
+    });
+  });
+
+  it('keeps existing processes when OCR review is cancelled', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers({ 'content-type': 'application/json' }),
+      json: async () => ({
+        processes: [
+          {
+            pid: 'P3',
+            arrival: 1,
+            burst: 4,
+            priority: 1,
+            tickets: 1,
+            shareGroup: 'default',
+            shareWeight: 1,
+            deadline: 5,
+            period: 4,
+          },
+        ],
+        warnings: [],
+      }),
+    }) as typeof global.fetch;
+
+    renderWithAuth(
+      <ProcessTable processes={initialProcesses} onProcessChange={mockProcessChange} />
+    );
+
+    const input = document.querySelector(
+      'input[type="file"][accept="image/*"]'
+    ) as HTMLInputElement;
+    const file = new File(['image'], 'process-table.png', { type: 'image/png' });
+
+    fireEvent.change(input, { target: { files: [file] } });
+
+    await screen.findByText('Review OCR Import');
+    fireEvent.click(screen.getByText('Cancel'));
+
+    await waitFor(() => {
+      expect(screen.queryByText('Review OCR Import')).not.toBeInTheDocument();
+    });
+    expect(mockProcessChange).not.toHaveBeenCalled();
   });
 });

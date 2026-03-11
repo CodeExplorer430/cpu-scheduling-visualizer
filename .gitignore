@@ -12,6 +12,8 @@ build
 
 # Misc
 .DS_Store
+AGENTS.md
+GEMINI.md
 .env
 .env.local
 .env.development.local

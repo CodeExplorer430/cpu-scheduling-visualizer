@@ -8,10 +8,13 @@ import {
   ArrowDownTrayIcon,
   SparklesIcon,
   TrashIcon,
+  CameraIcon,
 } from '@heroicons/react/24/outline';
 import { ScenarioManager } from './playground/ScenarioManager';
 import { NumberInput } from './common/NumberInput';
 import { GeneratorModal } from './playground/GeneratorModal';
+import { importProcessesFromImage, OcrImportResult } from '../lib/ocr';
+import { OcrReviewModal } from './OcrReviewModal';
 
 interface Props {
   processes: Process[];
@@ -22,7 +25,10 @@ const SHARE_GROUP_OPTIONS = ['default', 'system', 'interactive', 'batch', 'realt
 
 export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const [showGenerator, setShowGenerator] = useState(false);
+  const [ocrImport, setOcrImport] = useState<OcrImportResult | null>(null);
+  const [isImportingImage, setIsImportingImage] = useState(false);
   const { t } = useTranslation();
 
   const addProcess = () => {
@@ -95,6 +101,38 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
     if (event.target) event.target.value = '';
   };
 
+  const handleImportImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    try {
+      setIsImportingImage(true);
+      const result = await importProcessesFromImage(file);
+      setOcrImport(result);
+      toast.success(`OCR found ${result.processes.length} process rows`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to import from image';
+      toast.error(message);
+    } finally {
+      setIsImportingImage(false);
+      if (event.target) {
+        event.target.value = '';
+      }
+    }
+  };
+
+  const handleConfirmOcrImport = () => {
+    if (!ocrImport) {
+      return;
+    }
+
+    onProcessChange(ocrImport.processes);
+    setOcrImport(null);
+    toast.success('Process table replaced from OCR import');
+  };
+
   return (
     <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden transition-colors duration-200">
       <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -128,6 +166,18 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
               ref={fileInputRef}
             />
           </label>
+          <label className="bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors cursor-pointer whitespace-nowrap flex items-center gap-1">
+            <CameraIcon className="w-3.5 h-3.5" />
+            {isImportingImage ? 'Scanning...' : 'OCR Import'}
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleImportImage}
+              className="hidden"
+              ref={imageInputRef}
+            />
+          </label>
           <button
             onClick={addProcess}
             className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 py-1.5 rounded text-xs font-bold transition-colors whitespace-nowrap border-2 border-transparent focus:border-blue-300 flex items-center gap-1"
@@ -142,6 +192,13 @@ export const ProcessTable: React.FC<Props> = ({ processes, onProcessChange }) =>
         isOpen={showGenerator}
         onClose={() => setShowGenerator(false)}
         onGenerate={handleGenerate}
+      />
+      <OcrReviewModal
+        isOpen={Boolean(ocrImport)}
+        processes={ocrImport?.processes ?? []}
+        warnings={ocrImport?.warnings ?? []}
+        onClose={() => setOcrImport(null)}
+        onConfirm={handleConfirmOcrImport}
       />
 
       <div className="overflow-x-auto overflow-y-auto max-h-[28rem]">

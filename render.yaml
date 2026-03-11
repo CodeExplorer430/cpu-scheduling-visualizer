@@ -13,3 +13,5 @@ services:
           property: connectionString
       - key: JWT_SECRET
         generateValue: true
+      - key: OCR_SPACE_API_KEY
+        sync: false

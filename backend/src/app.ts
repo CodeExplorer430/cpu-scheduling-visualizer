@@ -6,6 +6,7 @@ import simulateRouter from './routes/simulate.js';
 import scenariosRouter from './routes/scenarios.js';
 import authRouter from './routes/auth.js';
 import userRouter from './routes/user.js';
+import ocrRouter from './routes/ocr.js';
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(passport.initialize());
 app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
 app.use('/api/simulate', simulateRouter);
+app.use('/api/ocr', ocrRouter);
 app.use('/api/scenarios', scenariosRouter);
 
 app.get('/health', (req, res) => {
