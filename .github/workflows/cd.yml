@@ -1,36 +1,80 @@
 name: CD
 
 on:
-  push:
-    branches: [main]
   workflow_run:
     workflows: ['CI']
     types:
       - completed
 
-jobs:
-  deploy-backend:
-    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to Render
-        run: |
-          if [ -n "${{ secrets.RENDER_DEPLOY_HOOK }}" ]; then
-            curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
-          else
-            echo "RENDER_DEPLOY_HOOK not set, skipping manual trigger."
-            echo "Note: Render typically auto-deploys on push to main if connected to GitHub."
-          fi
+permissions:
+  contents: read
 
+env:
+  RENDER_CLI_VERSION: 2.13.0
+
+jobs:
   deploy-frontend:
-    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
     runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
-      - name: Deploy to Vercel
+      - name: Checkout deployment commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel production settings
+        working-directory: frontend
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build frontend with Vercel CLI
+        working-directory: frontend
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy frontend to Vercel
+        working-directory: frontend
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+  deploy-backend:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+    runs-on: ubuntu-latest
+    env:
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      RENDER_OUTPUT: json
+      CI: true
+    steps:
+      - name: Checkout deployment commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Install Render CLI
         run: |
-          if [ -n "${{ secrets.VERCEL_DEPLOY_HOOK }}" ]; then
-            curl -X POST ${{ secrets.VERCEL_DEPLOY_HOOK }}
-          else
-            echo "VERCEL_DEPLOY_HOOK not set, skipping manual trigger."
-            echo "Note: Vercel typically auto-deploys on push to main if connected to GitHub."
-          fi
+          curl -L https://github.com/render-oss/cli/releases/download/v${RENDER_CLI_VERSION}/cli_${RENDER_CLI_VERSION}_linux_amd64.zip -o render.zip
+          unzip render.zip
+          sudo mv cli_v${RENDER_CLI_VERSION} /usr/local/bin/render
+
+      - name: Validate Render blueprint
+        run: render blueprints validate render.yaml --output json --confirm
+
+      - name: Deploy backend to Render
+        run: |
+          render deploys create ${{ secrets.RENDER_SERVICE_ID }} \
+            --commit ${{ github.event.workflow_run.head_sha }} \
+            --wait \
+            --output json \
+            --confirm

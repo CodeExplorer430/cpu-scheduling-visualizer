@@ -59,6 +59,28 @@ We will deploy the backend as a **Docker Container** on Render. This ensures the
 
 Wait for the build to finish. Once live, copy your backend URL (e.g., `https://quantix-backend.onrender.com`).
 
+### CLI Setup
+
+For local operational tasks and GitHub Actions driven deployments, install the Render CLI:
+
+- macOS/Homebrew: `brew install render`
+- Linux/macOS installer: `curl -fsSL https://raw.githubusercontent.com/render-oss/cli/refs/heads/main/bin/install.sh | sh`
+
+Local usage:
+
+1. Run `render login`
+2. Select the correct workspace
+3. Validate the blueprint with `npm run render:validate`
+4. List services with `npm run render:services`
+5. Save the backend service ID for CI with `render services --output json --confirm`
+
+GitHub Actions secrets required for CLI deploys:
+
+- `RENDER_API_KEY`
+- `RENDER_SERVICE_ID`
+
+Disable Render's Git auto-deploy if GitHub Actions will be the single production deploy trigger.
+
 ---
 
 ## 3. Frontend Deployment (Vercel)
@@ -94,6 +116,31 @@ Vercel will build the application. If it succeeds, you will get a production URL
 If Vercel fails to resolve `@cpu-vis/shared`, you may need to override the **Build Command** to build the shared library first:
 `cd .. && npm install && npm run build --workspace=shared && cd frontend && npm run build`
 
+### CLI Setup
+
+For local and CI-driven deployments, use the Vercel CLI:
+
+1. Run `npx vercel@latest login`
+2. Link the frontend project with `npx vercel@latest link frontend`
+3. Save the generated `orgId` and `projectId` from `frontend/.vercel/project.json`
+4. Keep `.vercel/` untracked; it is local metadata only
+5. Pull project settings locally with:
+   - `npm run vercel:pull:preview`
+   - `npm run vercel:pull:prod`
+
+Local deploy commands:
+
+- Preview: `npm run deploy:frontend:preview`
+- Production: `npm run deploy:frontend:prod`
+
+GitHub Actions secrets required for CLI deploys:
+
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID`
+
+Disable Vercel's Git auto-deploy if GitHub Actions will be the single production deploy trigger.
+
 ---
 
 ## 4. Final Configuration
@@ -116,3 +163,20 @@ Now that both services are up, link them securely.
     - Open your Vercel app.
     - Try to Register/Login.
     - Run a simulation.
+
+---
+
+## 5. GitHub Actions as the Deployment Orchestrator
+
+This repository now supports CLI-driven deployments from GitHub Actions:
+
+- `.github/workflows/ci.yml` remains the quality gate
+- `.github/workflows/cd.yml` deploys only after CI succeeds for `main`
+- Frontend deploys use Vercel CLI from the `frontend/` workspace
+- Backend deploys use Render CLI against the configured `RENDER_SERVICE_ID`
+
+Recommended platform settings:
+
+- Disable Vercel production auto-deploy from Git
+- Disable Render auto-deploy from Git
+- Keep GitHub Actions as the only production deployment path
