@@ -73,11 +73,13 @@ Local usage:
 3. Validate the blueprint with `npm run render:validate`
 4. List services with `npm run render:services`
 5. Save the backend service ID for CI with `render services --output json --confirm`
+6. Save the Render workspace ID for CI and local validation
 
 GitHub Actions secrets required for CLI deploys:
 
 - `RENDER_API_KEY`
 - `RENDER_SERVICE_ID`
+- `RENDER_WORKSPACE_ID`
 
 Disable Render's Git auto-deploy if GitHub Actions will be the single production deploy trigger.
 
@@ -134,6 +136,7 @@ Local deploy commands:
 - Production: `npm run deploy:frontend:prod`
 
 For GitHub Actions and local CLI deploys, the Vercel build is performed remotely on Vercel by `vercel deploy`. This avoids local `vercel build` issues in CI runners and keeps the CLI as the deployment trigger rather than the build executor.
+The repo helper scripts run from the repository root and read `frontend/.vercel/project.json` automatically for local `orgId` and `projectId` when those environment variables are not already exported.
 
 GitHub Actions secrets required for CLI deploys:
 

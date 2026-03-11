@@ -6,4 +6,10 @@ if ! command -v render >/dev/null 2>&1; then
   exit 1
 fi
 
-render blueprints validate render.yaml --output json --confirm
+args=(blueprints validate render.yaml --output json --confirm)
+
+if [ -n "${RENDER_WORKSPACE_ID:-}" ]; then
+  args+=(--workspace "$RENDER_WORKSPACE_ID")
+fi
+
+render "${args[@]}"

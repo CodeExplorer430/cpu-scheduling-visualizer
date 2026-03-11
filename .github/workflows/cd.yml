@@ -38,11 +38,9 @@ jobs:
         run: npm install --global vercel@latest
 
       - name: Pull Vercel production settings
-        working-directory: frontend
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy frontend to Vercel
-        working-directory: frontend
         run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
 
   deploy-backend:
@@ -50,6 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      RENDER_WORKSPACE_ID: ${{ secrets.RENDER_WORKSPACE_ID }}
       RENDER_OUTPUT: json
       CI: true
     steps:
@@ -66,7 +65,7 @@ jobs:
           sudo install "$tmpdir/cli_v${RENDER_CLI_VERSION}" /usr/local/bin/render
 
       - name: Validate Render blueprint
-        run: render blueprints validate render.yaml --output json --confirm
+        run: render blueprints validate render.yaml --workspace ${{ secrets.RENDER_WORKSPACE_ID }} --output json --confirm
 
       - name: Deploy backend to Render
         run: |
